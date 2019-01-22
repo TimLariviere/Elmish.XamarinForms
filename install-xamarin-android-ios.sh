@@ -1,5 +1,6 @@
-XAMARIN_IOS_VERSION=11.10.1.178
+XAMARIN_IOS_VERSION=12.3.1.28
 XAMARIN_ANDROID_VERSION=8.3.0-19
+XAMARIN_MAC_VERSION=5.3.1.28
 
 installpkg() {
     sudo installer -pkg $1 -target /
@@ -21,3 +22,7 @@ installpkg xamarin.ios-$XAMARIN_IOS_VERSION.pkg > installpkg.xamarin.ios.log
 # install Xamarin.Android
 wget https://dl.xamarin.com/MonoforAndroid/Mac/xamarin.android-$XAMARIN_ANDROID_VERSION.pkg
 installpkg xamarin.android-$XAMARIN_ANDROID_VERSION.pkg > installpkg.xamarin.android.log
+
+# install Xamarin.Mac
+wget https://dl.xamarin.com/XamarinforMac/Mac/xamarin.mac-$XAMARIN_MAC_VERSION.pkg
+installpkg xamarin.mac-$XAMARIN_MAC_VERSION.pkg > installpkg.xamarin.mac.log
