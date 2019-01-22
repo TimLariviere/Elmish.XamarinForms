@@ -24,5 +24,5 @@ wget https://dl.xamarin.com/MonoforAndroid/Mac/xamarin.android-$XAMARIN_ANDROID_
 installpkg xamarin.android-$XAMARIN_ANDROID_VERSION.pkg > installpkg.xamarin.android.log
 
 # install Xamarin.Mac
-wget https://dl.xamarin.com/MonoTouch/Mac/xamarin.mac-$XAMARIN_MAC_VERSION.pkg
+wget https://dl.xamarin.com/XamarinforMac/Mac/xamarin.mac-$XAMARIN_MAC_VERSION.pkg
 installpkg xamarin.mac-$XAMARIN_MAC_VERSION.pkg > installpkg.xamarin.mac.log
