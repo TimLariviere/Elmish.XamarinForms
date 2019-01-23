@@ -4,6 +4,7 @@ os: osx
 osx_image: xcode10.1
 
 dotnet: 2.1.300
+jdk: oraclejdk8
 
 env:
   global:
