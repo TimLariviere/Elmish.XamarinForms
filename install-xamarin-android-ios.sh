@@ -8,6 +8,7 @@ installpkg() {
 
 # install Android SDK
 brew tap caskroom/cask
+brew cask install homebrew/cask-versions/java8
 brew cask install android-sdk
 
 mkdir ~/.android
