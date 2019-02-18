@@ -1,6 +1,7 @@
 namespace FSharpDaemon.Tests
 
 open System
+open System.IO
 open NUnit.Framework
 open FsUnit
 open FSharp.Compiler.PortaCode.Tests // for TestHelpers
@@ -26,20 +27,53 @@ type TestClass () =
         |> fun s -> s.Replace("NEWTONSOFTJSONVERSION", Versions.NewtonsoftJson)
         |> fun s -> s.Replace("XAMARINFORMSVERSION", Versions.XamarinForms)
 
-    let ElmishTestCase name code = 
+    let fixArgs name =
+        let fileName = name + ".args.txt"
+        File.ReadAllText(fileName)
+        |> (fun s ->
+            let fallbackFolderPath = Environment.GetEnvironmentVariable("DOTNET_FALLBACKFOLDER")
+            if fallbackFolderPath = null then
+                s
+            else
+                match Environment.OSVersion.Platform with
+                | PlatformID.Unix ->
+                    match Environment.OSVersion.Platform with
+                    | PlatformID.Win32NT -> s.Replace("C:/Program Files/dotnet/sdk/NuGetFallbackFolder", fallbackFolderPath)
+                    | PlatformID.Unix -> s.Replace("/usr/local/share/dotnet/sdk/NuGetFallbackFolder", fallbackFolderPath)
+                    | _ -> s
+                | _ -> s
+        )
+        |> (fun s -> File.WriteAllText(fileName, s))
+
+    let createNetStandardProjectArgs name =
+        TestHelpers.createNetStandardProjectArgs name elmishExtraRefs
+        fixArgs name
+
+    let ElmishTestCase name code =
         let directory = __SOURCE_DIRECTORY__ + "/data"
-        TestHelpers.GeneralTestCase directory name code elmishExtraRefs
+        Directory.CreateDirectory directory |> ignore
+        Environment.CurrentDirectory <- directory
+        File.WriteAllText (name + ".fs", """
+module TestCode
+""" + code)
+        createNetStandardProjectArgs name
+
+        let args = 
+            [| yield "dummy.exe"; 
+               yield "--eval"; 
+               yield "@" + name + ".args.txt" |]
+        Assert.AreEqual(0, FSharp.Compiler.PortaCode.ProcessCommandLine.ProcessCommandLine(args))
 
     [<Test>]
     member this.TestCanEvaluateCounterApp () =
         Environment.CurrentDirectory <- __SOURCE_DIRECTORY__ + "/../../Samples/CounterApp/CounterApp"
-        TestHelpers.createNetStandardProjectArgs "CounterApp"  elmishExtraRefs
+        createNetStandardProjectArgs "CounterApp"
         Assert.AreEqual(0, FSharpDaemon.Driver.main( [| "dummy.exe"; "--eval"; "@CounterApp.args.txt" |]))
 
     [<Test>]
     member this.TestCanEvaluateTicTacToeApp () =
         Environment.CurrentDirectory <- __SOURCE_DIRECTORY__ + "/../../Samples/TicTacToe/TicTacToe"
-        TestHelpers.createNetStandardProjectArgs "TicTacToe" elmishExtraRefs
+        createNetStandardProjectArgs "TicTacToe"
         Assert.AreEqual(0, FSharpDaemon.Driver.main( [| "dummy.exe"; "--eval"; "@TicTacToe.args.txt" |]))
 
     [<Test>]
