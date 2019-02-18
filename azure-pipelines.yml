@@ -98,11 +98,13 @@ jobs:
 
   - script: |
         echo install fake
+        export DOTNET_ROOT=$HOME/.dotnet/
         dotnet tool install fake-cli -g
     displayName: 'Install Fake'
 
   - script: |
         echo run build script
+        export DOTNET_ROOT=$HOME/.dotnet/
         export PATH=$PATH:/Library/Frameworks/Mono.framework/Versions/Current/Commands
         export DOTNET_FALLBACKFOLDER=/usr/share/dotnet/sdk/NuGetFallbackFolder
         mkdir -p build_output
