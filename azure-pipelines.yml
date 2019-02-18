@@ -52,6 +52,10 @@ jobs:
     vmImage: 'macOS-10.13'
   steps:
   - script: |
+        dotnet --info
+    displayName: 'dotnet info'
+
+  - script: |
         echo install fake
         export DOTNET_ROOT=$HOME/.dotnet/
         export PATH=$PATH:$HOME/.dotnet/tools:/Library/Frameworks/Mono.framework/Versions/Current/Commands
@@ -87,15 +91,17 @@ jobs:
     vmImage: 'ubuntu-16.04'
   steps:
   - script: |
+        dotnet --info
+    displayName: 'dotnet info'
+
+  - script: |
         echo install fake
-        export DOTNET_ROOT=$HOME/.dotnet/
         dotnet tool install fake-cli -g
     displayName: 'Install Fake'
 
   - script: |
         echo run build script
-        export DOTNET_ROOT=$HOME/.dotnet/
-        export PATH=$PATH:$HOME/.dotnet/tools:/Library/Frameworks/Mono.framework/Versions/Current/Commands
+        export PATH=$PATH:/Library/Frameworks/Mono.framework/Versions/Current/Commands
         mkdir -p build_output
         ./build.sh Test
     displayName: 'Build Fabulous'
