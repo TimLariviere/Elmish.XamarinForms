@@ -60,6 +60,8 @@ jobs:
 
   - script: |
         echo run build script
+        export DOTNET_ROOT=$HOME/.dotnet/
+        export PATH=$PATH:$HOME/.dotnet/tools:/Library/Frameworks/Mono.framework/Versions/Current/Commands
         mkdir -p build_output
         ./build.sh Test
     displayName: 'Build Fabulous'
@@ -87,12 +89,13 @@ jobs:
   - script: |
         echo install fake
         export DOTNET_ROOT=$HOME/.dotnet/
-        export PATH=$PATH:$HOME/.dotnet/tools:/Library/Frameworks/Mono.framework/Versions/Current/Commands
         dotnet tool install fake-cli -g
     displayName: 'Install Fake'
 
   - script: |
         echo run build script
+        export DOTNET_ROOT=$HOME/.dotnet/
+        export PATH=$PATH:$HOME/.dotnet/tools:/Library/Frameworks/Mono.framework/Versions/Current/Commands
         mkdir -p build_output
         ./build.sh Test
     displayName: 'Build Fabulous'
