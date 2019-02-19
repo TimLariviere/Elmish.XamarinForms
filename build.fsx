@@ -165,15 +165,9 @@ Target.create "BuildSamples" (fun _ ->
 )
 
 Target.create "RunTests" (fun _ ->
-    let setDotNetOptions (options: DotNet.TestOptions) =
-        { options with
-              TestAdapterPath = Some "."
-              Logger = Some "nunit"
-              ResultsDirectory = Some (Path.Combine(buildDir, "TestResults")) }
-
     let testProjects = !! "tests/**/*.fsproj"
     for testProject in testProjects do
-        DotNet.test setDotNetOptions testProject
+        DotNet.test id testProject
 )
 
 Target.create "RunSamplesTests" (fun _ ->

@@ -32,11 +32,6 @@ jobs:
       ./build.cmd
     displayName: 'Build Fabulous'
 
-  - task: PublishTestResults@1
-    inputs:
-      testResultsFormat: 'NUnit'
-      testResultsFiles: 'build_output\TestResults\*.xml'
-
   - task: CopyFiles@2
     inputs:
       contents: build_output\*.nupkg
@@ -65,11 +60,6 @@ jobs:
       set DOTNET_FALLBACKFOLDER=C:\Program Files\dotnet\sdk\NuGetFallbackFolder
       ./build.cmd Test
     displayName: 'Build Fabulous'
-
-  - task: PublishTestResults@1
-    inputs:
-      testResultsFormat: 'NUnit'
-      testResultsFiles: 'build_output\TestResults\*.xml'
 
   - task: CopyFiles@2
     inputs:
@@ -101,11 +91,6 @@ jobs:
         ./build.sh Test
     displayName: 'Build Fabulous'
 
-  - task: PublishTestResults@1
-    inputs:
-      testResultsFormat: 'NUnit'
-      testResultsFiles: './build_output/TestResults/*.xml'
-
   - task: CopyFiles@1
     inputs:
       contents: ./build_output/*.nupkg
@@ -135,11 +120,6 @@ jobs:
         mkdir -p build_output
         ./build.sh Test
     displayName: 'Build Fabulous'
-
-  - task: PublishTestResults@1
-    inputs:
-      testResultsFormat: 'NUnit'
-      testResultsFiles: './build_output/TestResults/*.xml'
 
   - task: CopyFiles@1
     inputs:
