@@ -1,6 +1,4 @@
-NUGET
-  remote: https://www.nuget.org/api/v2
-    NunitXml.TestLogger (2.1.36)
+
 
 GROUP androidapp
 RESTRICTION: == monoandroid7.1
@@ -546,12 +544,50 @@ RESTRICTION: == netstandard2.0
 NUGET
   remote: https://api.nuget.org/v3/index.json
     FSharp.Core (4.5.2)
+    Microsoft.NETCore.Platforms (2.2)
+    Microsoft.NETCore.Targets (2.1)
     Newtonsoft.Json (11.0.2)
     OxyPlot.Core (2.0.0-unstable0956)
     SkiaSharp (1.68)
     SkiaSharp.Views.Forms (1.68)
       SkiaSharp (>= 1.68)
       Xamarin.Forms (>= 3.3.0.912540)
+    System.IO (4.3)
+      Microsoft.NETCore.Platforms (>= 1.1)
+      Microsoft.NETCore.Targets (>= 1.1)
+      System.Runtime (>= 4.3)
+      System.Text.Encoding (>= 4.3)
+      System.Threading.Tasks (>= 4.3)
+    System.Reflection (4.3)
+      Microsoft.NETCore.Platforms (>= 1.1)
+      Microsoft.NETCore.Targets (>= 1.1)
+      System.IO (>= 4.3)
+      System.Reflection.Primitives (>= 4.3)
+      System.Runtime (>= 4.3)
+    System.Reflection.Emit.ILGeneration (4.3)
+      System.Reflection (>= 4.3)
+      System.Reflection.Primitives (>= 4.3)
+      System.Runtime (>= 4.3)
+    System.Reflection.Emit.Lightweight (4.3)
+      System.Reflection (>= 4.3)
+      System.Reflection.Emit.ILGeneration (>= 4.3)
+      System.Reflection.Primitives (>= 4.3)
+      System.Runtime (>= 4.3)
+    System.Reflection.Primitives (4.3)
+      Microsoft.NETCore.Platforms (>= 1.1)
+      Microsoft.NETCore.Targets (>= 1.1)
+      System.Runtime (>= 4.3)
+    System.Runtime (4.3.1)
+      Microsoft.NETCore.Platforms (>= 1.1.1)
+      Microsoft.NETCore.Targets (>= 1.1.3)
+    System.Text.Encoding (4.3)
+      Microsoft.NETCore.Platforms (>= 1.1)
+      Microsoft.NETCore.Targets (>= 1.1)
+      System.Runtime (>= 4.3)
+    System.Threading.Tasks (4.3)
+      Microsoft.NETCore.Platforms (>= 1.1)
+      Microsoft.NETCore.Targets (>= 1.1)
+      System.Runtime (>= 4.3)
     Xamarin.Forms (3.4.0.1009999)
     Xamarin.Forms.Maps (3.4.0.1009999)
       Xamarin.Forms (>= 3.4.0.1009999)
@@ -566,7 +602,6 @@ GITHUB
     src/Interpreter.fs (a21e622bca42dd58e186c32f9be0505335f3c4a7)
     src/ProcessCommandLine.fs (a21e622bca42dd58e186c32f9be0505335f3c4a7)
     src/ProjectCracker.fs (a21e622bca42dd58e186c32f9be0505335f3c4a7)
-    tests/PortaCodeTests.fs (a21e622bca42dd58e186c32f9be0505335f3c4a7)
 GROUP wpfapp
 RESTRICTION: == net472
 NUGET

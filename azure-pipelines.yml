@@ -28,7 +28,6 @@ jobs:
       echo run build script
       mkdir -p build_output
       set PATH=%PATH%;C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\
-      set DOTNET_FALLBACKFOLDER=C:\Program Files\dotnet\sdk\NuGetFallbackFolder
       ./build.cmd
     displayName: 'Build Fabulous'
 
@@ -57,7 +56,6 @@ jobs:
       echo run build script
       mkdir -p build_output
       set PATH=%PATH%;C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\
-      set DOTNET_FALLBACKFOLDER=C:\Program Files\dotnet\sdk\NuGetFallbackFolder
       ./build.cmd Test
     displayName: 'Build Fabulous'
 
@@ -86,7 +84,6 @@ jobs:
         echo run build script
         export DOTNET_ROOT=$HOME/.dotnet/
         export PATH=$PATH:$HOME/.dotnet/tools:/Library/Frameworks/Mono.framework/Versions/Current/Commands
-        export DOTNET_FALLBACKFOLDER=/Users/vsts/.dotnet/sdk/NuGetFallbackFolder
         mkdir -p build_output
         ./build.sh Test
     displayName: 'Build Fabulous'
@@ -116,7 +113,6 @@ jobs:
         echo run build script
         export DOTNET_ROOT=$HOME/.dotnet/
         export PATH=$PATH:$HOME/.dotnet/tools:/Library/Frameworks/Mono.framework/Versions/Current/Commands
-        export DOTNET_FALLBACKFOLDER=/usr/share/dotnet/sdk/NuGetFallbackFolder
         mkdir -p build_output
         ./build.sh Test
     displayName: 'Build Fabulous'
