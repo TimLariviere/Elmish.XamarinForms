@@ -168,7 +168,7 @@ Target.create "RunTests" (fun _ ->
     let setDotNetOptions (options: DotNet.TestOptions) =
         { options with
               TestAdapterPath = Some "."
-              Logger = Some "trx"
+              Logger = Some "xml"
               ResultsDirectory = Some (Path.Combine(buildDir, "TestResults")) }
 
     let testProjects = !! "tests/**/*.fsproj"

@@ -13,6 +13,40 @@ pr:
     - docs/*
 
 jobs:
+- job: Windows (no samples / templates)
+  displayName: Windows
+  pool:
+    vmImage: 'vs2017-win2016'
+  steps:
+  - script: |
+      echo Install fake-cli and GTK#
+      dotnet tool install --tool-path . fake-cli 
+      choco install gtksharp
+    displayName: 'Install Fake and GTK#'
+
+  - script: |  
+      echo run build script
+      mkdir -p build_output
+      set PATH=%PATH%;C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\
+      set DOTNET_FALLBACKFOLDER=C:\Program Files\dotnet\sdk\NuGetFallbackFolder
+      ./build.cmd
+    displayName: 'Build Fabulous'
+
+  - task: PublishTestResults@1
+    inputs:
+      testResultsFormat: 'NUnit'
+      testResultsFiles: 'build_output\TestResults\*.trx'
+
+  - task: CopyFiles@2
+    inputs:
+      contents: build_output\*.nupkg
+      targetFolder: $(Build.ArtifactStagingDirectory)
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: $(Build.ArtifactStagingDirectory)
+      artifactName: Windows-FabulousBuildOutputs
+
 - job: Windows
   displayName: Windows
   pool:
@@ -34,8 +68,8 @@ jobs:
 
   - task: PublishTestResults@1
     inputs:
-      testResultsFormat: 'NUnit'
-      testResultsFiles: 'build_output\TestResults\*.trx'
+      testResultsFormat: 'NUnit 3'
+      testResultsFiles: 'build_output\TestResults\*.xml'
 
   - task: CopyFiles@2
     inputs:
@@ -53,13 +87,8 @@ jobs:
     vmImage: 'macOS-10.13'
   steps:
   - script: |
-        dotnet --info
-    displayName: 'dotnet info'
-
-  - script: |
         echo install fake
         export DOTNET_ROOT=$HOME/.dotnet/
-        export PATH=$PATH:$HOME/.dotnet/tools:/Library/Frameworks/Mono.framework/Versions/Current/Commands
         dotnet tool install fake-cli -g
     displayName: 'Install Fake'
 
@@ -92,10 +121,6 @@ jobs:
   pool:
     vmImage: 'ubuntu-16.04'
   steps:
-  - script: |
-        dotnet --info
-    displayName: 'dotnet info'
-
   - script: |
         echo install fake
         export DOTNET_ROOT=$HOME/.dotnet/
