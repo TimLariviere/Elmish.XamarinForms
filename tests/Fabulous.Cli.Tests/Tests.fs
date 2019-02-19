@@ -31,17 +31,13 @@ type TestClass () =
         let fileName = name + ".args.txt"
         File.ReadAllText(fileName)
         |> (fun s ->
-            let fallbackFolderPath = Environment.GetEnvironmentVariable("DOTNET_FALLBACKFOLDER")
-            if fallbackFolderPath = null then
-                s
-            else
+            match Environment.OSVersion.Platform with
+            | PlatformID.Unix ->
                 match Environment.OSVersion.Platform with
-                | PlatformID.Unix ->
-                    match Environment.OSVersion.Platform with
-                    | PlatformID.Win32NT -> s.Replace("C:/Program Files/dotnet/sdk/NuGetFallbackFolder", fallbackFolderPath)
-                    | PlatformID.Unix -> s.Replace("/usr/local/share/dotnet/sdk/NuGetFallbackFolder", fallbackFolderPath)
-                    | _ -> s
+                | PlatformID.Win32NT -> s
+                | PlatformID.Unix -> s.Replace("/usr/local/share/dotnet/sdk/NuGetFallbackFolder", "/Users/vsts/.nuget/packages")
                 | _ -> s
+            | _ -> s
         )
         |> (fun s -> File.WriteAllText(fileName, s))
 
