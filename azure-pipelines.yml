@@ -34,7 +34,7 @@ jobs:
 
   - task: PublishTestResults@1
     inputs:
-      testResultsFormat: 'NUnit'
+      testResultsFormat: 'VSTest'
       testResultsFiles: 'build_output\TestResults\*.trx'
 
   - task: CopyFiles@2
@@ -68,7 +68,7 @@ jobs:
 
   - task: PublishTestResults@1
     inputs:
-      testResultsFormat: 'NUnit 3'
+      testResultsFormat: 'VSTest'
       testResultsFiles: 'build_output\TestResults\*.xml'
 
   - task: CopyFiles@2
@@ -103,7 +103,7 @@ jobs:
 
   - task: PublishTestResults@1
     inputs:
-      testResultsFormat: 'NUnit'
+      testResultsFormat: 'VSTest'
       testResultsFiles: './build_output/TestResults/*.trx'
 
   - task: CopyFiles@1
@@ -138,7 +138,7 @@ jobs:
 
   - task: PublishTestResults@1
     inputs:
-      testResultsFormat: 'NUnit'
+      testResultsFormat: 'VSTest'
       testResultsFiles: './build_output/TestResults/*.trx'
 
   - task: CopyFiles@1
