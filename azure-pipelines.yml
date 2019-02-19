@@ -105,13 +105,13 @@ jobs:
   steps:
   - script: |
         echo install fake
-        export DOTNET_ROOT=/usr/share/dotnet/sdk
+        export DOTNET_ROOT=/usr/share/dotnet
         dotnet tool install fake-cli -g
     displayName: 'Install Fake'
 
   - script: |
         echo run build script
-        export DOTNET_ROOT=/usr/share/dotnet/sdk
+        export DOTNET_ROOT=/usr/share/dotnet
         export PATH=$PATH:$HOME/.dotnet/tools:/Library/Frameworks/Mono.framework/Versions/Current/Commands
         mkdir -p build_output
         ./build.sh Test
