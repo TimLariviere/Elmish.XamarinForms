@@ -1,5 +1,5 @@
 ﻿// Copyright 2018 Fabulous contributors. See LICENSE.md for license.
-namespace FSharpDaemon.Tests
+namespace Fabulous.Cli.Tests
 
 module Program =
     [<EntryPoint>]

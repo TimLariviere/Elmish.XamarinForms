@@ -139,16 +139,26 @@ Target.create "UpdateVersion" (fun _ ->
         |> File.writeString false template
 )
 
-Target.create "BuildControls" (fun _ ->
-    controls |> buildProject
+Target.create "BuildTools" (fun _ ->
+    let setParams (name: string) (options: DotNet.BuildOptions) =
+        { options with OutputPath = Some (Path.Combine(buildDir, "dlls/tools/" + name + "/")) }
+
+    for tool in !!"tools/**/*.fsproj" do
+        let name = tool.Remove(tool.IndexOf(".fsproj"))
+        let name2 = name.Substring(name.LastIndexOf("\\") + 1)
+        DotNet.build (setParams name2) tool
 )
 
-Target.create "BuildTools" (fun _ ->
-    tools |> buildProject
+Target.create "BuildControls" (fun _ ->
+    let setParams (options: DotNet.BuildOptions) =
+        { options with OutputPath = Some (Path.Combine(buildDir, "dlls/Fabulous.CustomControls/")) }
+
+    DotNet.build setParams "src/Fabulous.CustomControls/Fabulous.CustomControls.fsproj"
 )
 
 Target.create "RunGenerator" (fun _ ->
-    DotNet.exec id (tools.OutputPath + "/Generator/Generator.dll") "tools/Generator/Xamarin.Forms.Core.json src/Fabulous.Core/Xamarin.Forms.Core.fs"
+    let path = Path.Combine(buildDir, "dlls/tools/Generator/Generator.dll")
+    DotNet.exec id path "tools/Generator/Xamarin.Forms.Core.json src/Fabulous.Core/Xamarin.Forms.Core.fs"
     |> (fun x ->
         match x.OK with
         | true -> ()
@@ -157,17 +167,33 @@ Target.create "RunGenerator" (fun _ ->
 )
 
 Target.create "BuildFabulous" (fun _ -> 
-    projects |> List.iter buildProject
+    let setParams (name: string) (options: DotNet.BuildOptions) =
+        { options with OutputPath = Some (Path.Combine(buildDir, "dlls/" + name + "/")) }
+
+    for project in !!"src/**/*.fsproj" -- "src/Fabulous.CustomControls/Fabulous.CustomControls.fsproj" do
+        let name = project.Remove(project.IndexOf(".fsproj"))
+        let name2 = name.Substring(name.LastIndexOf("\\") + 1)
+        DotNet.build (setParams name2) project
 )
 
-Target.create "BuildSamples" (fun _ ->
-    samples |> buildProject
+Target.create "BuildExtensions" (fun _ -> 
+    let setParams (name: string) (options: DotNet.BuildOptions) =
+        { options with OutputPath = Some (Path.Combine(buildDir, "dlls/extensions/" + name + "/")) }
+
+    for project in !!"extensions/**/*.fsproj" do
+        let name = project.Remove(project.IndexOf(".fsproj"))
+        let name2 = name.Substring(name.LastIndexOf("\\") + 1)
+        DotNet.build (setParams name2) project
 )
 
 Target.create "RunTests" (fun _ ->
     let testProjects = !! "tests/**/*.fsproj"
     for testProject in testProjects do
         DotNet.test id testProject
+)
+
+Target.create "BuildSamples" (fun _ ->
+    samples |> buildProject
 )
 
 Target.create "RunSamplesTests" (fun _ ->
@@ -216,6 +242,9 @@ Target.create "TestTemplatesNuGet" (fun _ ->
 
 Target.create "Build" ignore
 Target.create "Test" ignore
+Target.create "PackFabulous" ignore
+Target.create "PackExtensions" ignore
+Target.create "Pack" ignore
 
 open Fake.Core.TargetOperators
 
@@ -227,6 +256,7 @@ open Fake.Core.TargetOperators
   ==> "BuildControls"
   ==> "RunGenerator"
   ==> "BuildFabulous"
+  ==> "BuildExtensions"
   ==> "RunTests"
   ==> "Build"
 
@@ -235,5 +265,10 @@ open Fake.Core.TargetOperators
   ==> "BuildSamples"
   ==> "RunSamplesTests"
   ==> "Test"
+
+"Test"
+  ==> "PackFabulous"
+  ==> "PackExtensions"
+  ==> "Pack"
 
 Target.runOrDefault "Build"

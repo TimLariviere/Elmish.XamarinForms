@@ -1,7 +1,7 @@
-namespace FSharpDaemon.Tests
+// Copyright 2018 Fabulous contributors. See LICENSE.md for license.
+namespace Fabulous.Cli.Tests
 
 open System
-open System.IO
 open NUnit.Framework
 open FsUnit
 open TestHelpers
