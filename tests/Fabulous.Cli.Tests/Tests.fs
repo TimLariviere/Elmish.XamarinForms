@@ -41,8 +41,8 @@ type TestClass () =
         )
         
         |> (fun s ->
-            s.Replace("/Users/vsts/.nuget/packages/system.reflection.emit.ilgeneration/4.3.0/ref/netstandard1.0/System.Reflection.Emit.ILGeneration.dll", "/Users/vsts/.nuget/packages/microsoft.netcore.app/2.1.0/ref/netcoreapp2.1/System.Reflection.Emit.ILGeneration.dll")
-             .Replace("/Users/vsts/.nuget/packages/system.reflection.emit.lightweight/4.3.0/ref/netstandard1.0/System.Reflection.Emit.Lightweight.dll", "/Users/vsts/.nuget/packages/microsoft.netcore.app/2.1.0/ref/netcoreapp2.1/System.Reflection.Emit.Lightweight.dll")
+            s.Replace("/Users/vsts/.nuget/packages/system.reflection.emit.ilgeneration/4.3.0/ref/netstandard1.0/System.Reflection.Emit.ILGeneration.dll", "/usr/local/share/dotnet/sdk/NuGetFallbackFolder/system.reflection.emit.ilgeneration/4.3.0/ref/netstandard1.0/System.Reflection.Emit.ILGeneration.dll")
+             .Replace("/Users/vsts/.nuget/packages/system.reflection.emit.lightweight/4.3.0/ref/netstandard1.0/System.Reflection.Emit.Lightweight.dll", "/usr/local/share/dotnet/sdk/NuGetFallbackFolder/system.reflection.emit.lightweight/4.3.0/ref/netstandard1.0/System.Reflection.Emit.Lightweight.dll")
         )
         |> (fun s -> File.WriteAllText(fileName, s))
 
