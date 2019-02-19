@@ -269,9 +269,4 @@ open Fake.Core.TargetOperators
   ==> "TestTemplatesNuGet"
   ==> "Test"
 
-"Test"
-  ==> "PackFabulous"
-  ==> "PackExtensions"
-  ==> "Pack"
-
 Target.runOrDefault "Build"
