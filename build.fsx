@@ -157,7 +157,7 @@ Target.create "BuildControls" (fun _ ->
 )
 
 Target.create "RunGenerator" (fun _ ->
-    let path = Path.Combine(buildDir, "dlls/tools/Generator/Generator.dll")
+    let path = "./build_output/dlls/tools/Generator/Generator.dll"
     DotNet.exec id path "tools/Generator/Xamarin.Forms.Core.json src/Fabulous.Core/Xamarin.Forms.Core.fs"
     |> (fun x ->
         match x.OK with
@@ -261,9 +261,12 @@ open Fake.Core.TargetOperators
   ==> "Build"
 
 "Build"
-  ==> "TestTemplatesNuGet"
   ==> "BuildSamples"
   ==> "RunSamplesTests"
+  ==> "PackFabulous"
+  ==> "PackExtensions"
+  ==> "Pack"
+  ==> "TestTemplatesNuGet"
   ==> "Test"
 
 "Test"

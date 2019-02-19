@@ -13,36 +13,22 @@ pr:
     - docs/*
 
 jobs:
-- job: Windows_fast
-  displayName: 'Windows (fast)'
+- job: Windows_BuildOnly
+  displayName: 'Windows (Build only)'
   pool:
     vmImage: 'vs2017-win2016'
   steps:
   - script: |
-      echo Install fake-cli and GTK#
-      dotnet tool install --tool-path . fake-cli 
-      choco install gtksharp
-    displayName: 'Install Fake and GTK#'
+      dotnet tool install --tool-path . fake-cli
+    displayName: 'Install Fake'
 
-  - script: |  
-      echo run build script
-      mkdir -p build_output
+  - script: |
       set PATH=%PATH%;C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\
       ./build.cmd
     displayName: 'Build Fabulous'
 
-  - task: CopyFiles@2
-    inputs:
-      contents: build_output\*.nupkg
-      targetFolder: $(Build.ArtifactStagingDirectory)
-
-  - task: PublishBuildArtifacts@1
-    inputs:
-      pathtoPublish: $(Build.ArtifactStagingDirectory)
-      artifactName: Windows-FabulousBuildOutputs
-
 - job: Windows
-  displayName: Windows
+  displayName: 'Windows (Complete)'
   pool:
     vmImage: 'vs2017-win2016'
   steps:
@@ -70,7 +56,7 @@ jobs:
       artifactName: Windows-FabulousBuildOutputs
 
 - job: macOS
-  displayName: macOS
+  displayName: 'macOS (Complete)'
   pool:
     vmImage: 'macOS-10.13'
   steps:
@@ -99,7 +85,7 @@ jobs:
       artifactName: macOS-FabulousBuildOutputs
 
 - job: Linux
-  displayName: Linux
+  displayName: 'Linux (Complete)'
   pool:
     vmImage: 'ubuntu-16.04'
   steps:
