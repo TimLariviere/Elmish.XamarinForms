@@ -35,7 +35,7 @@ jobs:
   - task: PublishTestResults@1
     inputs:
       testResultsFormat: 'NUnit'
-      testResultsFiles: 'build_output\TestResults\*.xml'
+      testResultsFiles: 'build_output\TestResults\*.trx'
 
   - task: CopyFiles@2
     inputs:
@@ -75,7 +75,7 @@ jobs:
   - task: PublishTestResults@1
     inputs:
       testResultsFormat: 'NUnit'
-      testResultsFiles: './build_output/TestResults/*.xml'
+      testResultsFiles: './build_output/TestResults/*.trx'
 
   - task: CopyFiles@1
     inputs:
@@ -113,8 +113,8 @@ jobs:
 
   - task: PublishTestResults@1
     inputs:
-      testResultsFormat: 'NUnit' # Options: JUnit, NUnit, VSTest, xUnit
-      testResultsFiles: './build_output/TestResults/*.xml'
+      testResultsFormat: 'NUnit'
+      testResultsFiles: './build_output/TestResults/*.trx'
 
   - task: CopyFiles@1
     inputs:
