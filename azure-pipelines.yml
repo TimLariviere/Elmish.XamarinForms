@@ -13,7 +13,7 @@ pr:
     - docs/*
 
 jobs:
-- job: Windows fast
+- job: Windows_fast
   displayName: Windows
   pool:
     vmImage: 'vs2017-win2016'
