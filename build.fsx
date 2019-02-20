@@ -245,12 +245,14 @@ Target.create "PackExtensions" (fun _ ->
 )
 
 Target.create "PackTemplates" (fun _ ->
-    let setParams (options: DotNet.PackOptions) =
-        { options with OutputPath = Some buildDir }
-
     let nuspecs = !!"templates/**/*.nuspec"
     for nuspec in nuspecs do
-        DotNet.pack setParams nuspec
+        NuGet.NuGetPack (fun opt ->
+            { opt with
+                WorkingDir = "templates"
+                OutputPath = buildDir
+                Version = release.NugetVersion
+                ReleaseNotes = (String.toLines release.Notes) }) nuspec
 )
 
 Target.create "Prepare" ignore
