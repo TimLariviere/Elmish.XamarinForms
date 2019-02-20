@@ -110,10 +110,10 @@ Target.create "Restore" (fun _ ->
 
 Target.create "FormatBindings" (fun _ ->
     for binding in !! "tools/Generator/*.json" do
-        File.ReadAllText binding
+        File.readAsString binding
         |> JToken.Parse
         |> (fun token -> token.ToString(Formatting.Indented))
-        |> (fun json -> File.WriteAllText(binding, json))
+        |> File.writeString false binding
 )
 
 Target.create "UpdateVersion" (fun _ ->
@@ -140,23 +140,17 @@ Target.create "UpdateVersion" (fun _ ->
 )
 
 Target.create "BuildTools" (fun _ ->
-    let setParams (options: DotNet.BuildOptions) =
-        { options with OutputPath = Some (Path.Combine(buildDir, "dlls/tools/Generator/")) }
-
-    for tool in !!"tools/**/*.fsproj" do
-        DotNet.build setParams tool
+    let toolProjects = !!"tools/**/*.fsproj"
+    for tool in toolProjects do
+        DotNet.build id tool
 )
 
 Target.create "BuildControls" (fun _ ->
-    let setParams (options: DotNet.BuildOptions) =
-        { options with OutputPath = Some (Path.Combine(buildDir, "dlls/Fabulous.CustomControls/")) }
-
-    DotNet.build setParams "src/Fabulous.CustomControls/Fabulous.CustomControls.fsproj"
+    DotNet.build id "src/Fabulous.CustomControls/Fabulous.CustomControls.fsproj"
 )
 
 Target.create "RunGenerator" (fun _ ->
-    let path = "build_output/dlls/tools/Generator/Generator.dll"
-    DotNet.exec id path " tools/Generator/Xamarin.Forms.Core.json src/Fabulous.Core/Xamarin.Forms.Core.fs"
+    DotNet.exec id "tools/Generator/bin/Release/netcoreapp2.1/Generator.dll" " tools/Generator/Xamarin.Forms.Core.json src/Fabulous.Core/Xamarin.Forms.Core.fs"
     |> (fun x ->
         match x.OK with
         | true -> ()
@@ -164,24 +158,18 @@ Target.create "RunGenerator" (fun _ ->
     )
 )
 
-Target.create "BuildFabulous" (fun _ -> 
-    let setParams (name: string) (options: DotNet.BuildOptions) =
-        { options with OutputPath = Some (Path.Combine(buildDir, "dlls/" + name + "/")) }
+Target.create "BuildFabulous" (fun _ ->
+    let projects = !!"src/**/*.fsproj"
+                   -- "src/Fabulous.CustomControls/Fabulous.CustomControls.fsproj"
 
-    for project in !!"src/**/*.fsproj" -- "src/Fabulous.CustomControls/Fabulous.CustomControls.fsproj" do
-        let name = project.Remove(project.IndexOf(".fsproj"))
-        let name2 = name.Substring(name.LastIndexOf("\\") + 1)
-        DotNet.build (setParams name2) project
+    for project in projects do
+        DotNet.build id project
 )
 
-Target.create "BuildExtensions" (fun _ -> 
-    let setParams (name: string) (options: DotNet.BuildOptions) =
-        { options with OutputPath = Some (Path.Combine(buildDir, "dlls/extensions/" + name + "/")) }
-
-    for project in !!"extensions/**/*.fsproj" do
-        let name = project.Remove(project.IndexOf(".fsproj"))
-        let name2 = name.Substring(name.LastIndexOf("\\") + 1)
-        DotNet.build (setParams name2) project
+Target.create "BuildExtensions" (fun _ ->
+    let extensionsProjects = !!"extensions/**/*.fsproj"
+    for project in extensionsProjects do
+        DotNet.build id project
 )
 
 Target.create "RunTests" (fun _ ->
@@ -238,11 +226,28 @@ Target.create "TestTemplatesNuGet" (fun _ ->
             if code <> 0 then failwithf "%s %s failed, error code %d" "msbuild" args code
 )
 
-Target.create "Build" ignore
-Target.create "Test" ignore
-Target.create "PackFabulous" ignore
-Target.create "PackExtensions" ignore
+Target.create "PackFabulous" (fun _ ->
+    let setParams (options: DotNet.PackOptions) =
+        { options with OutputPath = Some buildDir }
+
+    let projects = !!"src/**/*.fsproj"
+    for project in projects do
+        DotNet.pack setParams project
+)
+
+Target.create "PackExtensions" (fun _ ->
+    let setParams (options: DotNet.PackOptions) =
+        { options with OutputPath = Some buildDir }
+
+    let projects = !!"extensions/**/*.fsproj"
+    for project in projects do
+        DotNet.pack setParams project
+)
+
+Target.create "Main" ignore
+Target.create "Samples" ignore
 Target.create "Pack" ignore
+Target.create "Full" ignore
 
 open Fake.Core.TargetOperators
 
@@ -256,15 +261,20 @@ open Fake.Core.TargetOperators
   ==> "BuildFabulous"
   ==> "BuildExtensions"
   ==> "RunTests"
-  ==> "Build"
+  ==> "Main"
 
 "Build"
   ==> "BuildSamples"
   ==> "RunSamplesTests"
+  ==> "Samples"
+
+"Samples"
   ==> "PackFabulous"
   ==> "PackExtensions"
   ==> "Pack"
+
+"Pack"
   ==> "TestTemplatesNuGet"
-  ==> "Test"
+  ==> "Full"
 
 Target.runOrDefault "Build"
