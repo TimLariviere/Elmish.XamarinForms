@@ -42,7 +42,7 @@ jobs:
       echo run build script
       mkdir -p build_output
       set PATH=%PATH%;C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\
-      ./build.cmd Test
+      ./build.cmd Full
     displayName: 'Build Fabulous'
 
   - task: CopyFiles@2
@@ -71,7 +71,7 @@ jobs:
         export DOTNET_ROOT=$HOME/.dotnet/
         export PATH=$PATH:$HOME/.dotnet/tools:/Library/Frameworks/Mono.framework/Versions/Current/Commands
         mkdir -p build_output
-        ./build.sh Test
+        ./build.sh Full
     displayName: 'Build Fabulous'
 
   - task: CopyFiles@1
@@ -100,7 +100,7 @@ jobs:
         export DOTNET_ROOT=/usr/share/dotnet
         export PATH=$PATH:$HOME/.dotnet/tools:/Library/Frameworks/Mono.framework/Versions/Current/Commands
         mkdir -p build_output
-        ./build.sh Test
+        ./build.sh Full
     displayName: 'Build Fabulous'
 
   - task: CopyFiles@1
