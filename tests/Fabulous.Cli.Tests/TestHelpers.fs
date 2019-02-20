@@ -174,8 +174,10 @@ PROJ.fs"""
                                                   match Environment.OSVersion.Platform with
                                                   | PlatformID.Win32NT -> "C:/Program Files/dotnet/sdk/NuGetFallbackFolder"
                                                   | PlatformID.Unix ->
-                                                    if Environment.CurrentDirectory.Contains("/vsts/") then
+                                                    if Environment.CurrentDirectory.StartsWith("/Users/vsts/") then
                                                         "/Users/vsts/.nuget/packages"
+                                                    else if Environment.CurrentDirectory.StartsWith("/home/vsts/") then
+                                                        "/home/vsts/.nuget/packages"
                                                     else            
                                                         "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
                                                   | platform -> failwithf "No path configured for NuGetFallbackFolder on %A" platform
