@@ -157,8 +157,8 @@ Target.create "BuildControls" (fun _ ->
 )
 
 Target.create "RunGenerator" (fun _ ->
-    let path = "./build_output/dlls/tools/Generator/Generator.dll"
-    DotNet.exec id path "tools/Generator/Xamarin.Forms.Core.json src/Fabulous.Core/Xamarin.Forms.Core.fs"
+    let path = "build_output/dlls/tools/Generator/Generator.dll"
+    DotNet.exec id "" (path + " tools/Generator/Xamarin.Forms.Core.json src/Fabulous.Core/Xamarin.Forms.Core.fs")
     |> (fun x ->
         match x.OK with
         | true -> ()
