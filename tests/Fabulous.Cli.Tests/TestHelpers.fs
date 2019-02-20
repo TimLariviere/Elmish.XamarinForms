@@ -105,8 +105,8 @@ module TestHelpers =
 -r:NUGETFALLBACKFOLDER/netstandard.library/NETSTANDARDLIBRARYVERSION/build/netstandard2.0/ref/System.Numerics.dll
 -r:NUGETFALLBACKFOLDER/netstandard.library/NETSTANDARDLIBRARYVERSION/build/netstandard2.0/ref/System.ObjectModel.dll
 -r:NUGETFALLBACKFOLDER/netstandard.library/NETSTANDARDLIBRARYVERSION/build/netstandard2.0/ref/System.Reflection.dll
--r:CWD/../../../packages/neutral/system.reflection.emit.ilgeneration/ref/netstandard1.0/System.Reflection.Emit.ILGeneration.dll
--r:CWD/../../../packages/neutral/system.reflection.emit.lightweight/ref/netstandard1.0/System.Reflection.Emit.Lightweight.dll
+-r:CWD/../../../packages/neutral/System.Reflection.Emit.ILGeneration/ref/netstandard1.0/System.Reflection.Emit.ILGeneration.dll
+-r:CWD/../../../packages/neutral/System.Reflection.Emit.Lightweight/ref/netstandard1.0/System.Reflection.Emit.Lightweight.dll
 -r:NUGETFALLBACKFOLDER/netstandard.library/NETSTANDARDLIBRARYVERSION/build/netstandard2.0/ref/System.Reflection.Extensions.dll
 -r:NUGETFALLBACKFOLDER/netstandard.library/NETSTANDARDLIBRARYVERSION/build/netstandard2.0/ref/System.Reflection.Primitives.dll
 -r:NUGETFALLBACKFOLDER/netstandard.library/NETSTANDARDLIBRARYVERSION/build/netstandard2.0/ref/System.Resources.Reader.dll
