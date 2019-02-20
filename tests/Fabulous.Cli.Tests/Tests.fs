@@ -11,13 +11,13 @@ type TestClass () =
 
     [<Test>]
     member this.TestCanEvaluateCounterApp () =
-        Environment.CurrentDirectory <- __SOURCE_DIRECTORY__ + "/../../Samples/CounterApp/CounterApp"
+        Environment.CurrentDirectory <- __SOURCE_DIRECTORY__ + "/../../samples/CounterApp/CounterApp"
         createNetStandardProjectArgs "CounterApp" elmishExtraRefs
         Assert.AreEqual(0, FSharpDaemon.Driver.main( [| "dummy.exe"; "--eval"; "@CounterApp.args.txt" |]))
 
     [<Test>]
     member this.TestCanEvaluateTicTacToeApp () =
-        Environment.CurrentDirectory <- __SOURCE_DIRECTORY__ + "/../../Samples/TicTacToe/TicTacToe"
+        Environment.CurrentDirectory <- __SOURCE_DIRECTORY__ + "/../../samples/TicTacToe/TicTacToe"
         createNetStandardProjectArgs "TicTacToe" elmishExtraRefs
         Assert.AreEqual(0, FSharpDaemon.Driver.main( [| "dummy.exe"; "--eval"; "@TicTacToe.args.txt" |]))
 
