@@ -244,6 +244,7 @@ Target.create "PackExtensions" (fun _ ->
         DotNet.pack setParams project
 )
 
+Target.create "Prepare" ignore
 Target.create "Main" ignore
 Target.create "Samples" ignore
 Target.create "Pack" ignore
@@ -251,10 +252,13 @@ Target.create "Full" ignore
 
 open Fake.Core.TargetOperators
 
+"FormatBindings"
+  ==> "UpdateVersion"
+  ==> "Prepare"
+
 "Clean"
   ==> "Restore"
-  ==> "FormatBindings"
-  ==> "UpdateVersion"
+  ==> "Prepare"
   ==> "BuildTools"
   ==> "BuildControls"
   ==> "RunGenerator"
@@ -263,7 +267,7 @@ open Fake.Core.TargetOperators
   ==> "RunTests"
   ==> "Main"
 
-"Build"
+"Main"
   ==> "BuildSamples"
   ==> "RunSamplesTests"
   ==> "Samples"
@@ -277,4 +281,4 @@ open Fake.Core.TargetOperators
   ==> "TestTemplatesNuGet"
   ==> "Full"
 
-Target.runOrDefault "Build"
+Target.runOrDefault "Main"
