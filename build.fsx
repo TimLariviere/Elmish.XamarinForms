@@ -244,6 +244,15 @@ Target.create "PackExtensions" (fun _ ->
         DotNet.pack setParams project
 )
 
+Target.create "PackTemplates" (fun _ ->
+    let setParams (options: DotNet.PackOptions) =
+        { options with OutputPath = Some buildDir }
+
+    let nuspecs = !!"templates/**/*.nuspec"
+    for nuspec in nuspecs do
+        DotNet.pack setParams nuspec
+)
+
 Target.create "Prepare" ignore
 Target.create "Main" ignore
 Target.create "Samples" ignore
@@ -275,6 +284,7 @@ open Fake.Core.TargetOperators
 "Samples"
   ==> "PackFabulous"
   ==> "PackExtensions"
+  ==> "PackTemplates"
   ==> "Pack"
 
 "Pack"
