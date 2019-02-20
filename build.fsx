@@ -140,13 +140,11 @@ Target.create "UpdateVersion" (fun _ ->
 )
 
 Target.create "BuildTools" (fun _ ->
-    let setParams (name: string) (options: DotNet.BuildOptions) =
-        { options with OutputPath = Some (Path.Combine(buildDir, "dlls/tools/" + name + "/")) }
+    let setParams (options: DotNet.BuildOptions) =
+        { options with OutputPath = Some (Path.Combine(buildDir, "dlls/tools/Generator/")) }
 
     for tool in !!"tools/**/*.fsproj" do
-        let name = tool.Remove(tool.IndexOf(".fsproj"))
-        let name2 = name.Substring(name.LastIndexOf("\\") + 1)
-        DotNet.build (setParams name2) tool
+        DotNet.build setParams tool
 )
 
 Target.create "BuildControls" (fun _ ->
@@ -158,7 +156,7 @@ Target.create "BuildControls" (fun _ ->
 
 Target.create "RunGenerator" (fun _ ->
     let path = "build_output/dlls/tools/Generator/Generator.dll"
-    DotNet.exec id "" (path + " tools/Generator/Xamarin.Forms.Core.json src/Fabulous.Core/Xamarin.Forms.Core.fs")
+    DotNet.exec id path " tools/Generator/Xamarin.Forms.Core.json src/Fabulous.Core/Xamarin.Forms.Core.fs"
     |> (fun x ->
         match x.OK with
         | true -> ()
