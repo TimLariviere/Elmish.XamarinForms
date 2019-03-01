@@ -2,9 +2,6 @@ name: full
 # Continuous integration is enabled for master
 trigger:
   batch: true
-  branches:
-    include:
-    - master
   paths:
     exclude:
     - README.md
