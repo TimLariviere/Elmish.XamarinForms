@@ -1,4 +1,4 @@
-﻿// Copyright 2018 Fabulous contributors. See LICENSE.md for license.
+﻿// Copyright 2018 Fabulous contributors. See LICENSE.md for license. Test
 
 // F# Compiler Daemon sample
 //
