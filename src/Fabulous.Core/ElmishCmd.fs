@@ -1,4 +1,4 @@
-﻿// Copyright 2018 Elmish and Fabulous contributors. See LICENSE.md for license.
+﻿// Copyright 2018 Elmish and Fabulous contributors. See LICENSE.md for license. Test
 namespace Fabulous.Core
 
 /// Dispatch - feed new message into the processing loop
