@@ -21,11 +21,6 @@ type AppDelegate () =
 
         base.FinishedLaunching(uiApp, options)
 
-    override this.ReceiveMemoryWarning(uiApp) =
-        match _app with
-        | Some app -> app.Program.Dispatch(AllControls.Msg.ReceivedLowMemoryWarning)
-        | None -> ()
-
 module Main =
     [<EntryPoint>]
     let main args =
