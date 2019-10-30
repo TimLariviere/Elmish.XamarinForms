@@ -80,7 +80,7 @@ module App =
                 View.Label()
                 View.Label()
                 View.Label()
-                View.Label() // Uncomment this line to trigger invalid IL
+                //View.Label() // Uncomment this line to trigger invalid IL
             ])
         )
 
