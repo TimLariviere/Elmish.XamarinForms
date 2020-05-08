@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\..\SourceLink.props" />
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Description>F# bindings for using declarative UI with Fabulous in Xamarin.Forms</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\Fabulous.XamarinForms.Core\InputTypes.fs" />
+    <Compile Include="..\Fabulous.XamarinForms.Core\CustomControls.fs" />
+    <Compile Include="..\Fabulous.XamarinForms.Core\ViewHelpers.fs" />
+    <Compile Include="..\Fabulous.XamarinForms.Core\Program.fs" />
+    <Compile Include="..\Fabulous.XamarinForms.Core\ViewConverters.fs" />
+    <Compile Include="..\Fabulous.XamarinForms.Core\ViewUpdaters.fs" />
+    <Compile Include="..\Fabulous.XamarinForms.Core\ViewExtensions.fs" />
+    <Compile Include="Xamarin.Forms.Core.fs" />
+    <None Include="Xamarin.Forms.Core.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FSharp.Core" />
+    <PackageReference Include="Xamarin.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Fabulous\Fabulous.fsproj" />
+  </ItemGroup>
+  <Import Project="..\..\..\Packages.targets" />
+</Project>

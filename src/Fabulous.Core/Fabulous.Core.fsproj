@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="ViewElement.fs" />
+    <Compile Include="DynamicViews\Attribute.fs" />
+    <Compile Include="DynamicViews\DynamicViewElement.fs" />
+    <Compile Include="StaticViews\StaticViewElement.fs" />
+  </ItemGroup>
+</Project>
