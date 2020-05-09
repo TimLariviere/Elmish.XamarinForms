@@ -5,4 +5,3 @@ open Fabulous
     
 type DynamicViewElement<'T>(create: unit -> 'T, attributes) =
     inherit ViewElement(typeof<'T>, (create >> box), attributes)
-    interface IViewElement<'T>

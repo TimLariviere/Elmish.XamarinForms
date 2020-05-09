@@ -33,8 +33,8 @@ module Test =
     
     let view model dispatch =
         ContentPage(
-            StackLayout([
-                Label("Hello")
+            StackLayout(children = [
+                Label(text = "Hello")
                 ListView([
                     MyCell()
                     TextCell()

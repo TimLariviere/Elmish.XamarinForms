@@ -5,11 +5,18 @@ open Fabulous.XamarinForms
 open Xamarin.Forms
 
 module StaticHelpers =
-    let setBindingContext (_, newBindingContext, target: #BindableObject) =
-        target.BindingContext <- newBindingContext
+    let setBindingContext (_, newBindingContext, target: obj) =
+        (target :?> BindableObject).BindingContext <- newBindingContext
         
-    let unsetBindingContext (target: #BindableObject) =
-        target.BindingContext <- null
+    let unsetBindingContext (target: obj) =
+        (target :?> BindableObject).BindingContext <- null
+
+  
+[<AbstractClass>]  
+type StaticPage<'T when 'T :> Page>(?bindingContext) as this =
+    inherit StaticViewElement<'T>(this.Create, StaticHelpers.setBindingContext, StaticHelpers.unsetBindingContext, bindingContext |> Option.defaultValue null)
+    interface IPage<'T>
+    abstract Create: unit -> 'T
 
   
 [<AbstractClass>]  

@@ -1,39 +1,32 @@
 namespace Fabulous.XamarinForms.DynamicViews
 
 open System.Collections.Generic
-open Fabulous.DynamicViews
+open Fabulous
 
-type IAttachedProperty<'T> =
-    inherit IProperty
-
-type IEvent<'T> =
-    inherit IEvent
-
-type IProperty<'T> =
-    inherit IProperty
-    abstract member Value: 'T
-    abstract member Set: IProperty<'T> voption * obj -> unit
+type Attribute<'T> =
+    | Property of set: ('T * obj -> unit) * unset: (obj -> unit)
+    | BindableProperty of property: Xamarin.Forms.BindableProperty
+    | CollectionProperty of set: ('T * obj -> unit) * unset: (obj -> unit) * attachedProperties: Attribute array
     
-type CollectionProperty<'T, 'U when 'T :> IEnumerable<'U>> =
-    inherit IProperty<'T>
-    abstract member AttachedProperties: IAttachedProperty<'U> array
-    
-type Property<'T>(set, unset, value: 'T) =
-    interface IProperty<'T> with
-        member x.Value = box value
-        member x.Value = value
+type EventAttribute<'T> =
+    | EventHandler of (obj -> IEvent<System.EventHandler<'T>, 'T>)
+
+module AttributeHelpers =
+    let ofAttribute (attribute: Attribute<'T>) : Attribute =
+        Attribute.Event (ignore, ignore)
         
-        member x.Set(prevOpt: IProperty voption, target: obj) =
-            let prevOpt = prevOpt |> ValueOption.map (fun p -> p :?> IProperty<'T>)
-            (x :> IProperty<'T>).Set(prevOpt, target)
-            
-        member x.Set(prevOpt: IProperty<'T> voption, target: obj) =
-            let prevValueOpt = prevOpt |> ValueOption.map (fun a -> a.Value)
-            match prevValueOpt, (x :> IProperty<'T>).Value with
-            | ValueSome prev, curr when System.Object.ReferenceEquals(prev, curr) -> ()
-            | _, curr -> set curr target
-            
-        member x.Unset(target: obj) =
-            unset target
-            
-            
+    let ofEventAttribute (attribute: EventAttribute<'T>) : Attribute =
+        Attribute.Event (ignore, ignore)
+    
+type AttributesBuilder(attribCount) =
+    let values = ResizeArray<KeyValuePair<Attribute, obj>>(capacity = attribCount)
+    
+    member x.Add(attribute: Attribute<'T>, value: 'T) =
+        values.Add(KeyValuePair(AttributeHelpers.ofAttribute attribute, box value))
+        
+    member x.Add(attribute: EventAttribute<'T>, value: 'T -> unit) =
+        values.Add(KeyValuePair(AttributeHelpers.ofEventAttribute attribute, box value))
+        
+    
+    member x.Close() =
+        [||]

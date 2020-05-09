@@ -10,9 +10,7 @@
     <Compile Include="DynamicViews\Attribute.fs" />
     <Compile Include="DynamicViews\ViewElement.fs" />
     <Compile Include="DynamicViews\View.fs" />
-    <Compile Include="DynamicViews\Test.fs" />
     <Compile Include="StaticViews\View.fs" />
-    <Compile Include="StaticViews\Test.fs" />
     <Compile Include="Test.fs" />
   </ItemGroup>
 

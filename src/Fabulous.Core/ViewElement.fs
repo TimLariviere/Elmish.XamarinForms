@@ -2,19 +2,13 @@
 namespace Fabulous
 
 open System
+open System.Collections.Generic
 
-type IAttribute = interface end
+type Attribute =
+    | Property of set: (obj voption * obj * obj -> unit) * unset: (obj -> unit)
+    | Event of subscribe: (unit -> unit) * unsubscribe: (unit -> unit)
 
-type IViewElement =
-    abstract member TargetType: Type
-    abstract member Create: unit -> obj
-    abstract member Attributes: IAttribute array
-    
-type IViewElement<'T> =
-    inherit IViewElement
-
-type ViewElement(targetType: Type, create: unit -> obj, attributes: IAttribute array) =
-    interface IViewElement with
-        member x.TargetType = targetType
-        member x.Create() = create()
-        member x.Attributes = attributes
+type ViewElement(targetType: Type, create: unit -> obj, attributes: KeyValuePair<Attribute, obj> array) =
+    member x.TargetType = targetType
+    member x.Create() = create()
+    member x.Attributes = attributes

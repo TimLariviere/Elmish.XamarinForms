@@ -1,12 +1,13 @@
 // Copyright Fabulous contributors. See LICENSE.md for license.
 namespace Fabulous.StaticViews
 
+open System.Collections.Generic
 open Fabulous
-
-type StateProperty<'T>(setState: obj voption * obj * 'T -> unit, unsetState: 'T -> unit) =
-    interface IAttribute
     
-type StaticViewElement<'T>(create: unit -> 'T, setState: obj voption * obj * 'T -> unit, unsetState: 'T -> unit, state) =
-    inherit ViewElement(typeof<'T>, (create >> box), [| StateProperty(setState, unsetState) |])
-    interface IViewElement<'T>
+type StaticViewElement<'T>(create: unit -> 'T, setState: (obj voption * obj * obj -> unit), unsetState: (obj -> unit), state) =
+    inherit ViewElement(
+        typeof<'T>,
+        (create >> box),
+        [| KeyValuePair(Property (setState, unsetState), state) |]
+    )
     member x.State = state
