@@ -5,7 +5,7 @@
   <ItemGroup>
     <Compile Include="Cmd.fs" />
     <Compile Include="ViewElement.fs" />
-    <Compile Include="DynamicViews\DynamicViewElement.fs" />
-    <Compile Include="StaticViews\StaticViewElement.fs" />
+    <Compile Include="Runner.fs" />
+    <Compile Include="Component.fs" />
   </ItemGroup>
 </Project>

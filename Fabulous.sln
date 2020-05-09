@@ -15,6 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CounterApp", "CounterApp", 
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "CounterApp", "Fabulous.XamarinForms\samples\CounterApp\CounterApp\CounterApp.fsproj", "{2042E8E1-E6A0-47A7-9A9A-495E88E8F452}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "CounterApp.iOS", "Fabulous.XamarinForms\samples\CounterApp\iOS\CounterApp.iOS.fsproj", "{F557905B-B099-44AB-939C-AB169499A36E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -64,11 +66,24 @@ Global
 		{2042E8E1-E6A0-47A7-9A9A-495E88E8F452}.Release|x64.Build.0 = Release|Any CPU
 		{2042E8E1-E6A0-47A7-9A9A-495E88E8F452}.Release|x86.ActiveCfg = Release|Any CPU
 		{2042E8E1-E6A0-47A7-9A9A-495E88E8F452}.Release|x86.Build.0 = Release|Any CPU
+		{F557905B-B099-44AB-939C-AB169499A36E}.Debug|Any CPU.ActiveCfg = Debug|iPhoneSimulator
+		{F557905B-B099-44AB-939C-AB169499A36E}.Debug|Any CPU.Build.0 = Debug|iPhoneSimulator
+		{F557905B-B099-44AB-939C-AB169499A36E}.Debug|x64.ActiveCfg = Debug|iPhoneSimulator
+		{F557905B-B099-44AB-939C-AB169499A36E}.Debug|x64.Build.0 = Debug|iPhoneSimulator
+		{F557905B-B099-44AB-939C-AB169499A36E}.Debug|x86.ActiveCfg = Debug|iPhoneSimulator
+		{F557905B-B099-44AB-939C-AB169499A36E}.Debug|x86.Build.0 = Debug|iPhoneSimulator
+		{F557905B-B099-44AB-939C-AB169499A36E}.Release|Any CPU.ActiveCfg = Release|iPhone
+		{F557905B-B099-44AB-939C-AB169499A36E}.Release|Any CPU.Build.0 = Release|iPhone
+		{F557905B-B099-44AB-939C-AB169499A36E}.Release|x64.ActiveCfg = Release|iPhone
+		{F557905B-B099-44AB-939C-AB169499A36E}.Release|x64.Build.0 = Release|iPhone
+		{F557905B-B099-44AB-939C-AB169499A36E}.Release|x86.ActiveCfg = Release|iPhone
+		{F557905B-B099-44AB-939C-AB169499A36E}.Release|x86.Build.0 = Release|iPhone
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{D9F36D30-9067-4D11-AFC8-0EEAB3CADF52} = {715E9D19-3204-4DE6-BE17-FB3FA661A50D}
 		{5F4573B6-3F7A-45D4-8883-A00B62D8FBCE} = {715E9D19-3204-4DE6-BE17-FB3FA661A50D}
 		{03CF77DA-1EB9-4FCA-980F-89C73C9F9CD8} = {5F4573B6-3F7A-45D4-8883-A00B62D8FBCE}
 		{2042E8E1-E6A0-47A7-9A9A-495E88E8F452} = {03CF77DA-1EB9-4FCA-980F-89C73C9F9CD8}
+		{F557905B-B099-44AB-939C-AB169499A36E} = {03CF77DA-1EB9-4FCA-980F-89C73C9F9CD8}
 	EndGlobalSection
 EndGlobal

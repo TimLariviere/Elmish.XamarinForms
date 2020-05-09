@@ -12,3 +12,12 @@ type ViewElement(targetType: Type, create: unit -> obj, attributes: KeyValuePair
     member x.TargetType = targetType
     member x.Create() = create()
     member x.Attributes = attributes
+    
+module DynamicViews =
+    type DynamicViewElement<'T>(create: unit -> 'T, attributes) =
+        inherit ViewElement(typeof<'T>, (create >> box), attributes)
+        
+module StaticViews =
+    type StaticViewElement<'T>(create: unit -> 'T, setState: (obj voption * obj * obj -> unit), unsetState: (obj -> unit), state) =
+        inherit ViewElement(typeof<'T>, (create >> box), [| KeyValuePair(Property (setState, unsetState), state) |])
+        member x.State = state

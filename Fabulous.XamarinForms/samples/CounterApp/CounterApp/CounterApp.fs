@@ -2,9 +2,9 @@
 namespace CounterApp
 
 open Fabulous
+open Fabulous.XamarinForms
 open Fabulous.XamarinForms.DynamicViews
 open Xamarin.Forms
-open System.Diagnostics
 
 module App = 
     type Model = 
@@ -102,16 +102,16 @@ module App =
             )
         )
              
-    let program = 
-        Program.mkProgramWithCmdMsg init update view mapCmdMsgToCmd
+    let runnerDefinition = 
+        Component.useCmdMsg init update view mapCmdMsgToCmd
 
 type CounterApp () as app = 
     inherit Application ()
 
     let runner =
-        App.program
-        |> Program.withConsoleTrace
-        |> XamarinFormsProgram.run app
+        App.runnerDefinition
+        |> Component.withConsoleTrace
+        |> Component.runAsApplication app
 
 #if DEBUG
     // Run LiveUpdate using: 
@@ -121,6 +121,8 @@ type CounterApp () as app =
 
 
 #if SAVE_MODEL_WITH_JSON
+    open System.Diagnostics
+
     let modelId = "model"
     override __.OnSleep() = 
 

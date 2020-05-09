@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,6 +10,7 @@
     <Compile Include="DynamicViews\ViewElement.fs" />
     <Compile Include="DynamicViews\View.fs" />
     <Compile Include="StaticViews\View.fs" />
+    <Compile Include="Component.fs" />
     <Compile Include="Test.fs" />
   </ItemGroup>
 
