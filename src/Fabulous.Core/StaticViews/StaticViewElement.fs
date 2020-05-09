@@ -3,12 +3,10 @@ namespace Fabulous.StaticViews
 
 open Fabulous
 
-type StaticViewElement(targetType, create, setState: obj voption -> obj -> obj -> unit, state: obj) =
-    inherit ViewElement(
-        targetType,
-        create,
-        (fun (prevOpt, _, target) ->
-            let prevOpt = prevOpt |> ValueOption.map (fun p -> (p :?> StaticViewElement).State)
-            setState prevOpt state target)
-    )
+type StateProperty<'T>(setState: obj voption * obj * 'T -> unit, unsetState: 'T -> unit) =
+    interface IAttribute
+    
+type StaticViewElement<'T>(create: unit -> 'T, setState: obj voption * obj * 'T -> unit, unsetState: 'T -> unit, state) =
+    inherit ViewElement(typeof<'T>, (create >> box), [| StateProperty(setState, unsetState) |])
+    interface IViewElement<'T>
     member x.State = state

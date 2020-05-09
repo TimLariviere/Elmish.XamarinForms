@@ -1,13 +1,13 @@
 // Copyright Fabulous contributors. See LICENSE.md for license.
 namespace Fabulous.DynamicViews
 
-type IAttribute = interface end
+open Fabulous
 
 type IProperty =
     inherit IAttribute
     abstract member Value: obj
-    abstract member Apply: IProperty voption * obj -> unit
-    abstract member Unapply: obj -> unit
+    abstract member Set: IProperty voption * obj -> unit
+    abstract member Unset: obj -> unit
     
 type IEvent =
     inherit IAttribute

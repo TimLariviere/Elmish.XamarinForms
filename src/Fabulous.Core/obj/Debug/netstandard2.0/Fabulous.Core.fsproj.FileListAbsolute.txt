@@ -1,8 +1,0 @@
-/Users/timothelariviere/Git/GitHub/Fabulous/src/Fabulous.Core/bin/Debug/netstandard2.0/Fabulous.Core.deps.json
-/Users/timothelariviere/Git/GitHub/Fabulous/src/Fabulous.Core/bin/Debug/netstandard2.0/Fabulous.Core.dll
-/Users/timothelariviere/Git/GitHub/Fabulous/src/Fabulous.Core/bin/Debug/netstandard2.0/Fabulous.Core.pdb
-/Users/timothelariviere/Git/GitHub/Fabulous/src/Fabulous.Core/obj/Debug/netstandard2.0/Fabulous.Core.fsprojAssemblyReference.cache
-/Users/timothelariviere/Git/GitHub/Fabulous/src/Fabulous.Core/obj/Debug/netstandard2.0/Fabulous.Core.AssemblyInfoInputs.cache
-/Users/timothelariviere/Git/GitHub/Fabulous/src/Fabulous.Core/obj/Debug/netstandard2.0/Fabulous.Core.AssemblyInfo.fs
-/Users/timothelariviere/Git/GitHub/Fabulous/src/Fabulous.Core/obj/Debug/netstandard2.0/Fabulous.Core.dll
-/Users/timothelariviere/Git/GitHub/Fabulous/src/Fabulous.Core/obj/Debug/netstandard2.0/Fabulous.Core.pdb

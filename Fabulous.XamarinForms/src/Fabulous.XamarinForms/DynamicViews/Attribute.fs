@@ -12,7 +12,7 @@ type IEvent<'T> =
 type IProperty<'T> =
     inherit IProperty
     abstract member Value: 'T
-    abstract member Apply: IProperty<'T> voption * obj -> unit
+    abstract member Set: IProperty<'T> voption * obj -> unit
     
 type CollectionProperty<'T, 'U when 'T :> IEnumerable<'U>> =
     inherit IProperty<'T>
@@ -23,17 +23,17 @@ type Property<'T>(set, unset, value: 'T) =
         member x.Value = box value
         member x.Value = value
         
-        member x.Apply(prevOpt: IProperty voption, target: obj) =
+        member x.Set(prevOpt: IProperty voption, target: obj) =
             let prevOpt = prevOpt |> ValueOption.map (fun p -> p :?> IProperty<'T>)
-            (x :> IProperty<'T>).Apply(prevOpt, target)
+            (x :> IProperty<'T>).Set(prevOpt, target)
             
-        member x.Apply(prevOpt: IProperty<'T> voption, target: obj) =
+        member x.Set(prevOpt: IProperty<'T> voption, target: obj) =
             let prevValueOpt = prevOpt |> ValueOption.map (fun a -> a.Value)
             match prevValueOpt, (x :> IProperty<'T>).Value with
             | ValueSome prev, curr when System.Object.ReferenceEquals(prev, curr) -> ()
             | _, curr -> set curr target
             
-        member x.Unapply(target: obj) =
+        member x.Unset(target: obj) =
             unset target
             
             

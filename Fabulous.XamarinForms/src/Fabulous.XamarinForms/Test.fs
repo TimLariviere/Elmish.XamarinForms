@@ -1,22 +1,46 @@
 namespace Fabulous.XamarinForms
 
-open Fabulous.XamarinForms.DynamicViews
+open Xamarin.Forms
+open Fabulous.XamarinForms.DynamicViews.View
 open Fabulous.XamarinForms.StaticViews
 
 module Test =
-    type Model = { Items: int list }
+    type MyButton() =
+        inherit StaticView<Button>()
+        override x.Create() = Xamarin.Forms.Button(Text = "Click me")
+        
+    type MyCell() =
+        inherit StaticCell<SwitchCell>()
+        override x.Create() = Xamarin.Forms.SwitchCell()
+        
+    type StatefulButtonState =
+        { Foo: string
+          Click: unit -> unit }
+        
+    type StatefulButton(state: StatefulButtonState) =
+        inherit StaticView<Button>(state)
+        override x.Create() =
+            let button = Xamarin.Forms.Button(TextColor = Color.Blue)
+            button.SetBinding(Xamarin.Forms.Button.TextProperty, nameof state.Foo)
+            button.SetBinding(Xamarin.Forms.Button.CommandProperty, nameof state.Click)
+            button
     
-    let button: IView<Xamarin.Forms.Button> =
-        View.StatelessView(fun () -> Xamarin.Forms.Button(Text = "Lol"))
+    type Model = { Foo: string }
+    type Msg = Bar
+    
+    let button =
+        MyButton() :> IView<Button>
     
     let view model dispatch =
-        View.StackLayout([
-            View.Label("Hello")
-            View.ListView([
-                View.StatelessCell(Xamarin.Forms.SwitchCell)
-                View.TextCell()
-            ])
-            View.StatelessView(Xamarin.Forms.Button)
-            View.StatefulView(Xamarin.Forms.CollectionView, {| Items = model.Items |})
-        ])
+        ContentPage(
+            StackLayout([
+                Label("Hello")
+                ListView([
+                    MyCell()
+                    TextCell()
+                ])
+                button
+                StatefulButton({ Foo = model.Foo; Click = (fun () -> dispatch Bar) })
+            ]) 
+        )
 
