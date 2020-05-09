@@ -25,10 +25,12 @@ module ViewAttributes =
     let SliderValueProperty = Attribute<_>.BindableProperty Slider.ValueProperty
     let SliderValueChangedEvent = EventAttribute<_>.EventHandler (fun t -> (t :?> Slider).ValueChanged)
     let LayoutPaddingProperty = Attribute<_>.BindableProperty Layout.PaddingProperty
-    let LayoutOfTChildrenProperty = Attribute<_>.CollectionProperty((fun (v, t) -> ()), (fun t -> ()), [||])
+    let LayoutOfTChildrenProperty = Attribute<_>.CollectionProperty((fun (v, t) -> ()), (fun t -> ()))
     let StackLayoutOrientationProperty = Attribute<_>.BindableProperty StackLayout.OrientationProperty
-    let ItemsViewOfTItemsProperty = Attribute<_>.CollectionProperty((fun (v, t) -> ()), (fun t -> ()), [||])
+    let ItemsViewOfTItemsProperty = Attribute<_>.CollectionProperty((fun (v, t) -> ()), (fun t -> ()))
     let TextCellTextProperty = Attribute<_>.BindableProperty TextCell.TextProperty
+    
+    let GridRowAttachedProperty = Attribute<int>.AttachedProperty Grid.RowProperty
 
 [<AbstractClass; Sealed>]
 type ViewBuilders private () =
