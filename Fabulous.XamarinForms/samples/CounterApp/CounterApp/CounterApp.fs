@@ -3,107 +3,59 @@ namespace CounterApp
 
 open Fabulous
 open Fabulous.XamarinForms
-open Fabulous.XamarinForms.DynamicViews
 open Xamarin.Forms
+
+open Fabulous.XamarinForms.DynamicViews.View
 
 module App = 
     type Model = 
-      { Count : int 
-        Step : int
-        TimerOn: bool }
+      { EntryValue: string
+        Todos: string list }
 
     type Msg = 
-        | Increment 
-        | Decrement 
-        | Reset
-        | SetStep of int
-        | TimerToggled of bool
-        | TimedTick
+        | EntryTextChanged of string
+        | AddTodo
+        | RemoveTodo of string
 
-    type CmdMsg =
-        | TickTimer
-
-    let timerCmd () =
-        async { do! Async.Sleep 200
-                return TimedTick }
-        |> Cmd.ofAsyncMsg
-
-    let mapCmdMsgToCmd cmdMsg =
-        match cmdMsg with
-        | TickTimer -> timerCmd()
-
-    let initModel () = { Count = 0; Step = 1; TimerOn=false }
-
-    let init () = initModel () , []
+    let init () = { EntryValue = ""; Todos = [] } , []
 
     let update msg model =
         match msg with
-        | Increment -> { model with Count = model.Count + model.Step }, []
-        | Decrement -> { model with Count = model.Count - model.Step }, []
-        | Reset -> init ()
-        | SetStep n -> { model with Step = n }, []
-        | TimerToggled on -> { model with TimerOn = on }, (if on then [ TickTimer ] else [])
-        | TimedTick -> if model.TimerOn then { model with Count = model.Count + model.Step }, [ TickTimer ] else model, [] 
-
-    let view (model: Model) dispatch =  
-        View.ContentPage(
-            View.StackLayout(
-                padding = Thickness 30.0,
-                verticalOptions = LayoutOptions.Center,
-                children = [
-                    View.Label(
-                        automationId = "CountLabel",
-                        text = sprintf "%d" model.Count,
-                        horizontalOptions = LayoutOptions.Center,
-                        width = 200.0,
-                        horizontalTextAlignment = TextAlignment.Center
-                    )
-                    View.Button(
-                        automationId = "IncrementButton",
-                        text = "Increment",
-                        command = fun () -> dispatch Increment
-                    )
-                    View.Button(
-                        automationId = "DecrementButton",
-                        text = "Decrement",
-                        command = fun () -> dispatch Decrement
-                    ) 
-                    View.StackLayout(
-                        padding = Thickness 20.0,
-                        orientation = StackOrientation.Horizontal,
-                        horizontalOptions = LayoutOptions.Center,
-                        children = [
-                            View.Label(text = "Timer")
-                            View.Switch(
-                                automationId = "TimerSwitch",
-                                isToggled = model.TimerOn,
-                                toggled = fun on -> dispatch (TimerToggled on.Value)
-                            )
-                        ]
-                    )
-                    View.Slider(
-                        automationId = "StepSlider",
-                        minimumMaximum = (0.0, 10.0),
-                        value = double model.Step,
-                        valueChanged = fun args -> dispatch (SetStep (int (args.NewValue + 0.5)))
-                    )
-                    View.Label(
-                        automationId = "StepSizeLabel",
-                        text = sprintf "Step size: %d" model.Step,
-                        horizontalOptions = LayoutOptions.Center
-                    )
-                    View.Button(
-                        text = "Reset",
-                        horizontalOptions = LayoutOptions.Center,
-                        command = (fun () -> dispatch Reset),
-                        commandCanExecute = (model <> initModel ())
-                    )
-                ]
+        | EntryTextChanged newValue -> { model with EntryValue = newValue }, []
+        | AddTodo -> { model with EntryValue = ""; Todos = model.EntryValue::model.Todos }, []
+        | RemoveTodo todo -> { model with Todos = model.Todos |> List.except [todo] }, []
+        
+    let addTodoView model dispatch =
+        Grid (coldefs = [ Star; Absolute 50 ]) [
+            Entry(
+                text = model.EntryValue,
+                textChanged = fun args -> dispatch (EntryTextChanged args.NewTextValue)
             )
+                
+            Button("Add", fun () -> dispatch AddTodo)
+                .gridColumn(1)
+        ]
+        
+    let view (model: Model) dispatch =
+        ContentPage(
+            StackLayout(spacing = 10.) [
+                Label("Fabulous Todo List")
+                    .font(NamedSize.Title)
+                    .textColor(Color.Blue)
+                    .horizontalOptions(LayoutOptions.Center)
+                    
+                addTodoView model dispatch
+                
+                TemplatedListView(model.Todos) (fun item ->
+                    TextCell(item)
+                        .contextActions([
+                            MenuItem("Delete", fun() -> dispatch (RemoveTodo item))
+                        ])
+                )
+            ]
         )
              
-    let runnerDefinition = 
-        Component.useCmdMsg init update view mapCmdMsgToCmd
+    let runnerDefinition = Component.useCmd init update view
 
 type CounterApp () as app = 
     inherit Application ()
@@ -112,43 +64,3 @@ type CounterApp () as app =
         App.runnerDefinition
         |> Component.withConsoleTrace
         |> Component.runAsApplication app
-
-#if DEBUG
-    // Run LiveUpdate using: 
-    //    
-    //do runner.EnableLiveUpdate ()
-#endif
-
-
-#if SAVE_MODEL_WITH_JSON
-    open System.Diagnostics
-
-    let modelId = "model"
-    override __.OnSleep() = 
-
-        let json = Newtonsoft.Json.JsonConvert.SerializeObject(runner.CurrentModel)
-        Debug.WriteLine("OnSleep: saving model into app.Properties, json = {0}", json)
-
-        app.Properties.[modelId] <- json
-
-    override __.OnResume() = 
-        Debug.WriteLine "OnResume: checking for model in app.Properties"
-        try 
-            match app.Properties.TryGetValue modelId with
-            | true, (:? string as json) -> 
-
-                Debug.WriteLine("OnResume: restoring model from app.Properties, json = {0}", json)
-                let model = Newtonsoft.Json.JsonConvert.DeserializeObject<App.Model>(json)
-
-                Debug.WriteLine("OnResume: restoring model from app.Properties, model = {0}", (sprintf "%0A" model))
-                runner.SetCurrentModel (model, Cmd.none)
-
-            | _ -> ()
-        with ex ->
-            runner.OnError ("Error while restoring model found in app.Properties", ex)
-
-    override this.OnStart() = 
-        Debug.WriteLine "OnStart: using same logic as OnResume()"
-        this.OnResume()
-
-#endif

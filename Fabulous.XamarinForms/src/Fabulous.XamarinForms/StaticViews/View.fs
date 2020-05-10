@@ -5,7 +5,7 @@ open Fabulous.XamarinForms
 open Xamarin.Forms
 
 module StaticHelpers =
-    let setBindingContext (_, newBindingContext, target: obj) =
+    let setBindingContext (newBindingContext, target: obj) =
         (target :?> BindableObject).BindingContext <- newBindingContext
         
     let unsetBindingContext (target: obj) =
@@ -15,18 +15,25 @@ module StaticHelpers =
 [<AbstractClass>]  
 type StaticPage<'T when 'T :> Page>(?bindingContext) as this =
     inherit StaticViewElement<'T>(this.Create, StaticHelpers.setBindingContext, StaticHelpers.unsetBindingContext, bindingContext |> Option.defaultValue null)
-    interface IPage<'T>
+    interface IPage
     abstract Create: unit -> 'T
 
   
 [<AbstractClass>]  
-type StaticView<'T when 'T :> View>(?bindingContext) as this =
-    inherit StaticViewElement<'T>(this.Create, StaticHelpers.setBindingContext, StaticHelpers.unsetBindingContext, bindingContext |> Option.defaultValue null)
-    interface IView<'T>
+type StaticView<'T when 'T :> View>() as this =
+    inherit StaticViewElement<'T>(this.Create, ignore, ignore, null)
+    interface IView
     abstract Create: unit -> 'T
+    
+[<AbstractClass>]  
+type StaticView<'TView, 'TState when 'TView :> View>(state: 'TState) as this =
+    inherit StaticViewElement<'TView>(this.Create, StaticHelpers.setBindingContext, StaticHelpers.unsetBindingContext, state)
+    interface IView
+    abstract Create: unit -> 'TView
+    member x.State = state
     
 [<AbstractClass>]
 type StaticCell<'T when 'T :> Cell>(?bindingContext) as this =
     inherit StaticViewElement<'T>(this.Create, StaticHelpers.setBindingContext, StaticHelpers.unsetBindingContext, bindingContext |> Option.defaultValue null)
-    interface ICell<'T>
+    interface ICell
     abstract Create: unit -> 'T
