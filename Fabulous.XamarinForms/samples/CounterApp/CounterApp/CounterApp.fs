@@ -1,10 +1,11 @@
-﻿// Copyright 2018-2019 Fabulous contributors. See LICENSE.md for license.
+﻿// Copyright Fabulous contributors. See LICENSE.md for license.
 namespace CounterApp
+
+open Xamarin.Forms
 
 open Fabulous
 open Fabulous.XamarinForms
-open Xamarin.Forms
-
+open Fabulous.XamarinForms.DynamicViews
 open Fabulous.XamarinForms.DynamicViews.View
 
 module App = 
@@ -25,17 +26,6 @@ module App =
         | AddTodo -> { model with EntryValue = ""; Todos = model.EntryValue::model.Todos }, []
         | RemoveTodo todo -> { model with Todos = model.Todos |> List.except [todo] }, []
         
-    let addTodoView model dispatch =
-        Grid (coldefs = [ Star; Absolute 50 ]) [
-            Entry(
-                text = model.EntryValue,
-                textChanged = fun args -> dispatch (EntryTextChanged args.NewTextValue)
-            )
-                
-            Button("Add", fun () -> dispatch AddTodo)
-                .gridColumn(1)
-        ]
-        
     let view (model: Model) dispatch =
         ContentPage(
             StackLayout(spacing = 10.) [
@@ -44,9 +34,17 @@ module App =
                     .textColor(Color.Blue)
                     .horizontalOptions(LayoutOptions.Center)
                     
-                addTodoView model dispatch
+                Grid (coldefs = [ Star; Absolute 50. ]) [
+                    Entry(
+                        text = model.EntryValue,
+                        textChanged = fun args -> dispatch (EntryTextChanged args.NewTextValue)
+                    )
+                        
+                    Button("Add", fun () -> dispatch AddTodo)
+                        .gridColumn(1)
+                ]
                 
-                TemplatedListView(model.Todos) (fun item ->
+                ListView(model.Todos) (fun item ->
                     TextCell(item)
                         .contextActions([
                             MenuItem("Delete", fun() -> dispatch (RemoveTodo item))

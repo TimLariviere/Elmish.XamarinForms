@@ -1,3 +1,4 @@
+// Copyright Fabulous contributors. See LICENSE.md for license.
 namespace Fabulous.XamarinForms
 
 open Fabulous

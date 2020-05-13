@@ -1,52 +1,70 @@
+// Copyright Fabulous contributors. See LICENSE.md for license.
 namespace Fabulous.XamarinForms.DynamicViews
 
+open System
 open System.Collections.Generic
 open Fabulous
+open Xamarin.Forms
+open Fabulous.DynamicViews
 
-type Attribute<'T> =
-    | Property of set: ('T * obj -> unit) * unset: (obj -> unit)
-    | BindableProperty of property: Xamarin.Forms.BindableProperty
-    | CollectionProperty of set: ('T * obj -> unit) * unset: (obj -> unit)
-    | AttachedProperty of property: Xamarin.Forms.BindableProperty
+type ViewElementProperty =
+    | Bindable of BindableProperty
+    | BindableTemplate of BindableProperty
     
-type EventAttribute<'T> =
-    | EventHandler of (obj -> IEvent<System.EventHandler<'T>, 'T>)
+type ViewElementCollection<'T> =
+    | Instance of get: (obj -> IList<'T>)
+    
+type Bindable =
+    | Property of BindableProperty
+    | Collection of BindableProperty
 
-module AttributeHelpers =
-    let inline unboxValue<'T> func (value: obj, target: obj) =
-        func ((value :?> 'T), target)
+type Collection<'T> =
+    | Instance of get: (obj -> IList<'T>)
     
-    let inline setBindableProperty (property: Xamarin.Forms.BindableProperty) (value, target: obj) =
-        (target :?> Xamarin.Forms.BindableObject).SetValue(property, value)
-        
-    let inline unsetBindableProperty (property: Xamarin.Forms.BindableProperty) (target: obj) =
-        (target :?> Xamarin.Forms.BindableObject).ClearValue(property)
-        
-    let inline subscribeEventHandler (getEvent: obj -> IEvent<System.EventHandler<'T>, 'T>) (value: obj, target: obj) =
-        (getEvent target).AddHandler (value :?> System.EventHandler<'T>)
-        
-    let inline unsubscribeEventHandler (getEvent: obj -> IEvent<System.EventHandler<'T>, 'T>) (value: obj, target: obj) =
-        (getEvent target).RemoveHandler (value :?> System.EventHandler<'T>)
+type Event' =
+    | Handler of get: (obj -> IEvent<EventHandler, EventArgs>)
     
-    let ofAttribute (attribute: Attribute<'T>) : Attribute =
-        match attribute with
-        | Property (set, unset) -> Attribute.Property (unboxValue<'T> set, unset)
-        | BindableProperty prop -> Attribute.Property (setBindableProperty prop, unsetBindableProperty prop)
-        | CollectionProperty (set, unset) -> Attribute.Property (unboxValue<'T> set, unset)
-        | AttachedProperty prop -> Attribute.Property (setBindableProperty prop, unsetBindableProperty prop)
-        
-    let ofEventAttribute (attribute: EventAttribute<'T>) : Attribute =
-        match attribute with
-        | EventHandler event -> Attribute.Event (subscribeEventHandler event, unsubscribeEventHandler event)
+type EventOf<'T> =
+    | Handler of get: (obj -> IEvent<EventHandler<'T>, 'T>)
     
-type AttributesBuilder(attribCount) =
-    let values = ResizeArray<KeyValuePair<Attribute, obj>>(capacity = attribCount)
-    
-    member x.Add(attribute: Attribute<'T>, value: 'T) =
-        values.Add(KeyValuePair(AttributeHelpers.ofAttribute attribute, box value))
+module Attribute =
+    let ofViewElementProperty (key: string, property: ViewElementProperty) (value: obj) =
+        match property with
+        | ViewElementProperty.Bindable bindableProperty ->
+            let set (value: obj, target: obj) = (target :?> BindableObject).SetValue(bindableProperty, (value :?> ViewElement).Create())
+            let unset (target: obj) = (target :?> BindableObject).ClearValue(bindableProperty)
+            KeyValuePair(key, { Attribute = Attribute.Property (set, unset); Value = value })
+        | ViewElementProperty.BindableTemplate bindableProperty ->
+            let set (value: obj, target: obj) = (target :?> BindableObject).SetValue(bindableProperty, DataTemplate(value :?> Func<obj>))
+            let unset (target: obj) = (target :?> BindableObject).ClearValue(bindableProperty)
+            KeyValuePair(key, { Attribute = Attribute.Property (set, unset); Value = value })
         
-    member x.Add(attribute: EventAttribute<'T>, value: 'T -> unit) =
-        values.Add(KeyValuePair(AttributeHelpers.ofEventAttribute attribute, box value))
+    let ofViewElementCollection (key: string, collection: ViewElementCollection<'T>) (value: obj) =
+        KeyValuePair(key, { Attribute = Attribute.Property (ignore, ignore); Value = value })
         
-    member x.Close() =
-        values.ToArray()
+    let ofBindable (key: string, bindable: Bindable) (value: obj) =
+        match bindable with
+        | Bindable.Property bindableProperty ->
+            let set (value: obj, target: obj) = (target :?> BindableObject).SetValue(bindableProperty, value)
+            let unset (target: obj) = (target :?> BindableObject).ClearValue(bindableProperty)
+            KeyValuePair(key, { Attribute = Attribute.Property (set, unset); Value = value })
+        | Bindable.Collection bindableProperty ->
+            KeyValuePair(key, { Attribute = Attribute.Property (ignore, ignore); Value = value })
+        
+    let ofCollectionOfT (key: string, collection: Collection<'T>) (value: obj) =
+        KeyValuePair(key, { Attribute = Attribute.Property (ignore, ignore); Value = value })
+        
+    let ofEvent (key: string, evt: Event') (value: obj) =
+        match evt with
+        | Event'.Handler get ->
+            let subscribe (handler: obj, target: obj) = (get target).AddHandler (handler :?> EventHandler)
+            let unsubscribe (handler: obj, target: obj) = (get target).RemoveHandler (handler :?> EventHandler)
+            KeyValuePair(key, { Attribute = Attribute.Event (subscribe, unsubscribe); Value = value })
+        
+    let ofEventOfT (key: string, evt: EventOf<'T>) (value: obj) =
+        match evt with
+        | EventOf.Handler get ->
+            let subscribe (handler: obj, target: obj) = (get target).AddHandler (handler :?> EventHandler<'T>)
+            let unsubscribe (handler: obj, target: obj) = (get target).RemoveHandler (handler :?> EventHandler<'T>)
+            KeyValuePair(key, { Attribute = Attribute.Event (subscribe, unsubscribe); Value = value })
+        

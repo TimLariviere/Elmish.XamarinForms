@@ -7,12 +7,11 @@
 
   <ItemGroup>
     <Compile Include="Types.fs" />
+    <Compile Include="DynamicViews\Types.fs" />
     <Compile Include="DynamicViews\Attribute.fs" />
-    <Compile Include="DynamicViews\ViewElement.fs" />
     <Compile Include="DynamicViews\View.fs" />
     <Compile Include="StaticViews\View.fs" />
     <Compile Include="Component.fs" />
-    <Compile Include="Test.fs" />
   </ItemGroup>
 
   <ItemGroup>
