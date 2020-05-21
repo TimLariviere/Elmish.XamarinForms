@@ -6,63 +6,58 @@ open Fabulous.XamarinForms
 open Fabulous.XamarinForms.LiveUpdate
 open Xamarin.Forms
 open System.Diagnostics
+open System
 
 module App = 
     type Model = 
-      { Count : int 
-        Step : int
-        TimerOn: bool }
+      { Items:int list }
 
     type Msg = 
-        | Increment 
-        | Decrement 
-        | Reset
-        | SetStep of int
-        | TimerToggled of bool
-        | TimedTick
+        | Next 
+    
 
-    type CmdMsg =
-        | TickTimer
+   
 
-    let timerCmd () =
-        async { do! Async.Sleep 200
-                return TimedTick }
-        |> Cmd.ofAsyncMsg
-
-    let mapCmdMsgToCmd cmdMsg =
-        match cmdMsg with
-        | TickTimer -> timerCmd()
-
-    let initModel () = { Count = 0; Step = 1; TimerOn=false }
+    let initModel () = { Items = [1..100] }
 
     let init () = initModel () , []
 
     let update msg model =
         match msg with
-        | Increment -> { model with Count = model.Count + model.Step }, []
-        | Decrement -> { model with Count = model.Count - model.Step }, []
-        | Reset -> init ()
-        | SetStep n -> { model with Step = n }, []
-        | TimerToggled on -> { model with TimerOn = on }, (if on then [ TickTimer ] else [])
-        | TimedTick -> if model.TimerOn then { model with Count = model.Count + model.Step }, [ TickTimer ] else model, [] 
+        | Next -> model,Cmd.none
 
-    let view (model: Model) dispatch =  
+    let random = Random(DateTime.UtcNow.Ticks|>int)
+    let view (model: Model) dispatch =
+        let views =
+            [
+            
+             for item in model.Items do
+                 let kind = random.Next(0,100)
+                 if(kind<20) then
+                    yield View.Label(fontSize=FontSize 40.,text= sprintf "ITEM %i" item,backgroundColor =Color.Aqua)
+                    
+                 elif (kind<40) then
+                     yield View.Frame(
+                            cornerRadius = 24.,
+                            backgroundColor = Color.Yellow,
+                            content=View.Label(fontSize=FontSize 24.,text= sprintf "ITEM %i" item))
+                 elif (kind<70) then
+                     yield View.Label(fontSize=FontSize 24.,text= sprintf "Item %i" item,backgroundColor=Color.Red)
+                 
+                 else
+                    yield View.Label(fontSize=FontSize (14.),text= sprintf "Item %i" item,backgroundColor=Color.Green) 
+                 ]
         View.ContentPage(
-          content=View.StackLayout(padding = Thickness 30.0, verticalOptions = LayoutOptions.Center,
-            children=[
-              View.Label(automationId="CountLabel", text=sprintf "%d" model.Count, horizontalOptions=LayoutOptions.Center, width=200.0, horizontalTextAlignment=TextAlignment.Center)
-              View.Button(automationId="IncrementButton", text="Increment", command= (fun () -> dispatch Increment))
-              View.Button(automationId="DecrementButton", text="Decrement", command= (fun () -> dispatch Decrement)) 
-              View.StackLayout(padding = Thickness 20.0, orientation=StackOrientation.Horizontal, horizontalOptions=LayoutOptions.Center,
-                              children = [ View.Label(text="Timer")
-                                           View.Switch(automationId="TimerSwitch", isToggled=model.TimerOn, toggled=(fun on -> dispatch (TimerToggled on.Value))) ])
-              View.Slider(automationId="StepSlider", minimumMaximum=(0.0, 10.0), value= double model.Step, valueChanged=(fun args -> dispatch (SetStep (int (args.NewValue + 0.5)))))
-              View.Label(automationId="StepSizeLabel", text=sprintf "Step size: %d" model.Step, horizontalOptions=LayoutOptions.Center)
-              View.Button(text="Reset", horizontalOptions=LayoutOptions.Center, command=(fun () -> dispatch Reset), commandCanExecute = (model <> initModel () ))
+          content=View.StackLayout([
+              View.Button(text = "Next", command = (fun () -> dispatch Next))
+              View.CollectionView(
+                items = views
+              
+              )
             ]))
              
     let program = 
-        Program.mkProgramWithCmdMsg init update view mapCmdMsgToCmd
+        Program.mkProgram init update view
 
 type CounterApp () as app = 
     inherit Application ()
