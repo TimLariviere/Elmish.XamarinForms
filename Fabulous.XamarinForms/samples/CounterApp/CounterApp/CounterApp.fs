@@ -5,6 +5,7 @@ open Xamarin.Forms
 
 open Fabulous
 open Fabulous.XamarinForms
+open Fabulous.XamarinForms.DynamicViews
 open Fabulous.XamarinForms.DynamicViews.View
 
 module App = 
@@ -36,7 +37,7 @@ module App =
                 Button("Increment", Increment)
                 Button("Decrement", Decrement)
             ])
-        ).iOSUseSafeArea()
+        ).UseSafeArea()
              
     let runnerDefinition = Program.AsApplication.useCmd init update view
 

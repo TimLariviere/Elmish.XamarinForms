@@ -13,6 +13,7 @@
     <Compile Include="DynamicViews\ChildrenHelpers.fs" />
     <Compile Include="DynamicViews\Attributes.fs" />
     <Compile Include="DynamicViews\View.fs" />
+    <Compile Include="DynamicViews\PlatformSpecifics\iOS.fs" />
     <Compile Include="StaticViews\View.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

@@ -33,7 +33,6 @@ module ViewAttributes =
     let MenuItemText = Attributes.Bindable.property MenuItem.TextProperty
     let MenuItemClicked = Attributes.Event.handler<MenuItem> (fun t -> t.Clicked)
     
-    let iOSUseSafeArea = Attributes.Scalar.property<Page, _> false (fun (v, t) -> Xamarin.Forms.PlatformConfiguration.iOSSpecific.Page.SetUseSafeArea(t, v))
     
 [<Sealed>]
 type ContentPage<'msg>(attributes: Attribute list) =
@@ -41,10 +40,6 @@ type ContentPage<'msg>(attributes: Attribute list) =
     interface IPage<'msg>
     static member inline init(content: IView<'msg>) =
         let attributes = [PropertyNode (ViewAttributes.ContentPageContent.Value(content))]
-        ContentPage<'msg>(attributes)
-        
-    member inline x.iOSUseSafeArea(?value: bool) =
-        let attributes = PropertyNode (ViewAttributes.iOSUseSafeArea.Value(Option.defaultValue true value))::x.Attributes
         ContentPage<'msg>(attributes)
         
 [<Sealed>]
