@@ -11,7 +11,7 @@ type IViewElement =
     
 module DynamicViews =
     [<ReferenceEquality>] type DynamicEvent = { Subscribe: obj * obj -> unit; Unsubscribe: obj * obj -> unit }
-    [<ReferenceEquality>] type DynamicProperty = { Set: obj * obj -> unit; Unset: obj -> unit }
+    [<ReferenceEquality>] type DynamicProperty = { Set: obj voption * obj * obj -> unit; Unset: obj * obj -> unit }
     
     type Attribute =
         | EventNode of DynamicEvent * obj
@@ -36,33 +36,40 @@ module DynamicViews =
                 | PropertyNode (prop, value) -> properties.Add(prop, value)
             )
             events, properties
+            
+        member x.Create() =
+            let target = create()
+            x.Update(ValueNone, target)
+            target
         
-        interface IViewElement with
-            member x.Create() = create()
-                
-            member x.Update(prevOpt, target) =
-                let prevEvents, prevProperties =
-                    match prevOpt with
-                    | ValueNone -> Dictionary(), Dictionary()
-                    | ValueSome prev -> (prev :?> DynamicViewElement).BuildAttributes()
-                let currEvents, currProperties = x.BuildAttributes()
-                
-                // Unsubscribe events
-                for evt in prevEvents do
-                    evt.Key.Unsubscribe(evt.Value, target)
-                        
-                // Update properties
-                let allProps = currProperties.Keys.Union(prevProperties.Keys).Distinct().ToList()
-                for prop in allProps do
-                    match prevProperties.TryGetValue(prop), currProperties.TryGetValue(prop) with
-                    | (false, _), (false, _) -> ()
-                    | (true, prevValue), (true, currValue) when prevValue = currValue -> ()
-                    | (true, _), (false, _) -> prop.Unset(target)
-                    | _, (true, currValue) -> prop.Set(currValue, target)
+        member x.Update(prevOpt: DynamicViewElement voption, target: obj) =
+            let prevEvents, prevProperties =
+                match prevOpt with
+                | ValueNone -> Dictionary(), Dictionary()
+                | ValueSome prev -> prev.BuildAttributes()
+            let currEvents, currProperties = x.BuildAttributes()
+            
+            // Unsubscribe events
+            for evt in prevEvents do
+                evt.Key.Unsubscribe(evt.Value, target)
                     
-                // Subscribe events
-                for evt in currEvents do
-                    evt.Key.Subscribe(evt.Value, target)
+            // Update properties
+            let allProps = currProperties.Keys.Union(prevProperties.Keys).Distinct().ToList()
+            for prop in allProps do
+                match prevProperties.TryGetValue(prop), currProperties.TryGetValue(prop) with
+                | (false, _), (false, _) -> ()
+                | (true, prevValue), (true, currValue) when prevValue = currValue -> ()
+                | (true, prevValue), (false, _) -> prop.Unset(prevValue, target)
+                | (false, _), (true, currValue) -> prop.Set(ValueNone, currValue, target)
+                | (true, prevValue), (true, currValue) -> prop.Set(ValueSome prevValue, currValue, target)
+                
+            // Subscribe events
+            for evt in currEvents do
+                evt.Key.Subscribe(evt.Value, target)
+            
+        interface IViewElement with
+            member x.Create() = x.Create()
+            member x.Update(prevOpt, target) = x.Update((prevOpt |> ValueOption.map(fun p -> p :?> DynamicViewElement), target))
         
 module StaticViews =
     type StaticViewElement<'T>

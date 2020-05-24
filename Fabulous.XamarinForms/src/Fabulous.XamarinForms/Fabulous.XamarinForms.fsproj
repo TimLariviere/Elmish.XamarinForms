@@ -7,7 +7,10 @@
 
   <ItemGroup>
     <Compile Include="Types.fs" />
+    <Compile Include="Helpers.fs" />
     <Compile Include="DynamicViews\Types.fs" />
+    <Compile Include="DynamicViews\ViewHelpers.fs" />
+    <Compile Include="DynamicViews\ChildrenHelpers.fs" />
     <Compile Include="DynamicViews\Attributes.fs" />
     <Compile Include="DynamicViews\View.fs" />
     <Compile Include="StaticViews\View.fs" />

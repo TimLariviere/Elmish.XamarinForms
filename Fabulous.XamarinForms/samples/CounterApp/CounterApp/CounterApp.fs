@@ -5,54 +5,38 @@ open Xamarin.Forms
 
 open Fabulous
 open Fabulous.XamarinForms
-open Fabulous.XamarinForms.DynamicViews
 open Fabulous.XamarinForms.DynamicViews.View
 
 module App = 
     type Model = 
-      { EntryValue: string
-        Todos: string list }
+      { Count: int }
 
     type Msg = 
-        | EntryTextChanged of string
-        | AddTodo
-        | RemoveTodo of string
+        | Increment
+        | Decrement
 
-    let init () = { EntryValue = ""; Todos = [] } , []
+    let init () = { Count = 0 }, []
 
     let update msg model =
         match msg with
-        | EntryTextChanged newValue -> { model with EntryValue = newValue }, []
-        | AddTodo -> { model with EntryValue = ""; Todos = model.EntryValue::model.Todos }, []
-        | RemoveTodo todo -> { model with Todos = model.Todos |> List.except [todo] }, []
+        | Increment -> { model with Count = model.Count + 1 }, []
+        | Decrement -> { model with Count = model.Count - 1 }, []
         
     let view (model: Model) =
         ContentPage(
-            StackLayout(spacing = 10.) [
-                Label("Fabulous Todo List")
+            StackLayout(spacing = 10., children = [
+                Label("Fabulous CounterApp")
                     .font(NamedSize.Title)
-                    .textColor(Color.Blue)
                     .horizontalOptions(LayoutOptions.Center)
                     
-                Grid (coldefs = [ Star; Absolute 50. ]) [
-                    Entry(
-                        text = model.EntryValue,
-                        textChanged = fun args -> EntryTextChanged args.NewTextValue
-                    )
-                        
-                    Button("Add", AddTodo)
-                        .gridColumn(1)
-                ]
-                
-                ListView() [
-                    for todo in model.Todos ->
-                        TextCell(todo)
-                            .contextActions([
-                                MenuItem("Delete", RemoveTodo todo)
-                            ])
-                ]
-            ]
-        )
+                Label(sprintf "Count = %i" model.Count)
+                    .horizontalOptions(LayoutOptions.Center)
+                    .verticalOptions(LayoutOptions.CenterAndExpand)
+                    
+                Button("Increment", Increment)
+                Button("Decrement", Decrement)
+            ])
+        ).iOSUseSafeArea()
              
     let runnerDefinition = Program.AsApplication.useCmd init update view
 
