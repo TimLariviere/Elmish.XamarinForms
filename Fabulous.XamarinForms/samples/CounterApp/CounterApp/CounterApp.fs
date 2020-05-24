@@ -26,7 +26,7 @@ module App =
         | AddTodo -> { model with EntryValue = ""; Todos = model.EntryValue::model.Todos }, []
         | RemoveTodo todo -> { model with Todos = model.Todos |> List.except [todo] }, []
         
-    let view (model: Model) dispatch =
+    let view (model: Model) =
         ContentPage(
             StackLayout(spacing = 10.) [
                 Label("Fabulous Todo List")
@@ -37,28 +37,29 @@ module App =
                 Grid (coldefs = [ Star; Absolute 50. ]) [
                     Entry(
                         text = model.EntryValue,
-                        textChanged = fun args -> dispatch (EntryTextChanged args.NewTextValue)
+                        textChanged = fun args -> EntryTextChanged args.NewTextValue
                     )
                         
-                    Button("Add", fun () -> dispatch AddTodo)
+                    Button("Add", AddTodo)
                         .gridColumn(1)
                 ]
                 
-                ListView(model.Todos) (fun item ->
-                    TextCell(item)
-                        .contextActions([
-                            MenuItem("Delete", fun() -> dispatch (RemoveTodo item))
-                        ])
-                )
+                ListView() [
+                    for todo in model.Todos ->
+                        TextCell(todo)
+                            .contextActions([
+                                MenuItem("Delete", RemoveTodo todo)
+                            ])
+                ]
             ]
         )
              
-    let runnerDefinition = Component.useCmd init update view
+    let runnerDefinition = Program.AsApplication.useCmd init update view
 
 type CounterApp () as app = 
     inherit Application ()
 
     let runner =
         App.runnerDefinition
-        |> Component.withConsoleTrace
-        |> Component.runAsApplication app
+        |> Program.withConsoleTrace
+        |> Program.AsApplication.run app

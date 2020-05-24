@@ -13,7 +13,7 @@ type IHost =
 /// We store the current dispatch function for the running Elmish program as a 
 /// static-global thunk because we want old view elements stored in the `dependsOn` global table
 /// to be recyclable on resumption (when a new ProgramRunner gets created).
-type internal RunnerDispatch<'msg>()  = 
+type RunnerDispatch<'msg>()  = 
     static let mutable dispatchImpl = (fun (_msg: 'msg) -> failwith "do not call dispatch during initialization" : unit)
 
     static let dispatch = 
@@ -28,8 +28,8 @@ type RunnerDefinition<'arg, 'model, 'msg> =
     { init : 'arg -> 'model * Cmd<'msg>
       update : 'msg -> 'model -> 'model * Cmd<'msg>
       subscribe : 'model -> Cmd<'msg>
-      view : 'model -> Dispatch<'msg> -> ViewElement
-      canReuseView: ViewElement -> ViewElement -> bool
+      view : 'model -> IViewElement
+      canReuseView: IViewElement -> IViewElement -> bool
       syncDispatch: Dispatch<'msg> -> Dispatch<'msg>
       syncAction: (unit -> unit) -> (unit -> unit)
       debug : bool
@@ -51,7 +51,7 @@ type Runner<'arg, 'model, 'msg>(host: IHost, definition: RunnerDefinition<'arg, 
 
     // If the view is dynamic, create the initial page
     let viewInfo = 
-        let newRootElement = definition.view initialModel dispatch
+        let newRootElement = definition.view initialModel
         let rootView = newRootElement.Create()
         host.SetRootView(rootView)
         newRootElement
@@ -80,15 +80,14 @@ type Runner<'arg, 'model, 'msg>(host: IHost, definition: RunnerDefinition<'arg, 
 
         | Some prevPageElement ->
             let newPageElement = 
-                try definition.view updatedModel dispatch
+                try definition.view updatedModel
                 with ex -> 
                     definition.onError ("Unable to evaluate view:", ex)
                     prevPageElement
 
             if definition.canReuseView prevPageElement newPageElement then
                 let rootView = host.GetRootView()
-                ()
-                //newPageElement.UpdateIncremental (prevPageElement, rootView)
+                newPageElement.Update(ValueSome prevPageElement, rootView)
             else
                 let pageObj = newPageElement.Create()
                 host.SetRootView(pageObj)

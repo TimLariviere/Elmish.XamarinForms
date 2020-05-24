@@ -3,79 +3,79 @@ namespace Fabulous
 
 open System
 open System.Collections.Generic
+open System.Linq
 
-[<AbstractClass>]
-type ViewElement(targetType: Type, create: unit -> obj) =
-    member x.TargetType = targetType
+type IViewElement =
     abstract Create: unit -> obj
-    abstract Update: ViewElement voption * obj -> unit
-    default x.Create() =
-        let target = create()
-        x.Update(ValueNone, target)
-        target
+    abstract Update: IViewElement voption * obj -> unit
     
 module DynamicViews =
+    [<ReferenceEquality>] type DynamicEvent = { Subscribe: obj * obj -> unit; Unsubscribe: obj * obj -> unit }
+    [<ReferenceEquality>] type DynamicProperty = { Set: obj * obj -> unit; Unset: obj -> unit }
+    
     type Attribute =
-        | Property of set: (obj * obj -> unit) * unset: (obj -> unit)
-        | Event of subscribe: (obj * obj -> unit) * unsubscribe: (obj * obj -> unit)
+        | EventNode of DynamicEvent * obj
+        | PropertyNode of DynamicProperty * obj
+    
+    type DynamicViewElement
+        (
+            targetType: Type,
+            create: unit -> obj,
+            attributes: Attribute list
+        ) =
         
-    type AttributeSet =
-        { Attribute: Attribute
-          Value: obj }
+        member x.TargetType = targetType
         
-    type AttributesList =
-        | Empty
-        | Value of head: KeyValuePair<string, AttributeSet> * tail: AttributesList
+        member internal x.BuildAttributes() =
+            let events = Dictionary<DynamicEvent, obj>()
+            let properties = Dictionary<DynamicProperty, obj>()
+            attributes |> List.iter (fun attr ->
+                match attr with
+                | EventNode (evt, value) -> events.Add(evt, value)
+                | PropertyNode (prop, value) -> properties.Add(prop, value)
+            )
+            events, properties
         
-    let toDictionaries (attributes: AttributesList) =
-        let evtDict = Dictionary<string, (obj * obj -> unit) * (obj * obj -> unit) * obj>()
-        let propDict = Dictionary<string, (obj * obj -> unit) * (obj -> unit) * obj>()
-        let rec iterateRec attr =
-            match attr with
-            | Empty -> ()
-            | Value (head, tail) ->
-                match head.Value.Attribute with
-                | Property (set,unset) -> propDict.[head.Key] <- (set, unset, head.Value.Value)
-                | Event (sub, unsub) -> evtDict.[head.Key] <- (sub, unsub, head.Value.Value)
-                iterateRec tail
-        iterateRec attributes
-        evtDict, propDict
-        
-    type DynamicViewElement<'T>(create: unit -> 'T, attributes: AttributesList) =
-        inherit ViewElement(typeof<'T>, (create >> box))
-        member x.Attributes = attributes
-        override x.Update(prevOpt: ViewElement voption, target: obj) =
-            let prevEvts, prevProps =
-                match prevOpt with
-                | ValueNone -> Dictionary(), Dictionary()
-                | ValueSome prev -> toDictionaries (prev :?> DynamicViewElement<'T>).Attributes
+        interface IViewElement with
+            member x.Create() = create()
                 
-            let currEvts, currProps = toDictionaries x.Attributes
-            
-            let allEvtKeys = Seq.append prevEvts.Keys currEvts.Keys |> Seq.distinct |> List.ofSeq
-            let allPropsKeys = Seq.append prevEvts.Keys currEvts.Keys |> Seq.distinct |> List.ofSeq
+            member x.Update(prevOpt, target) =
+                let prevEvents, prevProperties =
+                    match prevOpt with
+                    | ValueNone -> Dictionary(), Dictionary()
+                    | ValueSome prev -> (prev :?> DynamicViewElement).BuildAttributes()
+                let currEvents, currProperties = x.BuildAttributes()
                 
-            for key in allEvtKeys do
-                match prevEvts.TryGetValue(key) with
-                | true, (_, unsub, prev) -> unsub (prev, target)
-                | _ -> ()
-            
-            for key in allPropsKeys do
-                match prevProps.TryGetValue(key), currProps.TryGetValue(key) with
-                | (false, _), (false, _) -> ()
-                | (true, (_, _, prev)), (true, (_, _, curr)) when System.Object.ReferenceEquals(prev, curr) -> ()
-                | (true, (_, unset, _)), (false, _) -> unset target
-                | _, (true, (set, _, curr)) -> set (curr, target)
-                
-            for key in allEvtKeys do
-                match currEvts.TryGetValue(key) with
-                | true, (sub, _, curr) -> sub (curr, target)
-                | _ -> ()
+                // Unsubscribe events
+                for evt in prevEvents do
+                    evt.Key.Unsubscribe(evt.Value, target)
+                        
+                // Update properties
+                let allProps = currProperties.Keys.Union(prevProperties.Keys).Distinct().ToList()
+                for prop in allProps do
+                    match prevProperties.TryGetValue(prop), currProperties.TryGetValue(prop) with
+                    | (false, _), (false, _) -> ()
+                    | (true, prevValue), (true, currValue) when prevValue = currValue -> ()
+                    | (true, _), (false, _) -> prop.Unset(target)
+                    | _, (true, currValue) -> prop.Set(currValue, target)
                     
-                
+                // Subscribe events
+                for evt in currEvents do
+                    evt.Key.Subscribe(evt.Value, target)
         
 module StaticViews =
-    type StaticViewElement<'T>(create: unit -> 'T, setState: (obj * obj -> unit), unsetState: (obj -> unit), state) =
-        inherit ViewElement(typeof<'T>, (create >> box))
+    type StaticViewElement<'T>
+        (
+            create: unit -> 'T,
+            setState: obj voption * obj * 'T -> unit,
+            state: obj
+        ) =
+        
         member x.State = state
-        override x.Update(prevOpt: ViewElement voption, target: obj) = ()
+        
+        interface IViewElement with
+            member x.Create() = create() |> box
+                
+            member x.Update(prevOpt, target) =
+                let prevStateOpt = prevOpt |> ValueOption.map (fun p -> (p :?> StaticViewElement<'T>).State)
+                setState(prevStateOpt, state, target :?> 'T)

@@ -5,7 +5,7 @@ open System
 /// Component module - functions to manipulate program instances
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module Component =
+module Program =
     /// Subscribe to external source of events.
     /// The subscription is called once - with the initial (or resumed) model, but can dispatch new messages at any time.
     let withSubscription (subscribe : 'model -> Cmd<'msg>) (definition: RunnerDefinition<'arg, 'model, 'msg>) =

@@ -6,6 +6,9 @@
     <Compile Include="Cmd.fs" />
     <Compile Include="ViewElement.fs" />
     <Compile Include="Runner.fs" />
-    <Compile Include="Component.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="4.7.2" />
   </ItemGroup>
 </Project>

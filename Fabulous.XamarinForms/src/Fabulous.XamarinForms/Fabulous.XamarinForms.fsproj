@@ -8,10 +8,10 @@
   <ItemGroup>
     <Compile Include="Types.fs" />
     <Compile Include="DynamicViews\Types.fs" />
-    <Compile Include="DynamicViews\Attribute.fs" />
+    <Compile Include="DynamicViews\Attributes.fs" />
     <Compile Include="DynamicViews\View.fs" />
     <Compile Include="StaticViews\View.fs" />
-    <Compile Include="Component.fs" />
+    <Compile Include="Program.fs" />
   </ItemGroup>
 
   <ItemGroup>
