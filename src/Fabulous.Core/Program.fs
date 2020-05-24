@@ -35,10 +35,10 @@ module Program =
                 Console.WriteLine (sprintf "Error in model function: %0A" e)
                 reraise ()
 
-        let traceView model dispatch =
+        let traceView model =
             Console.WriteLine (sprintf "View, model = %0A" model)
             try 
-                let info = definition.view model dispatch
+                let info = definition.view model
                 Console.WriteLine (sprintf "View result: %0A" info)
                 info
             with e -> 

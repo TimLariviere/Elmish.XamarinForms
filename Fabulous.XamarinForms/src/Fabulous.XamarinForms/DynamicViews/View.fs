@@ -52,7 +52,7 @@ type Grid<'msg>(attributes: Attribute list) =
             Grid<'msg>(attributes)
             
     member inline x.gridColumn(column: int) =
-        let attributes = [PropertyNode (ViewAttributes.GridColumn.WithValue(column))]
+        let attributes = PropertyNode (ViewAttributes.GridColumn.WithValue(column))::x.Attributes
         Grid<'msg>(attributes)
         
 [<Sealed>]
@@ -67,11 +67,11 @@ type StackLayout<'msg>(attributes: Attribute list) =
             StackLayout<'msg>(attributes)
     
     member inline x.horizontalOptions(options: LayoutOptions) =
-        let attributes = PropertyNode (ViewAttributes.ViewHorizontalOptions.WithValue(options))::attributes
+        let attributes = PropertyNode (ViewAttributes.ViewHorizontalOptions.WithValue(options))::x.Attributes
         StackLayout<'msg>(attributes)
             
     member inline x.gridColumn(column: int) =
-        let attributes = PropertyNode (ViewAttributes.GridColumn.WithValue(column))::attributes
+        let attributes = PropertyNode (ViewAttributes.GridColumn.WithValue(column))::x.Attributes
         StackLayout<'msg>(attributes)
         
 [<Sealed>]
@@ -85,11 +85,11 @@ type Button<'msg>(attributes: Attribute list) =
         Button<'msg>(attributes)
             
     member inline x.horizontalOptions(options: LayoutOptions) =
-        let attributes = PropertyNode (ViewAttributes.ViewHorizontalOptions.WithValue(options))::attributes
+        let attributes = PropertyNode (ViewAttributes.ViewHorizontalOptions.WithValue(options))::x.Attributes
         Button<'msg>(attributes)
             
     member inline x.gridColumn(column: int) =
-        let attributes = PropertyNode (ViewAttributes.GridColumn.WithValue(column))::attributes
+        let attributes = PropertyNode (ViewAttributes.GridColumn.WithValue(column))::x.Attributes
         Button<'msg>(attributes)
        
 [<Sealed>]
@@ -103,11 +103,11 @@ type Entry<'msg>(attributes: Attribute list) =
         Entry<'msg>(attributes)
             
     member inline x.horizontalOptions(options: LayoutOptions) =
-        let attributes = PropertyNode (ViewAttributes.ViewHorizontalOptions.WithValue(options))::attributes
+        let attributes = PropertyNode (ViewAttributes.ViewHorizontalOptions.WithValue(options))::x.Attributes
         Entry<'msg>(attributes)
             
     member inline x.gridColumn(column: int) =
-        let attributes = PropertyNode (ViewAttributes.GridColumn.WithValue(column))::attributes
+        let attributes = PropertyNode (ViewAttributes.GridColumn.WithValue(column))::x.Attributes
         Entry<'msg>(attributes)
           
 [<Sealed>]  
@@ -119,19 +119,19 @@ type Label<'msg>(attributes: Attribute list) =
         Label<'msg>(attributes)
         
     member inline x.font(fontSize: NamedSize) =
-        let attributes = PropertyNode (ViewAttributes.LabelFontSize.WithValue(Device.GetNamedSize(fontSize, typeof<Label>)))::attributes
+        let attributes = PropertyNode (ViewAttributes.LabelFontSize.WithValue(Device.GetNamedSize(fontSize, typeof<Label>)))::x.Attributes
         Label<'msg>(attributes)
             
     member inline x.horizontalOptions(options: LayoutOptions) =
-        let attributes = PropertyNode (ViewAttributes.ViewHorizontalOptions.WithValue(options))::attributes
+        let attributes = PropertyNode (ViewAttributes.ViewHorizontalOptions.WithValue(options))::x.Attributes
         Label<'msg>(attributes)
         
     member inline x.textColor(color: Color) =
-        let attributes = PropertyNode (ViewAttributes.LabelTextColor.WithValue(color))::attributes
+        let attributes = PropertyNode (ViewAttributes.LabelTextColor.WithValue(color))::x.Attributes
         Label<'msg>(attributes)
             
     member inline x.gridColumn(column: int) =
-        let attributes = PropertyNode (ViewAttributes.GridColumn.WithValue(column))::attributes
+        let attributes = PropertyNode (ViewAttributes.GridColumn.WithValue(column))::x.Attributes
         Label<'msg>(attributes)
         
 [<Sealed>]
@@ -152,7 +152,7 @@ type TextCell<'msg>(attributes: Attribute list) =
         TextCell<'msg>(attributes)
         
     member inline x.contextActions(actions: IMenuItem<'msg> list) =
-        let attributes = PropertyNode (ViewAttributes.CellContextActions.WithValue(actions))::attributes
+        let attributes = PropertyNode (ViewAttributes.CellContextActions.WithValue(actions))::x.Attributes
         TextCell<'msg>(attributes)        
         
 [<Sealed>]

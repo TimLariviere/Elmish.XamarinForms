@@ -9,7 +9,7 @@
     <Compile Include="CounterApp.fs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="4.7.1" />
+    <PackageReference Update="FSharp.Core" Version="4.7.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Fabulous.XamarinForms\Fabulous.XamarinForms.fsproj" />

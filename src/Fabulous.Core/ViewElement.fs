@@ -25,6 +25,7 @@ module DynamicViews =
         ) =
         
         member x.TargetType = targetType
+        member x.Attributes = attributes
         
         member internal x.BuildAttributes() =
             let events = Dictionary<DynamicEvent, obj>()
