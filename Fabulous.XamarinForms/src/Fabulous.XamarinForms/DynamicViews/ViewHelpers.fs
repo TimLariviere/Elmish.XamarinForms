@@ -1,24 +1,20 @@
 namespace Fabulous.XamarinForms.DynamicViews
 
-open Fabulous
 open Fabulous.DynamicViews
 open Xamarin.Forms
 
 module ViewHelpers =
     /// Checks whether an underlying control can be reused given the previous and new view elements
-    let rec canReuseView (prevChild: IViewElement) (newChild: IViewElement) =
-        match prevChild, newChild with
-        | (:? DynamicViewElement as prevChild), (:? DynamicViewElement as newChild) ->
-            if prevChild.TargetType = newChild.TargetType && canReuseAutomationId prevChild newChild then
-                if newChild.TargetType.IsAssignableFrom(typeof<NavigationPage>) then
-                    canReuseNavigationPage prevChild newChild
-    //            elif newChild.TargetType.IsAssignableFrom(typeof<CustomEffect>) then
-    //                canReuseCustomEffect prevChild newChild
-                else
-                    true
+    let rec canReuseDynamicView (prevChild: DynamicViewElement) (newChild: DynamicViewElement) =
+        if prevChild.TargetType = newChild.TargetType && canReuseAutomationId prevChild newChild then
+            if newChild.TargetType.IsAssignableFrom(typeof<NavigationPage>) then
+                canReuseNavigationPage prevChild newChild
+//            elif newChild.TargetType.IsAssignableFrom(typeof<CustomEffect>) then
+//                canReuseCustomEffect prevChild newChild
             else
-                false
-        | _ -> false
+                true
+        else
+            false
 
     /// Checks whether an underlying NavigationPage control can be reused given the previous and new view elements
     //

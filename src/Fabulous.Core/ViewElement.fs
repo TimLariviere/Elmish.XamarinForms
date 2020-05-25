@@ -4,14 +4,18 @@ namespace Fabulous
 open System
 open System.Collections.Generic
 
-type IViewElement =
-    abstract Create: (obj -> unit) -> obj
-    abstract Update: (obj -> unit) * IViewElement voption * obj -> unit
+type ProgramDefinition =
+    { CanReuseView: IViewElement -> IViewElement -> bool
+      Dispatch: obj -> unit }
+
+and IViewElement =
+    abstract Create: ProgramDefinition -> obj
+    abstract Update: ProgramDefinition * IViewElement voption * obj -> unit
     abstract TryKey: string voption with get
     
 module DynamicViews =
     [<ReferenceEquality>] type DynamicEvent = { Subscribe: obj * obj -> unit; Unsubscribe: obj * obj -> unit }
-    [<ReferenceEquality>] type DynamicProperty = { Update: (obj -> unit) * obj voption * obj voption * obj -> unit }
+    [<ReferenceEquality>] type DynamicProperty = { Update: ProgramDefinition * obj voption * obj voption * obj -> unit }
     
     type DynamicEventValue(fn: (obj -> unit) -> obj) =
         let mutable handlerOpt = ValueNone
@@ -46,13 +50,13 @@ module DynamicViews =
             x.Update(dispatch, ValueNone, target)
             target
         
-        member x.Update(dispatch, prevOpt: DynamicViewElement voption, target: obj) =
+        member x.Update(programDefinition: ProgramDefinition, prevOpt: DynamicViewElement voption, target: obj) =
             // Unsubscribe events
             match prevOpt with
             | ValueNone -> ()
             | ValueSome prev ->
                 for evt in prev.Events do
-                    evt.Key.Unsubscribe(evt.Value.GetHandler(dispatch), target)
+                    evt.Key.Unsubscribe(evt.Value.GetHandler(programDefinition.Dispatch), target)
                     
             // Update properties
             let allProps = List.distinct [
@@ -68,37 +72,50 @@ module DynamicViews =
             for prop in allProps do
                 let prevPropOpt = match prevOpt with ValueNone -> ValueNone | ValueSome prev -> prev.TryGetPropertyValue(prop)
                 let currPropOpt = x.TryGetPropertyValue(prop)
-                prop.Update(dispatch, prevPropOpt, currPropOpt, target)
+                prop.Update(programDefinition, prevPropOpt, currPropOpt, target)
                 
             // Subscribe events
             for evt in x.Events do
-                evt.Key.Subscribe(evt.Value.GetHandler(dispatch), target)
+                evt.Key.Subscribe(evt.Value.GetHandler(programDefinition.Dispatch), target)
             
         interface IViewElement with
             member x.Create(dispatch) = x.Create(dispatch)
-            member x.Update(dispatch, prevOpt, target) = x.Update(dispatch, (prevOpt |> ValueOption.map(fun p -> p :?> DynamicViewElement)), target)
+            member x.Update(programDefinition, prevOpt, target) = x.Update(programDefinition, (prevOpt |> ValueOption.map(fun p -> p :?> DynamicViewElement)), target)
             member x.TryKey with get() = ValueNone
         
 module StaticViews =
-    type StaticViewElement<'T>
+    type StateValue(fn: (obj -> unit) -> obj) =
+        let mutable stateOpt = ValueNone
+        member x.GetState(dispatch: obj -> unit) =
+            match stateOpt with
+            | ValueNone ->
+                let state = fn dispatch
+                stateOpt <- ValueSome state
+                state
+            | ValueSome state -> state
+    
+    type StaticViewElement
         (
-            create: unit -> 'T,
-            setState: obj voption * obj * 'T -> unit,
-            state: obj
+            targetType: Type,
+            create: unit -> obj,
+            setState: obj voption * obj * obj -> unit,
+            state: StateValue
         ) =
         
+        member x.TargetType = targetType
         member x.State = state
         
-        member x.Create(dispatch) =
+        member x.Create(programDefinition) =
             let target = create()
-            x.Update(dispatch, ValueNone, target)
+            x.Update(programDefinition, ValueNone, target)
             box target
             
-        member x.Update(_, prevOpt: StaticViewElement<'T> voption, target) =
-            let prevStateOpt = prevOpt |> ValueOption.map (fun p -> p.State)
-            setState(prevStateOpt, state, target)
+        member x.Update(programDefinition: ProgramDefinition, prevOpt: StaticViewElement voption, target) =
+            let prevStateOpt = prevOpt |> ValueOption.map (fun p -> p.State.GetState(programDefinition.Dispatch))
+            setState(prevStateOpt, state.GetState(programDefinition.Dispatch), target)
             
         interface IViewElement with
-            member x.Create(dispatch) = x.Create(dispatch)
-            member x.Update(dispatch, prevOpt, target) = x.Update(dispatch, prevOpt |> ValueOption.map (fun p -> p :?> StaticViewElement<'T>), target :?> 'T)
+            member x.Create(programDefinition) = x.Create(programDefinition)
+            member x.Update(programDefinition, prevOpt, target) = x.Update(programDefinition, prevOpt |> ValueOption.map (fun p -> p :?> StaticViewElement), target)
             member x.TryKey with get() = ValueNone
+            

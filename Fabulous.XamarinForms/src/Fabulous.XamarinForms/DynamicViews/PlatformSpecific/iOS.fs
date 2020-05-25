@@ -10,6 +10,6 @@ module iOSSpecific =
         let iOSUseSafeArea = Attributes.Scalar.property<Xamarin.Forms.Page, _> false (fun (v, t) -> Page.SetUseSafeArea(t, v))
     
     type ContentPage<'msg> with
-        member inline x.UseSafeArea(?value: bool) =
+        member inline x.useSafeAreaOniOS(?value: bool) =
             let properties = ViewAttributes.iOSUseSafeArea.Value(Option.defaultValue true value)::x.Properties
             ContentPage<'msg>(x.Events, properties)

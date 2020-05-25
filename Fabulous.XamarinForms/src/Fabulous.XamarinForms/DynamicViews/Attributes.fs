@@ -11,11 +11,11 @@ module Attributes =
     module Scalar =
         let property<'TTarget, 'TValue> (defaultValue: 'TValue) (setter: 'TValue * 'TTarget -> unit) =
             {
-                Update = (fun (dispatch, prevOpt, currOpt, target) ->
+                Update = (fun (_, prevOpt, currOpt, target) ->
                     match prevOpt, currOpt with
                     | ValueNone, ValueNone -> ()
                     | ValueSome prev, ValueSome curr when prev = curr -> ()
-                    | ValueSome prev, ValueNone -> setter(defaultValue, target :?> 'TTarget)
+                    | ValueSome _, ValueNone -> setter(defaultValue, target :?> 'TTarget)
                     | _, ValueSome curr -> setter(curr :?> 'TValue, target :?> 'TTarget)
                 )
             }
@@ -26,11 +26,11 @@ module Attributes =
     module Bindable =
         let property (bindableProperty: BindableProperty) =
             {
-                Update = (fun (dispatch, prevOpt, currOpt, target) ->
+                Update = (fun (_, prevOpt, currOpt, target) ->
                     match prevOpt, currOpt with
                     | ValueNone, ValueNone -> ()
                     | ValueSome prev, ValueSome curr when prev = curr -> ()
-                    | ValueSome prev, ValueNone -> (target :?> BindableObject).ClearValue(bindableProperty)
+                    | ValueSome _, ValueNone -> (target :?> BindableObject).ClearValue(bindableProperty)
                     | _, ValueSome curr -> (target :?> BindableObject).SetValue(bindableProperty, curr)
                 )
             }
@@ -41,13 +41,15 @@ module Attributes =
     module ViewElement =
         let bindableProperty (bindableProperty: BindableProperty) =
             {
-                Update = (fun (dispatch, prevOpt, currOpt, target) ->
+                Update = (fun (programDefinition, prevOpt, currOpt, target) ->
                     match prevOpt, currOpt with
                     | ValueNone, ValueNone -> ()
                     | ValueSome prev, ValueSome curr when prev = curr -> ()
-                    | ValueSome prev, ValueNone -> (target :?> BindableObject).ClearValue(bindableProperty)
-                    | ValueNone, ValueSome curr -> (target :?> BindableObject).SetValue(bindableProperty, (curr :?> IViewElement).Create(dispatch))
-                    | ValueSome prev, ValueSome curr -> (curr :?> IViewElement).Update(dispatch, ValueSome (prev :?> IViewElement), target)
+                    | ValueSome _, ValueNone -> (target :?> BindableObject).ClearValue(bindableProperty)
+                    | ValueSome prev, ValueSome curr when programDefinition.CanReuseView (prev :?> IViewElement) (curr :?> IViewElement) ->
+                        let realTarget = (target :?> BindableObject).GetValue(bindableProperty)
+                        (curr :?> IViewElement).Update(programDefinition, ValueSome (prev :?> IViewElement), realTarget)
+                    | _, ValueSome curr -> (target :?> BindableObject).SetValue(bindableProperty, (curr :?> IViewElement).Create(programDefinition))
                 )
             }
             
@@ -56,13 +58,15 @@ module Attributes =
             
         let collection<'TTarget, 'TItem when 'TTarget :> BindableObject> (get: ('TTarget -> IList<'TItem>)) =
             {
-                Update = (fun (dispatch, prevOpt, currOpt, target) ->
+                Update = (fun (programDefinition, prevOpt, currOpt, target) ->
                     let prevOpt = prevOpt |> ValueOption.map (fun p -> p :?> IViewElement[])
                     let currOpt = currOpt |> ValueOption.map (fun p -> p :?> IViewElement[])
+                    let t = (target :?> 'TTarget)
                     ChildrenUpdaters.updateChildren
-                        prevOpt currOpt (get (target :?> 'TTarget))
-                        (fun x -> x.Create(dispatch) :?> 'TItem)
-                        (fun prev curr target -> curr.Update(dispatch, ValueSome prev, target))
+                        prevOpt currOpt (get t)
+                        programDefinition.CanReuseView
+                        (fun x -> x.Create(programDefinition) :?> 'TItem)
+                        (fun prev curr target -> curr.Update(programDefinition, ValueSome prev, target))
                 )
             }
         

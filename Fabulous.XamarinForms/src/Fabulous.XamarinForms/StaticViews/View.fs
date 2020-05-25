@@ -6,29 +6,29 @@ open Fabulous.XamarinForms
 open Xamarin.Forms
 
 module StaticHelpers =
-    let setBindingContext (prevState, newState, target: obj) =
+    let setBindingContext (_, newState, target: obj) =
         (target :?> BindableObject).BindingContext <- newState
 
 [<AbstractClass>]  
-type StaticPage<'T, 'msg when 'T :> Page>(?bindingContext) as this =
-    inherit StaticViewElement<'T>(this.Create, StaticHelpers.setBindingContext, bindingContext |> Option.defaultValue null)
+type StaticPage<'T, 'msg when 'T :> Page>(?stateFn: (obj -> unit) -> obj) as this =
+    inherit StaticViewElement(typeof<'T>, (fun () -> this.Create() |> box), StaticHelpers.setBindingContext, StateValue(fun dispatch -> match stateFn with None -> null | Some fn -> fn dispatch))
     interface IPage<'msg>
     abstract Create: unit -> 'TTarget
   
 [<AbstractClass>]  
-type StaticView<'T, 'msg when 'T :> View>(?bindingContext) as this =
-    inherit StaticViewElement<'T>(this.Create, StaticHelpers.setBindingContext, bindingContext |> Option.defaultValue null)
+type StaticView<'T, 'msg when 'T :> View>(?stateFn: (obj -> unit) -> obj) as this =
+    inherit StaticViewElement(typeof<'T>, (fun () -> this.Create() |> box), StaticHelpers.setBindingContext, StateValue(fun dispatch -> match stateFn with None -> null | Some fn -> fn dispatch))
     interface IView<'msg>
     abstract Create: unit -> 'T
     
 [<AbstractClass>]
-type StaticCell<'T, 'msg when 'T :> Cell>(?bindingContext) as this =
-    inherit StaticViewElement<'T>(this.Create, StaticHelpers.setBindingContext, bindingContext |> Option.defaultValue null)
+type StaticCell<'T, 'msg when 'T :> Cell>(?stateFn: (obj -> unit) -> obj) as this =
+    inherit StaticViewElement(typeof<'T>, (fun () -> this.Create() |> box), StaticHelpers.setBindingContext, StateValue(fun dispatch -> match stateFn with None -> null | Some fn -> fn dispatch))
     interface ICell<'msg>
     abstract Create: unit -> 'T
     
 [<AbstractClass>]
-type StaticMenuItem<'T, 'msg when 'T :> MenuItem>(?bindingContext) as this =
-    inherit StaticViewElement<'T>(this.Create, StaticHelpers.setBindingContext, bindingContext |> Option.defaultValue null)
+type StaticMenuItem<'T, 'msg when 'T :> MenuItem>(?stateFn: (obj -> unit) -> obj) as this =
+    inherit StaticViewElement(typeof<'T>, (fun () -> this.Create() |> box), StaticHelpers.setBindingContext, StateValue(fun dispatch -> match stateFn with None -> null | Some fn -> fn dispatch))
     interface IMenuItem<'msg>
     abstract Create: unit -> 'T

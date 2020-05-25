@@ -6,6 +6,15 @@ open Xamarin.Forms
 open Fabulous
 open Fabulous.XamarinForms
 open Fabulous.XamarinForms.DynamicViews.View
+open Fabulous.XamarinForms.StaticViews
+
+type DeleteButton<'msg>(text: string, clicked: 'msg) =
+    inherit StaticView<Xamarin.Forms.Button, 'msg>(fun dispatch -> box {| Text = text; Clicked = Helpers.makeCommand (fun () -> dispatch clicked) |})
+    override x.Create() =
+        let target = Xamarin.Forms.Button(BackgroundColor = Color.Red)
+        target.SetBinding(Xamarin.Forms.Button.TextProperty, Binding("Text"))
+        target.SetBinding(Xamarin.Forms.Button.CommandProperty, Binding("Clicked"))
+        target
 
 module Counter = 
     type Model = 
@@ -14,13 +23,15 @@ module Counter =
     type Msg = 
         | Increment
         | Decrement
+        | Reset
 
-    let init () = { Count = 0 }, []
+    let init () = { Count = 0 }
 
     let update msg model =
         match msg with
-        | Increment -> { model with Count = model.Count + 1 }, []
-        | Decrement -> { model with Count = model.Count - 1 }, []
+        | Increment -> { model with Count = model.Count + 1 }
+        | Decrement -> { model with Count = model.Count - 1 }
+        | Reset -> { model with Count = 0 }
         
     let view (model: Model) =
         StackLayout(spacing = 10., children = [
@@ -34,9 +45,10 @@ module Counter =
                 
             Button("Increment", Increment)
             Button("Decrement", Decrement)
+            DeleteButton("Reset", Reset)
         ])
              
-    let runnerDefinition = Program.AsComponent.useCmd init update view
+    let runnerDefinition = Program.AsComponent.simple init update view
 
 [<AbstractClass>]
 type FabulousCounterView () as view =

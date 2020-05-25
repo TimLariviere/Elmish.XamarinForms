@@ -3,6 +3,8 @@ namespace Fabulous.XamarinForms
 
 open Fabulous
 open System
+open Fabulous.DynamicViews
+open Fabulous.StaticViews
 open Fabulous.XamarinForms.DynamicViews
 open Xamarin.Forms
 
@@ -44,6 +46,12 @@ module Program =
     let private syncAction (fn: unit -> unit) =
         fun () ->
             Device.BeginInvokeOnMainThread (fun () -> fn())
+            
+    let rec canReuseView (prevChild: IViewElement) (newChild: IViewElement) =
+        match prevChild, newChild with
+        | (:? DynamicViewElement as prevChild), (:? DynamicViewElement as newChild) -> DynamicViews.ViewHelpers.canReuseDynamicView prevChild newChild
+        | (:? StaticViewElement as prevChild), (:? StaticViewElement as newChild) -> StaticViews.ViewHelpers.canReuseStaticView prevChild newChild
+        | _ -> false
         
     module AsApplication =
         /// Typical component, new commands are produced by `init` and `update` along with the new state.
@@ -51,7 +59,7 @@ module Program =
             { init = init
               update = update
               view = (fun model -> unbox<IViewElement> (view model))
-              canReuseView = ViewHelpers.canReuseView
+              canReuseView = canReuseView
               syncDispatch = syncDispatch
               syncAction = syncAction
               subscribe = fun _ -> Cmd.none
@@ -81,7 +89,7 @@ module Program =
             { init = init
               update = update
               view = (fun model -> unbox<IViewElement> (view model))
-              canReuseView = ViewHelpers.canReuseView
+              canReuseView = canReuseView
               syncDispatch = syncDispatch
               syncAction = syncAction
               subscribe = fun _ -> Cmd.none

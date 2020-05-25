@@ -2,7 +2,6 @@ namespace Fabulous.XamarinForms.DynamicViews
 
 open System.Collections.Generic
 open Fabulous
-open Fabulous.DynamicViews
 open Fabulous.XamarinForms.Helpers
 
 /// This module contains the update logic for the controls with children
@@ -123,7 +122,8 @@ module ChildrenUpdaters =
     let updateChildren
            (prevCollOpt: IViewElement[] voption) 
            (collOpt: IViewElement[] voption) 
-           (targetColl: IList<'TargetT>) 
+           (targetColl: IList<'TargetT>)
+           (canReuseView: IViewElement -> IViewElement -> bool)
            (create: IViewElement -> 'TargetT)
            (update: IViewElement -> IViewElement -> 'TargetT -> unit) // Incremental element-wise update, only if element reuse is allowed
         =
@@ -142,7 +142,7 @@ module ChildrenUpdaters =
             targetColl.Insert(newIndex, targetChild)
         
         updateChildrenInternal
-            prevCollOpt collOpt (fun v -> v.TryKey) ViewHelpers.canReuseView
+            prevCollOpt collOpt (fun v -> v.TryKey) canReuseView
             (fun () -> targetColl.Clear())
             create update move
             (fun index -> targetColl.RemoveAt(index))

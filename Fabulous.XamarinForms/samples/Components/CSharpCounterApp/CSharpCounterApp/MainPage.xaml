@@ -7,22 +7,16 @@
              x:Class="CSharpCounterApp.MainPage">
 
     <StackLayout>
-        <!-- Place new controls here -->
         <Label Text="Xamarin.Forms C# app" 
            HorizontalOptions="Center"
            FontSize="Title" />
         
-        <Label HorizontalOptions="Center" VerticalOptions="CenterAndExpand">
-            <Label.FormattedText>
-                <FormattedString>
-                    <Span>Total: </Span>
-                    <Span Text="{Binding Total}" />
-                </FormattedString>
-            </Label.FormattedText>
-        </Label>
+        <StackLayout Orientation="Horizontal" HorizontalOptions="Center" VerticalOptions="CenterAndExpand">
+            <Label Text="Total = " />
+            <Label Text="{Binding Total}" />
+        </StackLayout>
         
         <local:CounterView VerticalOptions="CenterAndExpand" Value="{Binding Counter1}" />
         <local:CounterView VerticalOptions="CenterAndExpand" Value="{Binding Counter2}" />
     </StackLayout>
-
 </ContentPage>

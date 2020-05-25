@@ -45,7 +45,7 @@ type Runner<'arg, 'model, 'msg>(host: IHost, definition: RunnerDefinition<'arg, 
     let mutable lastModel = initialModel
     let mutable lastViewDataOpt = None
     let mutable dispatch = RunnerDispatch<'msg>()
-    let dispatchObj = (fun msg -> dispatch.DispatchViaThunk (unbox msg))
+    let programDefinition = { CanReuseView = definition.canReuseView; Dispatch = (fun msg -> dispatch.DispatchViaThunk (unbox msg)) }
     let mutable reset = (fun () -> ())
 
     // Start Elmish dispatch loop  
@@ -77,9 +77,9 @@ type Runner<'arg, 'model, 'msg>(host: IHost, definition: RunnerDefinition<'arg, 
 
             if definition.canReuseView prevPageElement newPageElement then
                 let rootView = host.GetRootView()
-                newPageElement.Update(dispatchObj, ValueSome prevPageElement, rootView)
+                newPageElement.Update(programDefinition, ValueSome prevPageElement, rootView)
             else
-                let pageObj = newPageElement.Create(dispatchObj)
+                let pageObj = newPageElement.Create(programDefinition)
                 host.SetRootView(pageObj)
 
             lastViewDataOpt <- Some newPageElement
@@ -94,7 +94,7 @@ type Runner<'arg, 'model, 'msg>(host: IHost, definition: RunnerDefinition<'arg, 
         // If the view is dynamic, create the initial page
         lastViewDataOpt <-
             let newRootElement = definition.view initialModel
-            let rootView = newRootElement.Create(dispatchObj)
+            let rootView = newRootElement.Create(programDefinition)
             host.SetRootView(rootView)
             Some newRootElement
 
