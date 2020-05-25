@@ -10,12 +10,12 @@ open Fabulous.XamarinForms.DynamicViews.Attributes
 open Xamarin.Forms
 
 module ViewAttributes =
-    let ContentPageContent = Attributes.ViewElementProperty.bindable ContentPage.ContentProperty
+    let ContentPageContent = Attributes.ViewElement.bindableProperty ContentPage.ContentProperty
     let ViewHorizontalOptions = Attributes.Bindable.property View.HorizontalOptionsProperty
     let ViewVerticalOptions = Attributes.Bindable.property View.VerticalOptionsProperty
-    let LayoutOfTChildren = Attributes.ViewElementCollection.instance<Layout<_>, _> (fun t -> t.Children)
-    let GridColumnDefinitions = Attributes.Collection.instance<Grid, _> (fun t -> t.ColumnDefinitions :> IList<_>)
-    let GridRowDefinitions = Attributes.Collection.instance<Grid, _> (fun t -> t.RowDefinitions :> IList<_>)
+    let LayoutOfTChildren = Attributes.ViewElement.collection<Layout<_>, _> (fun t -> t.Children)
+    let GridColumnDefinitions = Attributes.Scalar.collection<Grid, _> (fun t -> t.ColumnDefinitions :> IList<_>)
+    let GridRowDefinitions = Attributes.Scalar.collection<Grid, _> (fun t -> t.RowDefinitions :> IList<_>)
     let GridColumn = Attributes.Bindable.property Grid.ColumnProperty
     let GridRow = Attributes.Bindable.property Grid.RowProperty
     let StackLayoutSpacing = Attributes.Bindable.property StackLayout.SpacingProperty
@@ -27,177 +27,171 @@ module ViewAttributes =
     let InputViewText = Attributes.Bindable.property InputView.TextProperty
     let InputViewTextChanged = Attributes.Event.handlerOf<InputView, _> (fun t -> t.TextChanged)
     let ItemsViewOfTItemsSource = Attributes.Bindable.collection ItemsView.ItemsSourceProperty
-    let ItemsViewOfTItemTemplate = Attributes.ViewElementProperty.bindableTemplate ItemsView.ItemTemplateProperty
-    let CellContextActions = Attributes.Collection.instance<Cell, _> (fun t -> t.ContextActions)
+    let ItemsViewOfTItemTemplate = Attributes.ViewElement.bindableTemplate ItemsView.ItemTemplateProperty
+    let CellContextActions = Attributes.Scalar.collection<Cell, _> (fun t -> t.ContextActions)
     let TextCellText = Attributes.Bindable.property TextCell.TextProperty
     let MenuItemText = Attributes.Bindable.property MenuItem.TextProperty
     let MenuItemClicked = Attributes.Event.handler<MenuItem> (fun t -> t.Clicked)
     
-    
 [<Sealed>]
-type ContentPage<'msg>(attributes: Attribute list) =
-    inherit DynamicViewElement(typeof<Xamarin.Forms.ContentPage>, Xamarin.Forms.ContentPage >> box, attributes)
+type ContentPage<'msg>(events, properties) =
+    inherit DynamicViewElement(typeof<Xamarin.Forms.ContentPage>, Xamarin.Forms.ContentPage >> box, events, properties)
     interface IPage<'msg>
     static member inline init(content: IView<'msg>) =
-        let attributes = [PropertyNode (ViewAttributes.ContentPageContent.Value(content))]
-        ContentPage<'msg>(attributes)
+        let properties = [ ViewAttributes.ContentPageContent.Value(content) ]
+        ContentPage<'msg>([], properties)
         
 [<Sealed>]
-type Grid<'msg>(attributes: Attribute list) =
-    inherit DynamicViewElement(typeof<Xamarin.Forms.Grid>, Xamarin.Forms.Grid >> box, attributes)
+type Grid<'msg>(events, properties) =
+    inherit DynamicViewElement(typeof<Xamarin.Forms.Grid>, Xamarin.Forms.Grid >> box, events, properties)
     interface IView<'msg>
-    static member inline init(?coldefs: GridDefinition list, ?rowdefs: GridDefinition list) =
-        let attributes = []
-        let attributes = match coldefs with None -> attributes | Some v -> PropertyNode (ViewAttributes.GridColumnDefinitions.Value(v))::attributes
-        let attributes = match rowdefs with None -> attributes | Some v -> PropertyNode (ViewAttributes.GridRowDefinitions.Value(v))::attributes
-        fun (children: IView<'msg> list) ->
-            let attributes = match children with [] -> attributes | v -> PropertyNode (ViewAttributes.LayoutOfTChildren.Value(v))::attributes
-            Grid<'msg>(attributes)
+    static member inline init(children: IView<'msg> list, ?coldefs: GridDefinition list, ?rowdefs: GridDefinition list) =
+        let properties = [ ViewAttributes.LayoutOfTChildren.Value(children) ]
+        let properties = match coldefs with None -> properties | Some v -> ViewAttributes.GridColumnDefinitions.Value(v)::properties
+        let properties = match rowdefs with None -> properties | Some v -> ViewAttributes.GridRowDefinitions.Value(v)::properties
+        Grid<'msg>([], properties)
             
     member inline x.gridColumn(column: int) =
-        let attributes = PropertyNode (ViewAttributes.GridColumn.Value(column))::x.Attributes
-        Grid<'msg>(attributes)
+        let properties = (ViewAttributes.GridColumn.Value(column))::x.Properties
+        Grid<'msg>(x.Events, properties)
         
 [<Sealed>]
-type StackLayout<'msg>(attributes: Attribute list) =
-    inherit DynamicViewElement(typeof<Xamarin.Forms.StackLayout>, Xamarin.Forms.StackLayout >> box, attributes)
+type StackLayout<'msg>(events, properties) =
+    inherit DynamicViewElement(typeof<Xamarin.Forms.StackLayout>, Xamarin.Forms.StackLayout >> box, events, properties)
     interface IView<'msg>
     static member inline init(children: IView<'msg> list, ?spacing: double) =
-        let attributes = match children with [] -> [] | v -> [PropertyNode (ViewAttributes.LayoutOfTChildren.Value(v |> List.map (fun x -> x :?> DynamicViewElement) |> Array.ofList))]
-        let attributes = match spacing with None -> attributes | Some v -> PropertyNode (ViewAttributes.StackLayoutSpacing.Value(v))::attributes
-        StackLayout<'msg>(attributes)
+        let properties = [ ViewAttributes.LayoutOfTChildren.Value(children |> List.map (fun x -> x :?> IViewElement) |> Array.ofList) ]
+        let properties = match spacing with None -> properties | Some v -> ViewAttributes.StackLayoutSpacing.Value(v)::properties
+        StackLayout<'msg>([], properties)
     
     member inline x.horizontalOptions(options: LayoutOptions) =
-        let attributes = PropertyNode (ViewAttributes.ViewHorizontalOptions.Value(options))::x.Attributes
-        StackLayout<'msg>(attributes)
+        let properties = ViewAttributes.ViewHorizontalOptions.Value(options)::x.Properties
+        StackLayout<'msg>(x.Events, properties)
     
     member inline x.verticalOptions(options: LayoutOptions) =
-        let attributes = PropertyNode (ViewAttributes.ViewVerticalOptions.Value(options))::x.Attributes
-        StackLayout<'msg>(attributes)
+        let properties = ViewAttributes.ViewVerticalOptions.Value(options)::x.Properties
+        StackLayout<'msg>(x.Events, properties)
             
     member inline x.gridColumn(column: int) =
-        let attributes = PropertyNode (ViewAttributes.GridColumn.Value(column))::x.Attributes
-        StackLayout<'msg>(attributes)
+        let properties = ViewAttributes.GridColumn.Value(column)::x.Properties
+        StackLayout<'msg>(x.Events, properties)
         
 [<Sealed>]
-type Button<'msg>(attributes: Attribute list) =
-    inherit DynamicViewElement(typeof<Xamarin.Forms.Button>, Xamarin.Forms.Button >> box, attributes)
+type Button<'msg>(events, properties) =
+    inherit DynamicViewElement(typeof<Xamarin.Forms.Button>, Xamarin.Forms.Button >> box, events, properties)
     interface IView<'msg>
     static member inline init(?text: string, ?clicked: 'msg) =
-        let attributes = []
-        let attributes = match text with None -> attributes | Some v -> PropertyNode (ViewAttributes.ButtonText.Value(v))::attributes
-        let attributes = match clicked with None -> attributes | Some v -> EventNode (ViewAttributes.ButtonClicked.Value(EventHandler(fun _ _ -> RunnerDispatch<'msg>.DispatchViaThunk v)))::attributes
-        Button<'msg>(attributes)
+        let properties = match text with None -> [] | Some v -> [ ViewAttributes.ButtonText.Value(v) ]
+        let events = match clicked with None -> [] | Some v -> [ ViewAttributes.ButtonClicked.Value(fun dispatch -> EventHandler(fun _ _ -> dispatch v) :> obj) ]
+        Button<'msg>(events, properties)
             
     member inline x.horizontalOptions(options: LayoutOptions) =
-        let attributes = PropertyNode (ViewAttributes.ViewHorizontalOptions.Value(options))::x.Attributes
-        Button<'msg>(attributes)
+        let properties = ViewAttributes.ViewHorizontalOptions.Value(options)::x.Properties
+        Button<'msg>(x.Events, properties)
     
     member inline x.verticalOptions(options: LayoutOptions) =
-        let attributes = PropertyNode (ViewAttributes.ViewVerticalOptions.Value(options))::x.Attributes
-        Button<'msg>(attributes)
+        let properties = ViewAttributes.ViewVerticalOptions.Value(options)::x.Properties
+        Button<'msg>(x.Events, properties)
             
     member inline x.gridColumn(column: int) =
-        let attributes = PropertyNode (ViewAttributes.GridColumn.Value(column))::x.Attributes
-        Button<'msg>(attributes)
+        let properties = ViewAttributes.GridColumn.Value(column)::x.Properties
+        Button<'msg>(x.Events, properties)
        
 [<Sealed>]
-type Entry<'msg>(attributes: Attribute list) =
-    inherit DynamicViewElement(typeof<Xamarin.Forms.Entry>, Xamarin.Forms.Entry >> box, attributes)
+type Entry<'msg>(events, properties) =
+    inherit DynamicViewElement(typeof<Xamarin.Forms.Entry>, Xamarin.Forms.Entry >> box, events, properties)
     interface IView<'msg>
     static member inline init(?text: string, ?textChanged: TextChangedEventArgs -> 'msg) =
-        let attributes = []
-        let attributes = match text with None -> attributes | Some v -> PropertyNode (ViewAttributes.InputViewText.Value(v))::attributes
-        let attributes = match textChanged with None -> attributes | Some v -> EventNode (ViewAttributes.InputViewTextChanged.Value(EventHandler<TextChangedEventArgs>(fun _ args -> v args |> RunnerDispatch<'msg>.DispatchViaThunk)))::attributes
-        Entry<'msg>(attributes)
+        let properties = match text with None -> [] | Some v -> [ ViewAttributes.InputViewText.Value(v) ]
+        let events = match textChanged with None -> [] | Some v -> [ ViewAttributes.InputViewTextChanged.Value(fun dispatch -> EventHandler<TextChangedEventArgs>(fun _ args -> v args |> dispatch) :> obj) ]
+        Entry<'msg>(events, properties)
             
     member inline x.horizontalOptions(options: LayoutOptions) =
-        let attributes = PropertyNode (ViewAttributes.ViewHorizontalOptions.Value(options))::x.Attributes
-        Entry<'msg>(attributes)
+        let properties = ViewAttributes.ViewHorizontalOptions.Value(options)::x.Properties
+        Entry<'msg>(x.Events, properties)
     
     member inline x.verticalOptions(options: LayoutOptions) =
-        let attributes = PropertyNode (ViewAttributes.ViewVerticalOptions.Value(options))::x.Attributes
-        Entry<'msg>(attributes)
+        let properties = ViewAttributes.ViewVerticalOptions.Value(options)::x.Properties
+        Entry<'msg>(x.Events, properties)
             
     member inline x.gridColumn(column: int) =
-        let attributes = PropertyNode (ViewAttributes.GridColumn.Value(column))::x.Attributes
-        Entry<'msg>(attributes)
+        let properties = ViewAttributes.GridColumn.Value(column)::x.Properties
+        Entry<'msg>(x.Events, properties)
           
 [<Sealed>]  
-type Label<'msg>(attributes: Attribute list) =
-    inherit DynamicViewElement(typeof<Xamarin.Forms.Label>, Xamarin.Forms.Label >> box, attributes)
+type Label<'msg>(events, properties) =
+    inherit DynamicViewElement(typeof<Xamarin.Forms.Label>, Xamarin.Forms.Label >> box, events, properties)
     interface IView<'msg>
     static member inline init(text: string) =
-        let attributes = [PropertyNode (ViewAttributes.LabelText.Value(text))]
-        Label<'msg>(attributes)
+        let properties = [ ViewAttributes.LabelText.Value(text) ]
+        Label<'msg>([], properties)
         
     member inline x.font(fontSize: NamedSize) =
-        let attributes = PropertyNode (ViewAttributes.LabelFontSize.Value(Device.GetNamedSize(fontSize, typeof<Label>)))::x.Attributes
-        Label<'msg>(attributes)
+        let properties = ViewAttributes.LabelFontSize.Value(Device.GetNamedSize(fontSize, typeof<Label>))::x.Properties
+        Label<'msg>(x.Events, properties)
             
     member inline x.horizontalOptions(options: LayoutOptions) =
-        let attributes = PropertyNode (ViewAttributes.ViewHorizontalOptions.Value(options))::x.Attributes
-        Label<'msg>(attributes)
+        let properties = ViewAttributes.ViewHorizontalOptions.Value(options)::x.Properties
+        Label<'msg>(x.Events, properties)
     
     member inline x.verticalOptions(options: LayoutOptions) =
-        let attributes = PropertyNode (ViewAttributes.ViewVerticalOptions.Value(options))::x.Attributes
-        Label<'msg>(attributes)
+        let properties = ViewAttributes.ViewVerticalOptions.Value(options)::x.Properties
+        Label<'msg>(x.Events, properties)
         
     member inline x.textColor(color: Color) =
-        let attributes = PropertyNode (ViewAttributes.LabelTextColor.Value(color))::x.Attributes
-        Label<'msg>(attributes)
+        let properties = ViewAttributes.LabelTextColor.Value(color)::x.Properties
+        Label<'msg>(x.Events, properties)
             
     member inline x.gridColumn(column: int) =
-        let attributes = PropertyNode (ViewAttributes.GridColumn.Value(column))::x.Attributes
-        Label<'msg>(attributes)
+        let properties = ViewAttributes.GridColumn.Value(column)::x.Properties
+        Label<'msg>(x.Events, properties)
         
 [<Sealed>]
-type ListView<'msg>(attributes: Attribute list) =
-    inherit DynamicViewElement(typeof<Xamarin.Forms.Label>, Xamarin.Forms.Label >> box, attributes)
+type ListView<'msg>(events, properties) =
+    inherit DynamicViewElement(typeof<Xamarin.Forms.Label>, Xamarin.Forms.Label >> box, events, properties)
     interface IView<'msg>
     static member inline init(items: #ICell<'msg> list) =
-        let attributes = [PropertyNode (ViewAttributes.ItemsViewOfTItemsSource.Value(items))]
-        ListView<'msg>(attributes)
+        let properties = [ ViewAttributes.ItemsViewOfTItemsSource.Value(items) ]
+        ListView<'msg>([], properties)
     
     member inline x.horizontalOptions(options: LayoutOptions) =
-        let attributes = PropertyNode (ViewAttributes.ViewHorizontalOptions.Value(options))::x.Attributes
-        ListView<'msg>(attributes)
+        let properties = ViewAttributes.ViewHorizontalOptions.Value(options)::x.Properties
+        ListView<'msg>(x.Events, properties)
     
     member inline x.verticalOptions(options: LayoutOptions) =
-        let attributes = PropertyNode (ViewAttributes.ViewVerticalOptions.Value(options))::x.Attributes
-        ListView<'msg>(attributes)
+        let properties = ViewAttributes.ViewVerticalOptions.Value(options)::x.Properties
+        ListView<'msg>(x.Events, properties)
             
     member inline x.gridColumn(column: int) =
-        let attributes = PropertyNode (ViewAttributes.GridColumn.Value(column))::x.Attributes
-        ListView<'msg>(attributes)
+        let properties = ViewAttributes.GridColumn.Value(column)::x.Properties
+        ListView<'msg>(x.Events, properties)
         
 [<Sealed>]    
-type TextCell<'msg>(attributes: Attribute list) =
-    inherit DynamicViewElement(typeof<Xamarin.Forms.TextCell>, Xamarin.Forms.TextCell >> box, attributes)
+type TextCell<'msg>(events, properties) =
+    inherit DynamicViewElement(typeof<Xamarin.Forms.TextCell>, Xamarin.Forms.TextCell >> box, events, properties)
     interface ICell<'msg>
     static member inline init(text: string) =
-        let attributes = [PropertyNode (ViewAttributes.TextCellText.Value(text))]
-        TextCell<'msg>(attributes)
+        let properties = [ ViewAttributes.TextCellText.Value(text) ]
+        TextCell<'msg>([], properties)
         
     member inline x.contextActions(actions: IMenuItem<'msg> list) =
-        let attributes = PropertyNode (ViewAttributes.CellContextActions.Value(actions))::x.Attributes
-        TextCell<'msg>(attributes)        
+        let properties = ViewAttributes.CellContextActions.Value(actions)::x.Properties
+        TextCell<'msg>([], properties)        
         
 [<Sealed>]
-type MenuItem<'msg>(attributes: Attribute list) =
-    inherit DynamicViewElement(typeof<Xamarin.Forms.MenuItem>, Xamarin.Forms.MenuItem >> box, attributes)
+type MenuItem<'msg>(events, properties) =
+    inherit DynamicViewElement(typeof<Xamarin.Forms.MenuItem>, Xamarin.Forms.MenuItem >> box, events, properties)
     interface IMenuItem<'msg>
     static member inline init(?text: string, ?clicked: 'msg) =
-        let attributes = []
-        let attributes = match text with None -> attributes | Some v -> PropertyNode (ViewAttributes.MenuItemText.Value(v))::attributes
-        let attributes = match clicked with None -> attributes | Some v -> EventNode (ViewAttributes.MenuItemClicked.Value(v))::attributes
-        MenuItem<'msg>(attributes)
+        let properties = match text with None -> [] | Some v -> [ ViewAttributes.MenuItemText.Value(v) ]
+        let events = match clicked with None -> [] | Some v -> [ ViewAttributes.MenuItemClicked.Value(fun dispatch -> EventHandler(fun _ _ -> dispatch v) :> obj) ]
+        MenuItem<'msg>(events, properties)
         
         
 [<AbstractClass; Sealed>]
 type View private () =
     static member inline ContentPage(content) = ContentPage.init(content)
-    static member inline Grid(?coldefs,?rowdefs) = Grid.init (?coldefs=coldefs,?rowdefs=rowdefs)
+    static member inline Grid(children, ?coldefs,?rowdefs) = Grid.init (children, ?coldefs=coldefs,?rowdefs=rowdefs)
     static member inline StackLayout(children,?spacing) = StackLayout.init(children,?spacing=spacing)
     static member inline Button(?text,?clicked) = Button.init(?text=text,?clicked=clicked)
     static member inline Entry(?text,?textChanged) = Entry.init(?text=text,?textChanged=textChanged)

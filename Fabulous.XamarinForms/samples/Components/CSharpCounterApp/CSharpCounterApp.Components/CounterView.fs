@@ -24,8 +24,8 @@ module Counter =
         
     let view (model: Model) =
         StackLayout(spacing = 10., children = [
-            Label("Fabulous Counter Component")
-                .font(NamedSize.Subtitle)
+            Label("Fabulous Counter")
+                .font(NamedSize.Header)
                 .horizontalOptions(LayoutOptions.Center)
                 
             Label(sprintf "Count = %i" model.Count)
@@ -38,10 +38,14 @@ module Counter =
              
     let runnerDefinition = Program.AsComponent.useCmd init update view
 
-type CounterView () as view = 
+[<AbstractClass>]
+type FabulousCounterView () as view =
     inherit ContentView ()
 
     let runner =
         Counter.runnerDefinition
         |> Program.withConsoleTrace
+        |> Program.AsComponent.withModelChanged(fun model -> view.Value <- model.Count)
         |> Program.AsComponent.run view
+        
+    abstract member Value : int with get, set

@@ -121,23 +121,20 @@ module ChildrenUpdaters =
     /// Incremental list maintenance: given a collection, and a previous version of that collection, perform
     /// a reduced number of clear/add/remove/insert operations
     let updateChildren
-           (prevCollOpt: DynamicViewElement[] voption) 
-           (collOpt: DynamicViewElement[] voption) 
+           (prevCollOpt: IViewElement[] voption) 
+           (collOpt: IViewElement[] voption) 
            (targetColl: IList<'TargetT>) 
-           (create: DynamicViewElement -> 'TargetT)
-           (update: DynamicViewElement -> DynamicViewElement -> 'TargetT -> unit) // Incremental element-wise update, only if element reuse is allowed
-           (attach: DynamicViewElement voption -> DynamicViewElement -> 'TargetT -> unit) // adjust attached properties
+           (create: IViewElement -> 'TargetT)
+           (update: IViewElement -> IViewElement -> 'TargetT -> unit) // Incremental element-wise update, only if element reuse is allowed
         =
         
         let create index child =
             let targetChild = create child
-            attach ValueNone child targetChild
             targetColl.Insert(index, targetChild)
             
         let update index prevChild newChild =
             let targetChild = targetColl.[index]
             update prevChild newChild targetChild
-            attach (ValueSome prevChild) newChild targetChild
             
         let move prevIndex newIndex =
             let targetChild = targetColl.[prevIndex]
@@ -145,11 +142,7 @@ module ChildrenUpdaters =
             targetColl.Insert(newIndex, targetChild)
         
         updateChildrenInternal
-            prevCollOpt collOpt ViewHelpers.tryGetKey ViewHelpers.canReuseView
+            prevCollOpt collOpt (fun v -> v.TryKey) ViewHelpers.canReuseView
             (fun () -> targetColl.Clear())
             create update move
             (fun index -> targetColl.RemoveAt(index))
-
-    /// Update a control given the previous and new view elements
-    let inline updateChild (prevChild: DynamicViewElement) (newChild: DynamicViewElement) targetChild = 
-        (newChild :> IViewElement).Update(ValueSome (prevChild :> IViewElement), targetChild)

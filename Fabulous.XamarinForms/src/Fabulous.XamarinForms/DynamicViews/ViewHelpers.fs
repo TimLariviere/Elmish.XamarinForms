@@ -1,20 +1,24 @@
 namespace Fabulous.XamarinForms.DynamicViews
 
+open Fabulous
 open Fabulous.DynamicViews
 open Xamarin.Forms
 
 module ViewHelpers =
     /// Checks whether an underlying control can be reused given the previous and new view elements
-    let rec canReuseView (prevChild: DynamicViewElement) (newChild: DynamicViewElement) =
-        if prevChild.TargetType = newChild.TargetType && canReuseAutomationId prevChild newChild then
-            if newChild.TargetType.IsAssignableFrom(typeof<NavigationPage>) then
-                canReuseNavigationPage prevChild newChild
-//            elif newChild.TargetType.IsAssignableFrom(typeof<CustomEffect>) then
-//                canReuseCustomEffect prevChild newChild
+    let rec canReuseView (prevChild: IViewElement) (newChild: IViewElement) =
+        match prevChild, newChild with
+        | (:? DynamicViewElement as prevChild), (:? DynamicViewElement as newChild) ->
+            if prevChild.TargetType = newChild.TargetType && canReuseAutomationId prevChild newChild then
+                if newChild.TargetType.IsAssignableFrom(typeof<NavigationPage>) then
+                    canReuseNavigationPage prevChild newChild
+    //            elif newChild.TargetType.IsAssignableFrom(typeof<CustomEffect>) then
+    //                canReuseCustomEffect prevChild newChild
+                else
+                    true
             else
-                true
-        else
-            false
+                false
+        | _ -> false
 
     /// Checks whether an underlying NavigationPage control can be reused given the previous and new view elements
     //
@@ -50,6 +54,3 @@ module ViewHelpers =
 //        match prevName with
 //        | ValueSome _ when prevName <> newName -> false
 //        | _ -> true
-        
-    /// Try to retrieve the value of the "Key" property
-    let tryGetKey (x: DynamicViewElement) = ValueNone //x.TryGetKey()

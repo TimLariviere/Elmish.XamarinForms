@@ -3,6 +3,7 @@ namespace Fabulous.XamarinForms
 
 open Fabulous
 open System
+open Fabulous.XamarinForms.DynamicViews
 open Xamarin.Forms
 
 type ContentViewHost(contentView: ContentView) =
@@ -36,15 +37,23 @@ module Program =
     let internal onError (text: string, ex: exn) = 
         Console.WriteLine (sprintf "%s: %A" text ex)
         
+    let private syncDispatch (dispatch: 'msg -> unit) =
+        fun msg ->
+            Device.BeginInvokeOnMainThread(fun () -> dispatch msg)
+            
+    let private syncAction (fn: unit -> unit) =
+        fun () ->
+            Device.BeginInvokeOnMainThread (fun () -> fn())
+        
     module AsApplication =
         /// Typical component, new commands are produced by `init` and `update` along with the new state.
         let useCmd (init : 'arg -> 'model * Cmd<'msg>) (update : 'msg -> 'model -> 'model * Cmd<'msg>) (view : 'model -> #IPage<'msg>) =
             { init = init
               update = update
               view = (fun model -> unbox<IViewElement> (view model))
-              canReuseView = fun _ _ -> false
-              syncDispatch = id
-              syncAction = id
+              canReuseView = ViewHelpers.canReuseView
+              syncDispatch = syncDispatch
+              syncAction = syncAction
               subscribe = fun _ -> Cmd.none
               debug = false
               onError = onError }
@@ -72,9 +81,9 @@ module Program =
             { init = init
               update = update
               view = (fun model -> unbox<IViewElement> (view model))
-              canReuseView = fun _ _ -> false
-              syncDispatch = id
-              syncAction = id
+              canReuseView = ViewHelpers.canReuseView
+              syncDispatch = syncDispatch
+              syncAction = syncAction
               subscribe = fun _ -> Cmd.none
               debug = false
               onError = onError }
@@ -95,3 +104,11 @@ module Program =
         /// Run the component with Fabulous.XamarinForms
         let run (contentView: ContentView) (definition: RunnerDefinition<unit, 'model, 'msg>) = 
             runWith contentView () definition
+            
+        let withModelChanged (fn: 'model -> unit) (definition: RunnerDefinition<'arg, 'model, 'msg>) =
+            { definition with
+                update = (fun msg model ->
+                    let newModel, newCmd = definition.update msg model
+                    fn newModel
+                    newModel, newCmd
+                ) }

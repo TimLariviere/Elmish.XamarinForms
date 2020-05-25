@@ -3,73 +3,81 @@ namespace Fabulous
 
 open System
 open System.Collections.Generic
-open System.Linq
 
 type IViewElement =
-    abstract Create: unit -> obj
-    abstract Update: IViewElement voption * obj -> unit
+    abstract Create: (obj -> unit) -> obj
+    abstract Update: (obj -> unit) * IViewElement voption * obj -> unit
+    abstract TryKey: string voption with get
     
 module DynamicViews =
     [<ReferenceEquality>] type DynamicEvent = { Subscribe: obj * obj -> unit; Unsubscribe: obj * obj -> unit }
-    [<ReferenceEquality>] type DynamicProperty = { Set: obj voption * obj * obj -> unit; Unset: obj * obj -> unit }
+    [<ReferenceEquality>] type DynamicProperty = { Update: (obj -> unit) * obj voption * obj voption * obj -> unit }
     
-    type Attribute =
-        | EventNode of DynamicEvent * obj
-        | PropertyNode of DynamicProperty * obj
+    type DynamicEventValue(fn: (obj -> unit) -> obj) =
+        let mutable handlerOpt = ValueNone
+        member x.GetHandler(dispatch) =
+            match handlerOpt with
+            | ValueNone ->
+                let handler = (fn dispatch)
+                handlerOpt <- ValueSome handler
+                handler
+            | ValueSome handler ->
+                handler
     
     type DynamicViewElement
         (
             targetType: Type,
             create: unit -> obj,
-            attributes: Attribute list
+            events: KeyValuePair<DynamicEvent, DynamicEventValue> list,
+            properties: KeyValuePair<DynamicProperty, obj> list
         ) =
         
         member x.TargetType = targetType
-        member x.Attributes = attributes
+        member x.Events = events
+        member x.Properties = properties
         
-        member internal x.BuildAttributes() =
-            let events = Dictionary<DynamicEvent, obj>()
-            let properties = Dictionary<DynamicProperty, obj>()
-            attributes |> List.iter (fun attr ->
-                match attr with
-                | EventNode (evt, value) -> events.Add(evt, value)
-                | PropertyNode (prop, value) -> properties.Add(prop, value)
-            )
-            events, properties
+        member x.TryGetPropertyValue(propDefinition: DynamicProperty) =
+            match properties |> List.tryFind (fun kvp -> kvp.Key = propDefinition) with
+            | None -> ValueNone
+            | Some kvp -> ValueSome kvp.Value
             
-        member x.Create() =
+        member x.Create(dispatch) =
             let target = create()
-            x.Update(ValueNone, target)
+            x.Update(dispatch, ValueNone, target)
             target
         
-        member x.Update(prevOpt: DynamicViewElement voption, target: obj) =
-            let prevEvents, prevProperties =
-                match prevOpt with
-                | ValueNone -> Dictionary(), Dictionary()
-                | ValueSome prev -> prev.BuildAttributes()
-            let currEvents, currProperties = x.BuildAttributes()
-            
+        member x.Update(dispatch, prevOpt: DynamicViewElement voption, target: obj) =
             // Unsubscribe events
-            for evt in prevEvents do
-                evt.Key.Unsubscribe(evt.Value, target)
+            match prevOpt with
+            | ValueNone -> ()
+            | ValueSome prev ->
+                for evt in prev.Events do
+                    evt.Key.Unsubscribe(evt.Value.GetHandler(dispatch), target)
                     
             // Update properties
-            let allProps = currProperties.Keys.Union(prevProperties.Keys).Distinct().ToList()
+            let allProps = List.distinct [
+                match prevOpt with
+                | ValueNone -> ()
+                | ValueSome prev ->
+                    for prop in prev.Properties do
+                        yield prop.Key
+                        
+                for prop in x.Properties do
+                    yield prop.Key
+            ]
             for prop in allProps do
-                match prevProperties.TryGetValue(prop), currProperties.TryGetValue(prop) with
-                | (false, _), (false, _) -> ()
-                | (true, prevValue), (true, currValue) when prevValue = currValue -> ()
-                | (true, prevValue), (false, _) -> prop.Unset(prevValue, target)
-                | (false, _), (true, currValue) -> prop.Set(ValueNone, currValue, target)
-                | (true, prevValue), (true, currValue) -> prop.Set(ValueSome prevValue, currValue, target)
+                let prevPropOpt = match prevOpt with ValueNone -> ValueNone | ValueSome prev -> prev.TryGetPropertyValue(prop)
+                let currPropOpt = x.TryGetPropertyValue(prop)
+                prop.Update(dispatch, prevPropOpt, currPropOpt, target)
                 
             // Subscribe events
-            for evt in currEvents do
-                evt.Key.Subscribe(evt.Value, target)
+            for evt in x.Events do
+                evt.Key.Subscribe(evt.Value.GetHandler(dispatch), target)
             
         interface IViewElement with
-            member x.Create() = x.Create()
-            member x.Update(prevOpt, target) = x.Update((prevOpt |> ValueOption.map(fun p -> p :?> DynamicViewElement), target))
+            member x.Create(dispatch) = x.Create(dispatch)
+            member x.Update(dispatch, prevOpt, target) = x.Update(dispatch, (prevOpt |> ValueOption.map(fun p -> p :?> DynamicViewElement)), target)
+            member x.TryKey with get() = ValueNone
         
 module StaticViews =
     type StaticViewElement<'T>
@@ -81,9 +89,16 @@ module StaticViews =
         
         member x.State = state
         
+        member x.Create(dispatch) =
+            let target = create()
+            x.Update(dispatch, ValueNone, target)
+            box target
+            
+        member x.Update(_, prevOpt: StaticViewElement<'T> voption, target) =
+            let prevStateOpt = prevOpt |> ValueOption.map (fun p -> p.State)
+            setState(prevStateOpt, state, target)
+            
         interface IViewElement with
-            member x.Create() = create() |> box
-                
-            member x.Update(prevOpt, target) =
-                let prevStateOpt = prevOpt |> ValueOption.map (fun p -> (p :?> StaticViewElement<'T>).State)
-                setState(prevStateOpt, state, target :?> 'T)
+            member x.Create(dispatch) = x.Create(dispatch)
+            member x.Update(dispatch, prevOpt, target) = x.Update(dispatch, prevOpt |> ValueOption.map (fun p -> p :?> StaticViewElement<'T>), target :?> 'T)
+            member x.TryKey with get() = ValueNone

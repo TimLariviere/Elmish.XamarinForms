@@ -9,19 +9,17 @@ type IHost =
     abstract member GetRootView : unit -> obj
     /// Sets a new instance of the root view item (e.g. Xamarin.Forms.Application.MainPage)
     abstract member SetRootView : obj -> unit
-
+    
 /// We store the current dispatch function for the running Elmish program as a 
 /// static-global thunk because we want old view elements stored in the `dependsOn` global table
 /// to be recyclable on resumption (when a new ProgramRunner gets created).
 type RunnerDispatch<'msg>()  = 
-    static let mutable dispatchImpl = (fun (_msg: 'msg) -> failwith "do not call dispatch during initialization" : unit)
+    let mutable dispatchImpl = (fun (_msg: 'msg) -> failwith "do not call dispatch during initialization" : unit)
 
-    static let dispatch = 
-        id (fun msg -> 
-            dispatchImpl msg)
-
-    static member DispatchViaThunk = dispatch 
-    static member SetDispatchThunk v = dispatchImpl <- v
+    member x.DispatchViaThunk =
+        id (fun msg -> dispatchImpl msg)
+ 
+    member x.SetDispatchThunk v = dispatchImpl <- v
 
 /// Program type captures various aspects of program behavior
 type RunnerDefinition<'arg, 'model, 'msg> = 
@@ -46,15 +44,9 @@ type Runner<'arg, 'model, 'msg>(host: IHost, definition: RunnerDefinition<'arg, 
 
     let mutable lastModel = initialModel
     let mutable lastViewDataOpt = None
-    let dispatch = RunnerDispatch<'msg>.DispatchViaThunk
+    let mutable dispatch = RunnerDispatch<'msg>()
+    let dispatchObj = (fun msg -> dispatch.DispatchViaThunk (unbox msg))
     let mutable reset = (fun () -> ())
-
-    // If the view is dynamic, create the initial page
-    let viewInfo = 
-        let newRootElement = definition.view initialModel
-        let rootView = newRootElement.Create()
-        host.SetRootView(rootView)
-        newRootElement
 
     // Start Elmish dispatch loop  
     let rec processMsg msg = 
@@ -67,7 +59,7 @@ type Runner<'arg, 'model, 'msg>(host: IHost, definition: RunnerDefinition<'arg, 
                 definition.onError ("Unable to update view:", ex)
             for sub in newCommands do
                 try 
-                    sub dispatch
+                    sub dispatch.DispatchViaThunk
                 with ex ->
                     definition.onError ("Error executing commands:", ex)
         with ex ->
@@ -75,9 +67,7 @@ type Runner<'arg, 'model, 'msg>(host: IHost, definition: RunnerDefinition<'arg, 
 
     and updateView updatedModel = 
         match lastViewDataOpt with
-        | None -> 
-            lastViewDataOpt <- Some viewInfo
-
+        | None -> ()
         | Some prevPageElement ->
             let newPageElement = 
                 try definition.view updatedModel
@@ -87,27 +77,31 @@ type Runner<'arg, 'model, 'msg>(host: IHost, definition: RunnerDefinition<'arg, 
 
             if definition.canReuseView prevPageElement newPageElement then
                 let rootView = host.GetRootView()
-                newPageElement.Update(ValueSome prevPageElement, rootView)
+                newPageElement.Update(dispatchObj, ValueSome prevPageElement, rootView)
             else
-                let pageObj = newPageElement.Create()
+                let pageObj = newPageElement.Create(dispatchObj)
                 host.SetRootView(pageObj)
 
             lastViewDataOpt <- Some newPageElement
                       
     do 
         // Set up the global dispatch function
-        RunnerDispatch<'msg>.SetDispatchThunk (processMsg |> definition.syncDispatch)
-
+        dispatch.SetDispatchThunk(processMsg |> definition.syncDispatch)
         reset <- (fun () -> updateView lastModel) |> definition.syncAction
-
+        
         Debug.WriteLine "updating the initial view"
-
-        updateView initialModel 
+        
+        // If the view is dynamic, create the initial page
+        lastViewDataOpt <-
+            let newRootElement = definition.view initialModel
+            let rootView = newRootElement.Create(dispatchObj)
+            host.SetRootView(rootView)
+            Some newRootElement
 
         Debug.WriteLine "dispatching initial commands"
         for sub in (definition.subscribe initialModel @ cmd) do
             try 
-                sub dispatch
+                sub dispatch.DispatchViaThunk
             with ex ->
                 definition.onError ("Error executing commands:", ex)
 
@@ -115,7 +109,7 @@ type Runner<'arg, 'model, 'msg>(host: IHost, definition: RunnerDefinition<'arg, 
     
     member __.CurrentModel = lastModel 
 
-    member __.Dispatch(msg) = dispatch msg
+    member __.Dispatch(msg) = dispatch.DispatchViaThunk msg
 
     member runner.ChangeDefinition(newDefinition: RunnerDefinition<obj,obj, obj>) : unit =
         let action = definition.syncAction (fun () -> 
@@ -147,6 +141,6 @@ type Runner<'arg, 'model, 'msg>(host: IHost, definition: RunnerDefinition<'arg, 
                 lastModel <- model
                 updateView model
                 for sub in definition.subscribe model @ cmd do
-                    sub dispatch
+                    sub dispatch.DispatchViaThunk
         )
         action()
