@@ -9,14 +9,13 @@ open Fabulous.XamarinForms.DynamicViews
 open Fabulous.XamarinForms.DynamicViews.View
 open Fabulous.XamarinForms.StaticViews
 
-type DeleteButton<'msg>(text: string, clicked: 'msg) =
-    inherit StaticView<Xamarin.Forms.Button, 'msg>(fun dispatch -> box {| Text = text; Clicked = Helpers.makeCommand (fun () -> dispatch clicked) |})
-    override x.Create() =
-        let target = Xamarin.Forms.Button(BackgroundColor = Color.Red)
+type MyDeleteButton() as target =
+    inherit Xamarin.Forms.Button()
+    do
+        target.Visual <- VisualMarker.Material
         target.SetBinding(Xamarin.Forms.Button.TextProperty, Binding("Text"))
         target.SetBinding(Xamarin.Forms.Button.CommandProperty, Binding("Clicked"))
-        target
-
+        
 module App = 
     type Model = 
       { Count: int }
@@ -47,7 +46,12 @@ module App =
                     
                 Button("Increment", Increment)
                 Button("Decrement", Decrement)
-                DeleteButton("Reset", Reset)
+                
+                Static.View(MyDeleteButton, fun dispatch -> {| Text = "Reset"; Clicked = Command.msg dispatch Reset |})
+                    .horizontalOptions(LayoutOptions.Center)
+                    
+                Static.View(MyDeleteButton)
+                    .horizontalOptions(LayoutOptions.Center)
             ])
         ).useSafeAreaOniOS()
              

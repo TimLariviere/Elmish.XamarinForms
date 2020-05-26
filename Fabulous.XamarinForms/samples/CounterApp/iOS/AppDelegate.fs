@@ -12,6 +12,7 @@ type AppDelegate () =
 
     override this.FinishedLaunching (app, options) =
         Forms.Init()
+        FormsMaterial.Init()
         this.LoadApplication (new CounterApp.CounterApp())
         base.FinishedLaunching(app, options)
 

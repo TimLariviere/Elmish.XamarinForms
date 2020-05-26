@@ -971,6 +971,9 @@ NUGET
     Xamarin.Forms.PancakeView (1.4.2)
       System.ComponentModel (>= 4.3)
       Xamarin.Forms (>= 3.6.0.220655)
+    Xamarin.Forms.Visual.Material (4.6.0.800)
+      Xamarin.iOS.MaterialComponents (>= 92.0)
+    Xamarin.iOS.MaterialComponents (92.0)
 
 GROUP macosapp
 RESTRICTION: == xamarinmac

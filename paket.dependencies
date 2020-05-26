@@ -73,6 +73,7 @@ group iosapp
   source https://www.nuget.org/api/v2
   nuget FSharp.Core
   nuget Xamarin.Forms ~> 4.6.0
+  nuget Xamarin.Forms.Visual.Material ~> 4.6.0
   nuget Xamarin.Forms.Maps ~> 4.6.0
   nuget Newtonsoft.Json
   nuget FSharp.Data

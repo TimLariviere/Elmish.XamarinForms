@@ -117,6 +117,12 @@
     <Reference Include="Xamarin.Forms.Xaml">
       <HintPath>..\..\..\..\packages\iosapp\Xamarin.Forms\lib\Xamarin.iOS10\Xamarin.Forms.Xaml.dll</HintPath>
     </Reference>
+    <Reference Include="Xamarin.Forms.Material">
+      <HintPath>..\..\..\..\packages\iosapp\Xamarin.Forms.Visual.Material\lib\Xamarin.iOS10\Xamarin.Forms.Material.dll</HintPath>
+    </Reference>
+    <Reference Include="MaterialComponents">
+      <HintPath>..\..\..\..\packages\iosapp\Xamarin.iOS.MaterialComponents\lib\Xamarin.iOS\MaterialComponents.dll</HintPath>
+    </Reference>
     <Reference Include="FSharp.Core">
       <HintPath>..\..\..\..\packages\iosapp\FSharp.Core\lib\netstandard2.0\FSharp.Core.dll</HintPath>
     </Reference>

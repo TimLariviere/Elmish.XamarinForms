@@ -2,10 +2,8 @@
 namespace Fabulous.XamarinForms
 
 open Fabulous
-open System
 open Fabulous.DynamicViews
-open Fabulous.StaticViews
-open Fabulous.XamarinForms.DynamicViews
+open System
 open Xamarin.Forms
 
 type ContentViewHost(contentView: ContentView) =
@@ -50,7 +48,6 @@ module Program =
     let rec canReuseView (prevChild: IViewElement) (newChild: IViewElement) =
         match prevChild, newChild with
         | (:? DynamicViewElement as prevChild), (:? DynamicViewElement as newChild) -> DynamicViews.ViewHelpers.canReuseDynamicView prevChild newChild
-        | (:? StaticViewElement as prevChild), (:? StaticViewElement as newChild) -> StaticViews.ViewHelpers.canReuseStaticView prevChild newChild
         | _ -> false
         
     module AsApplication =

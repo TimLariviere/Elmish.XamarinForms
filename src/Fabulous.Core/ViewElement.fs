@@ -3,6 +3,7 @@ namespace Fabulous
 
 open System
 open System.Collections.Generic
+open System.ComponentModel
 
 type ProgramDefinition =
     { CanReuseView: IViewElement -> IViewElement -> bool
@@ -36,20 +37,26 @@ module DynamicViews =
             properties: KeyValuePair<DynamicProperty, obj> list
         ) =
         
+        [<EditorBrowsable(EditorBrowsableState.Never)>]
         member x.TargetType = targetType
+        [<EditorBrowsable(EditorBrowsableState.Never)>]
         member x.Events = events
+        [<EditorBrowsable(EditorBrowsableState.Never)>]
         member x.Properties = properties
         
+        [<EditorBrowsable(EditorBrowsableState.Never)>]
         member x.TryGetPropertyValue(propDefinition: DynamicProperty) =
             match properties |> List.tryFind (fun kvp -> kvp.Key = propDefinition) with
             | None -> ValueNone
             | Some kvp -> ValueSome kvp.Value
             
+        [<EditorBrowsable(EditorBrowsableState.Never)>]
         member x.Create(dispatch) =
             let target = create()
             x.Update(dispatch, ValueNone, target)
             target
         
+        [<EditorBrowsable(EditorBrowsableState.Never)>]
         member x.Update(programDefinition: ProgramDefinition, prevOpt: DynamicViewElement voption, target: obj) =
             // Unsubscribe events
             match prevOpt with
@@ -81,41 +88,5 @@ module DynamicViews =
         interface IViewElement with
             member x.Create(dispatch) = x.Create(dispatch)
             member x.Update(programDefinition, prevOpt, target) = x.Update(programDefinition, (prevOpt |> ValueOption.map(fun p -> p :?> DynamicViewElement)), target)
-            member x.TryKey with get() = ValueNone
-        
-module StaticViews =
-    type StateValue(fn: (obj -> unit) -> obj) =
-        let mutable stateOpt = ValueNone
-        member x.GetState(dispatch: obj -> unit) =
-            match stateOpt with
-            | ValueNone ->
-                let state = fn dispatch
-                stateOpt <- ValueSome state
-                state
-            | ValueSome state -> state
-    
-    type StaticViewElement
-        (
-            targetType: Type,
-            create: unit -> obj,
-            setState: obj voption * obj * obj -> unit,
-            state: StateValue
-        ) =
-        
-        member x.TargetType = targetType
-        member x.State = state
-        
-        member x.Create(programDefinition) =
-            let target = create()
-            x.Update(programDefinition, ValueNone, target)
-            box target
-            
-        member x.Update(programDefinition: ProgramDefinition, prevOpt: StaticViewElement voption, target) =
-            let prevStateOpt = prevOpt |> ValueOption.map (fun p -> p.State.GetState(programDefinition.Dispatch))
-            setState(prevStateOpt, state.GetState(programDefinition.Dispatch), target)
-            
-        interface IViewElement with
-            member x.Create(programDefinition) = x.Create(programDefinition)
-            member x.Update(programDefinition, prevOpt, target) = x.Update(programDefinition, prevOpt |> ValueOption.map (fun p -> p :?> StaticViewElement), target)
             member x.TryKey with get() = ValueNone
             

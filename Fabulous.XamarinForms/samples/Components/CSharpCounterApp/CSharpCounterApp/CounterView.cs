@@ -5,8 +5,8 @@ namespace CSharpCounterApp
 {
     public class CounterView : FabulousCounterView
     {
-        public static readonly BindableProperty ValueProperty = BindableProperty.Create("Value", typeof(int),
-            typeof(CounterView), 0, defaultBindingMode: BindingMode.OneWayToSource);
+        public static readonly BindableProperty ValueProperty = BindableProperty.Create("Value",
+            typeof(int), typeof(CounterView), 0, defaultBindingMode: BindingMode.OneWayToSource);
 
         public override int Value
         {
