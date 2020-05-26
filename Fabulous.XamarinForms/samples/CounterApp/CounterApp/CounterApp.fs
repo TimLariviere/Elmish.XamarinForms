@@ -8,6 +8,7 @@ open Fabulous.XamarinForms
 open Fabulous.XamarinForms.DynamicViews
 open Fabulous.XamarinForms.DynamicViews.View
 open Fabulous.XamarinForms.StaticViews
+open Fabulous.XamarinForms.StaticViews.View
 
 type MyDeleteButton() as target =
     inherit Xamarin.Forms.Button()
@@ -47,10 +48,10 @@ module App =
                 Button("Increment", Increment)
                 Button("Decrement", Decrement)
                 
-                Static.View(MyDeleteButton, fun dispatch -> {| Text = "Reset"; Clicked = Command.msg dispatch Reset |})
+                StaticView(MyDeleteButton, fun dispatch -> {| Text = "Reset"; Clicked = Command.msg dispatch Reset |})
                     .horizontalOptions(LayoutOptions.Center)
                     
-                Static.View(MyDeleteButton)
+                StaticView(MyDeleteButton)
                     .horizontalOptions(LayoutOptions.Center)
             ])
         ).useSafeAreaOniOS()

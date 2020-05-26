@@ -2,15 +2,12 @@
 namespace Fabulous.XamarinForms.StaticViews
 
 open System.Collections.Generic
-open Fabulous.DynamicViews
+open System.ComponentModel
+open Fabulous
 open Fabulous.XamarinForms
 open Fabulous.XamarinForms.DynamicViews
 open Fabulous.XamarinForms.DynamicViews.Attributes
 open Xamarin.Forms
-
-module Command =
-    let msg dispatch (msg: 'msg) =
-        Helpers.makeCommand (fun () -> dispatch msg)
 
 module StaticHelpers =
     type StateValue(stateFn: ((obj -> unit) -> obj) option) =
@@ -43,6 +40,7 @@ type StaticView<'T, 'msg when 'T :> View>(createFn, events, properties) =
     inherit DynamicViewElement(typeof<'T>, (fun () -> createFn() |> box), events, properties)
     interface IView<'msg>
     
+    [<EditorBrowsable(EditorBrowsableState.Never)>]
     member x.CreateFn: unit -> 'T = createFn
             
     static member inline init(createFn, ?state: ('msg -> unit) -> obj) =
@@ -71,8 +69,8 @@ type StaticMenuItem<'T, 'msg when 'T :> MenuItem and 'T : (new: unit -> 'T)>(eve
     interface IMenuItem<'msg>
     
 [<AbstractClass; Sealed>]
-type Static<'msg> private () =
-    static member inline View(create: unit -> 'T, ?state: ('msg -> unit) -> 'state) =
+type View private () =
+    static member inline StaticView(create: unit -> 'T, ?state: ('msg -> unit) -> 'state) =
         let state = match state with None -> None | Some fn -> Some (fun dispatch -> box (fn dispatch))
         StaticView<'T, 'msg>.init(create, ?state=state)
     

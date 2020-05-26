@@ -7,6 +7,7 @@ open Fabulous
 open Fabulous.XamarinForms
 open Fabulous.XamarinForms.DynamicViews.View
 open Fabulous.XamarinForms.StaticViews
+open Fabulous.XamarinForms.StaticViews.View
 
 type DeleteButton<'msg>() as target =
     inherit Xamarin.Forms.Button(BackgroundColor = Color.Red)
@@ -43,7 +44,7 @@ module Counter =
                 
             Button("Increment", Increment)
             Button("Decrement", Decrement)
-            Static.View(DeleteButton, fun dispatch -> {| Text = "Reset"; Clicked = Command.msg dispatch Reset |})
+            StaticView(DeleteButton, fun dispatch -> {| Text = "Reset"; Clicked = Command.msg dispatch Reset |})
         ])
              
     let runnerDefinition = Program.AsComponent.simple init update view

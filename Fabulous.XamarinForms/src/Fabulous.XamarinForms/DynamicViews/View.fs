@@ -3,8 +3,8 @@ namespace Fabulous.XamarinForms.DynamicViews
 
 open System
 open System.Collections.Generic
+open System.Runtime.CompilerServices
 open Fabulous
-open Fabulous.DynamicViews
 open Fabulous.XamarinForms
 open Fabulous.XamarinForms.DynamicViews.Attributes
 open Xamarin.Forms
@@ -176,7 +176,7 @@ type TextCell<'msg>(events, properties) =
         
     member inline x.contextActions(actions: IMenuItem<'msg> list) =
         let properties = ViewAttributes.CellContextActions.Value(actions)::x.Properties
-        TextCell<'msg>([], properties)        
+        TextCell<'msg>([], properties)
         
 [<Sealed>]
 type MenuItem<'msg>(events, properties) =

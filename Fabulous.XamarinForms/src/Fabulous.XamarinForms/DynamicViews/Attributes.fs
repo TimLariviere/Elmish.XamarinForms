@@ -2,7 +2,6 @@
 namespace Fabulous.XamarinForms.DynamicViews
 
 open Fabulous
-open Fabulous.DynamicViews
 open System
 open System.Collections.Generic
 open Xamarin.Forms

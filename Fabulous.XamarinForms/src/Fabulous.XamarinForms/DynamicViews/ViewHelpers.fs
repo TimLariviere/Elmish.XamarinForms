@@ -1,6 +1,6 @@
 namespace Fabulous.XamarinForms.DynamicViews
 
-open Fabulous.DynamicViews
+open Fabulous
 open Xamarin.Forms
 
 module ViewHelpers =
