@@ -1,7 +1,12 @@
 // Copyright Fabulous contributors. See LICENSE.md for license.
 namespace Fabulous.XamarinForms
 
-type IPage<'msg> = interface end
-type IView<'msg> = interface end
-type ICell<'msg> = interface end
-type IMenuItem<'msg> = interface end
+open Fabulous
+
+type IViewElementBuilder =
+    abstract member AsViewElement: unit -> IViewElement
+
+type IPage<'msg> = inherit IViewElementBuilder
+type IView<'msg> = inherit IViewElementBuilder
+type ICell<'msg> = inherit IViewElementBuilder
+type IMenuItem<'msg> = inherit IViewElementBuilder

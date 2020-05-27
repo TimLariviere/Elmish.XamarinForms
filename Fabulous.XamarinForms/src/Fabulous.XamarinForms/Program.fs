@@ -2,7 +2,6 @@
 namespace Fabulous.XamarinForms
 
 open Fabulous
-open Fabulous.DynamicViews
 open System
 open Xamarin.Forms
 
@@ -55,7 +54,7 @@ module Program =
         let useCmd (init : 'arg -> 'model * Cmd<'msg>) (update : 'msg -> 'model -> 'model * Cmd<'msg>) (view : 'model -> #IPage<'msg>) =
             { init = init
               update = update
-              view = (fun model -> unbox<IViewElement> (view model))
+              view = (fun model -> (view model).AsViewElement())
               canReuseView = canReuseView
               syncDispatch = syncDispatch
               syncAction = syncAction

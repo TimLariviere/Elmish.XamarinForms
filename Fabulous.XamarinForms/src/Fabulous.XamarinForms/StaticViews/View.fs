@@ -31,48 +31,68 @@ module StaticHelpers =
             StateValue(match stateFn with None -> None | Some fn -> Some (fun dispatch -> fn dispatch))
         )
 
-[<AbstractClass>]  
-type StaticPage<'T, 'msg when 'T :> Page and 'T : (new: unit -> 'T)>(events, properties) =
-    inherit DynamicViewElement(typeof<'T>, (fun () -> new 'T() |> box), events, properties)
-    interface IPage<'msg>
-  
-type StaticView<'T, 'msg when 'T :> View>(createFn, events, properties) =
-    inherit DynamicViewElement(typeof<'T>, (fun () -> createFn() |> box), events, properties)
-    interface IView<'msg>
-    
-    [<EditorBrowsable(EditorBrowsableState.Never)>]
-    member x.CreateFn: unit -> 'T = createFn
+[<Struct>]
+type StaticPage<'T, 'msg when 'T :> Page>(create: unit -> 'T, events: KeyValuePair<DynamicEvent, DynamicEventValue> list, properties: KeyValuePair<DynamicProperty, obj> list) =
+    interface IPage<'msg> with
+        member x.AsViewElement() =
+            let createFn = create
+            DynamicViewElement(typeof<'T>, (fun () -> createFn() |> box), events, properties) :> IViewElement
+        
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Create = create
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
+ 
+[<Struct>]
+type StaticView<'T, 'msg when 'T :> View>(create: unit -> 'T, events: KeyValuePair<DynamicEvent, DynamicEventValue> list, properties: KeyValuePair<DynamicProperty, obj> list) =
+    interface IView<'msg> with
+        member x.AsViewElement() =
+            let createFn = create
+            DynamicViewElement(typeof<'T>, (fun () -> createFn() |> box), events, properties) :> IViewElement
+        
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Create = create
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
             
-    static member inline init(createFn, ?state: ('msg -> unit) -> obj) =
-        StaticView<'T, 'msg>(createFn, [], [ StaticHelpers.createBindingContextKvp state ])
+    static member inline init(create, ?state: ('msg -> unit) -> obj) =
+        StaticView<'T, 'msg>(create, [], [ StaticHelpers.createBindingContextKvp state ])
             
     member inline x.horizontalOptions(options: LayoutOptions) =
         let properties = ViewAttributes.ViewHorizontalOptions.Value(options)::x.Properties
-        StaticView<'T, 'msg>(x.CreateFn, x.Events, properties)
+        StaticView<'T, 'msg>(x.Create, x.Events, properties)
     
     member inline x.verticalOptions(options: LayoutOptions) =
         let properties = ViewAttributes.ViewVerticalOptions.Value(options)::x.Properties
-        StaticView<'T, 'msg>(x.CreateFn, x.Events, properties)
+        StaticView<'T, 'msg>(x.Create, x.Events, properties)
             
     member inline x.gridColumn(column: int) =
         let properties = ViewAttributes.GridColumn.Value(column)::x.Properties
-        StaticView<'T, 'msg>(x.CreateFn, x.Events, properties)
+        StaticView<'T, 'msg>(x.Create, x.Events, properties)
     
-[<AbstractClass>]
-type StaticCell<'T, 'msg when 'T :> Cell and 'T : (new: unit -> 'T)>(events, properties) =
-    inherit DynamicViewElement(typeof<'T>, (fun () -> new 'T() |> box), events, properties)
-    interface ICell<'msg>
+[<Struct>]
+type StaticCell<'T, 'msg when 'T :> Cell>(create: unit -> 'T, events: KeyValuePair<DynamicEvent, DynamicEventValue> list, properties: KeyValuePair<DynamicProperty, obj> list) =
+    interface ICell<'msg> with
+        member x.AsViewElement() =
+            let createFn = create
+            DynamicViewElement(typeof<'T>, (fun () -> createFn() |> box), events, properties) :> IViewElement
+        
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Create = create
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
     
-[<AbstractClass>]
-type StaticMenuItem<'T, 'msg when 'T :> MenuItem and 'T : (new: unit -> 'T)>(events, properties) =
-    inherit DynamicViewElement(typeof<'T>, (fun () -> new 'T() |> box), events, properties)
-    interface IMenuItem<'msg>
+[<Struct>]
+type StaticMenuItem<'T, 'msg when 'T :> MenuItem>(create: unit -> 'T, events: KeyValuePair<DynamicEvent, DynamicEventValue> list, properties: KeyValuePair<DynamicProperty, obj> list) =
+    interface IMenuItem<'msg> with
+        member x.AsViewElement() =
+            let createFn = create
+            DynamicViewElement(typeof<'T>, (fun () -> createFn() |> box), events, properties) :> IViewElement
+        
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Create = create
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
     
 [<AbstractClass; Sealed>]
 type View private () =
     static member inline StaticView(create: unit -> 'T, ?state: ('msg -> unit) -> 'state) =
         let state = match state with None -> None | Some fn -> Some (fun dispatch -> box (fn dispatch))
         StaticView<'T, 'msg>.init(create, ?state=state)
-    
-    
     

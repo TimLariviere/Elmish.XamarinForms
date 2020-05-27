@@ -3,7 +3,7 @@ namespace Fabulous.XamarinForms.DynamicViews
 
 open System
 open System.Collections.Generic
-open System.Runtime.CompilerServices
+open System.ComponentModel
 open Fabulous
 open Fabulous.XamarinForms
 open Fabulous.XamarinForms.DynamicViews.Attributes
@@ -33,20 +33,30 @@ module ViewAttributes =
     let MenuItemText = Attributes.Bindable.property MenuItem.TextProperty
     let MenuItemClicked = Attributes.Event.handler<MenuItem> (fun t -> t.Clicked)
     
-[<Sealed>]
-type ContentPage<'msg>(events, properties) =
-    inherit DynamicViewElement(typeof<Xamarin.Forms.ContentPage>, Xamarin.Forms.ContentPage >> box, events, properties)
-    interface IPage<'msg>
+[<Struct>]
+type ContentPage<'msg>(events: KeyValuePair<DynamicEvent, DynamicEventValue> list, properties: KeyValuePair<DynamicProperty, obj> list) =
+    interface IPage<'msg> with
+        member x.AsViewElement() =
+            DynamicViewElement(typeof<Xamarin.Forms.ContentPage>, Xamarin.Forms.ContentPage >> box, events, properties) :> IViewElement
+        
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
+    
     static member inline init(content: IView<'msg>) =
-        let properties = [ ViewAttributes.ContentPageContent.Value(content) ]
+        let properties = [ ViewAttributes.ContentPageContent.Value(content.AsViewElement()) ]
         ContentPage<'msg>([], properties)
         
-[<Sealed>]
-type Grid<'msg>(events, properties) =
-    inherit DynamicViewElement(typeof<Xamarin.Forms.Grid>, Xamarin.Forms.Grid >> box, events, properties)
-    interface IView<'msg>
-    static member inline init(children: IView<'msg> list, ?coldefs: GridDefinition list, ?rowdefs: GridDefinition list) =
-        let properties = [ ViewAttributes.LayoutOfTChildren.Value(children) ]
+[<Struct>]
+type Grid<'msg>(events: KeyValuePair<DynamicEvent, DynamicEventValue> list, properties: KeyValuePair<DynamicProperty, obj> list) =
+    interface IView<'msg> with        
+        member x.AsViewElement() =
+            DynamicViewElement(typeof<Xamarin.Forms.Grid>, Xamarin.Forms.Grid >> box, events, properties) :> IViewElement
+        
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
+    
+    static member inline init(children: seq<IView<'msg>>, ?coldefs: GridDefinition list, ?rowdefs: GridDefinition list) =
+        let properties = [ ViewAttributes.LayoutOfTChildren.Value(children |> Seq.map (fun c -> c.AsViewElement()) |> Seq.toArray) ]
         let properties = match coldefs with None -> properties | Some v -> ViewAttributes.GridColumnDefinitions.Value(v)::properties
         let properties = match rowdefs with None -> properties | Some v -> ViewAttributes.GridRowDefinitions.Value(v)::properties
         Grid<'msg>([], properties)
@@ -55,12 +65,17 @@ type Grid<'msg>(events, properties) =
         let properties = (ViewAttributes.GridColumn.Value(column))::x.Properties
         Grid<'msg>(x.Events, properties)
         
-[<Sealed>]
-type StackLayout<'msg>(events, properties) =
-    inherit DynamicViewElement(typeof<Xamarin.Forms.StackLayout>, Xamarin.Forms.StackLayout >> box, events, properties)
-    interface IView<'msg>
+[<Struct>]
+type StackLayout<'msg>(events: KeyValuePair<DynamicEvent, DynamicEventValue> list, properties: KeyValuePair<DynamicProperty, obj> list) =
+    interface IView<'msg> with
+        member x.AsViewElement() =
+            DynamicViewElement(typeof<Xamarin.Forms.StackLayout>, Xamarin.Forms.StackLayout >> box, events, properties) :> IViewElement
+        
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
+    
     static member inline init(children: IView<'msg> list, ?spacing: double) =
-        let properties = [ ViewAttributes.LayoutOfTChildren.Value(children |> List.map (fun x -> x :?> IViewElement) |> Array.ofList) ]
+        let properties = [ ViewAttributes.LayoutOfTChildren.Value(children |> List.map (fun x -> x.AsViewElement()) |> Array.ofList) ]
         let properties = match spacing with None -> properties | Some v -> ViewAttributes.StackLayoutSpacing.Value(v)::properties
         StackLayout<'msg>([], properties)
     
@@ -76,10 +91,15 @@ type StackLayout<'msg>(events, properties) =
         let properties = ViewAttributes.GridColumn.Value(column)::x.Properties
         StackLayout<'msg>(x.Events, properties)
         
-[<Sealed>]
-type Button<'msg>(events, properties) =
-    inherit DynamicViewElement(typeof<Xamarin.Forms.Button>, Xamarin.Forms.Button >> box, events, properties)
-    interface IView<'msg>
+[<Struct>]
+type Button<'msg>(events: KeyValuePair<DynamicEvent, DynamicEventValue> list, properties: KeyValuePair<DynamicProperty, obj> list) =
+    interface IView<'msg> with
+        member x.AsViewElement() =
+            DynamicViewElement(typeof<Xamarin.Forms.Button>, Xamarin.Forms.Button >> box, events, properties) :> IViewElement
+        
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
+    
     static member inline init(?text: string, ?clicked: 'msg) =
         let properties = match text with None -> [] | Some v -> [ ViewAttributes.ButtonText.Value(v) ]
         let events = match clicked with None -> [] | Some v -> [ ViewAttributes.ButtonClicked.Value(fun dispatch -> EventHandler(fun _ _ -> dispatch v) :> obj) ]
@@ -97,10 +117,15 @@ type Button<'msg>(events, properties) =
         let properties = ViewAttributes.GridColumn.Value(column)::x.Properties
         Button<'msg>(x.Events, properties)
        
-[<Sealed>]
-type Entry<'msg>(events, properties) =
-    inherit DynamicViewElement(typeof<Xamarin.Forms.Entry>, Xamarin.Forms.Entry >> box, events, properties)
-    interface IView<'msg>
+[<Struct>]
+type Entry<'msg>(events: KeyValuePair<DynamicEvent, DynamicEventValue> list, properties: KeyValuePair<DynamicProperty, obj> list) =
+    interface IView<'msg> with        
+        member x.AsViewElement() =
+            DynamicViewElement(typeof<Xamarin.Forms.Entry>, Xamarin.Forms.Entry >> box, events, properties) :> IViewElement
+        
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
+    
     static member inline init(?text: string, ?textChanged: TextChangedEventArgs -> 'msg) =
         let properties = match text with None -> [] | Some v -> [ ViewAttributes.InputViewText.Value(v) ]
         let events = match textChanged with None -> [] | Some v -> [ ViewAttributes.InputViewTextChanged.Value(fun dispatch -> EventHandler<TextChangedEventArgs>(fun _ args -> v args |> dispatch) :> obj) ]
@@ -118,10 +143,15 @@ type Entry<'msg>(events, properties) =
         let properties = ViewAttributes.GridColumn.Value(column)::x.Properties
         Entry<'msg>(x.Events, properties)
           
-[<Sealed>]  
-type Label<'msg>(events, properties) =
-    inherit DynamicViewElement(typeof<Xamarin.Forms.Label>, Xamarin.Forms.Label >> box, events, properties)
-    interface IView<'msg>
+[<Struct>]  
+type Label<'msg>(events: KeyValuePair<DynamicEvent, DynamicEventValue> list, properties: KeyValuePair<DynamicProperty, obj> list) =
+    interface IView<'msg> with
+        member x.AsViewElement() =
+            DynamicViewElement(typeof<Xamarin.Forms.Label>, Xamarin.Forms.Label >> box, events, properties) :> IViewElement
+        
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
+    
     static member inline init(text: string) =
         let properties = [ ViewAttributes.LabelText.Value(text) ]
         Label<'msg>([], properties)
@@ -146,12 +176,17 @@ type Label<'msg>(events, properties) =
         let properties = ViewAttributes.GridColumn.Value(column)::x.Properties
         Label<'msg>(x.Events, properties)
         
-[<Sealed>]
-type ListView<'msg>(events, properties) =
-    inherit DynamicViewElement(typeof<Xamarin.Forms.Label>, Xamarin.Forms.Label >> box, events, properties)
-    interface IView<'msg>
-    static member inline init(items: #ICell<'msg> list) =
-        let properties = [ ViewAttributes.ItemsViewOfTItemsSource.Value(items) ]
+[<Struct>]
+type ListView<'msg>(events: KeyValuePair<DynamicEvent, DynamicEventValue> list, properties: KeyValuePair<DynamicProperty, obj> list) =
+    interface IView<'msg> with
+        member x.AsViewElement() =
+            DynamicViewElement(typeof<Xamarin.Forms.ListView>, Xamarin.Forms.ListView >> box, events, properties) :> IViewElement
+        
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
+    
+    static member inline init(items: seq<#ICell<'msg>>) =
+        let properties = [ ViewAttributes.ItemsViewOfTItemsSource.Value(items |> Seq.map (fun c -> c.AsViewElement()) |> Seq.toArray) ]
         ListView<'msg>([], properties)
     
     member inline x.horizontalOptions(options: LayoutOptions) =
@@ -166,27 +201,36 @@ type ListView<'msg>(events, properties) =
         let properties = ViewAttributes.GridColumn.Value(column)::x.Properties
         ListView<'msg>(x.Events, properties)
         
-[<Sealed>]    
-type TextCell<'msg>(events, properties) =
-    inherit DynamicViewElement(typeof<Xamarin.Forms.TextCell>, Xamarin.Forms.TextCell >> box, events, properties)
-    interface ICell<'msg>
+[<Struct>]    
+type TextCell<'msg>(events: KeyValuePair<DynamicEvent, DynamicEventValue> list, properties: KeyValuePair<DynamicProperty, obj> list) =
+    interface ICell<'msg> with
+        member x.AsViewElement() =
+                DynamicViewElement(typeof<Xamarin.Forms.TextCell>, Xamarin.Forms.TextCell >> box, events, properties) :> IViewElement
+        
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
+    
     static member inline init(text: string) =
         let properties = [ ViewAttributes.TextCellText.Value(text) ]
         TextCell<'msg>([], properties)
         
-    member inline x.contextActions(actions: IMenuItem<'msg> list) =
-        let properties = ViewAttributes.CellContextActions.Value(actions)::x.Properties
+    member inline x.contextActions(actions: seq<IMenuItem<'msg>>) =
+        let properties = ViewAttributes.CellContextActions.Value(actions |> Seq.map (fun a -> a.AsViewElement()) |> Seq.toArray)::x.Properties
         TextCell<'msg>([], properties)
         
-[<Sealed>]
-type MenuItem<'msg>(events, properties) =
-    inherit DynamicViewElement(typeof<Xamarin.Forms.MenuItem>, Xamarin.Forms.MenuItem >> box, events, properties)
-    interface IMenuItem<'msg>
+[<Struct>]
+type MenuItem<'msg>(events: KeyValuePair<DynamicEvent, DynamicEventValue> list, properties: KeyValuePair<DynamicProperty, obj> list) =
+    interface IMenuItem<'msg> with
+        member x.AsViewElement() =
+            DynamicViewElement(typeof<Xamarin.Forms.MenuItem>, Xamarin.Forms.MenuItem >> box, events, properties) :> IViewElement
+        
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
+    
     static member inline init(?text: string, ?clicked: 'msg) =
         let properties = match text with None -> [] | Some v -> [ ViewAttributes.MenuItemText.Value(v) ]
         let events = match clicked with None -> [] | Some v -> [ ViewAttributes.MenuItemClicked.Value(fun dispatch -> EventHandler(fun _ _ -> dispatch v) :> obj) ]
         MenuItem<'msg>(events, properties)
-        
         
 [<AbstractClass; Sealed>]
 type View private () =

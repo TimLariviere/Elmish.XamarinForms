@@ -3,7 +3,6 @@ namespace Fabulous
 
 open System
 open System.Collections.Generic
-open System.ComponentModel
 
 type ProgramDefinition =
     { CanReuseView: IViewElement -> IViewElement -> bool
@@ -36,26 +35,20 @@ type DynamicViewElement
         properties: KeyValuePair<DynamicProperty, obj> list
     ) =
     
-    [<EditorBrowsable(EditorBrowsableState.Never)>]
     member x.TargetType = targetType
-    [<EditorBrowsable(EditorBrowsableState.Never)>]
     member x.Events = events
-    [<EditorBrowsable(EditorBrowsableState.Never)>]
     member x.Properties = properties
     
-    [<EditorBrowsable(EditorBrowsableState.Never)>]
     member x.TryGetPropertyValue<'T>(propDefinition: DynamicProperty) =
         match properties |> List.tryFind (fun kvp -> kvp.Key = propDefinition) with
         | None -> ValueNone
         | Some kvp -> ValueSome (kvp.Value :?> 'T)
         
-    [<EditorBrowsable(EditorBrowsableState.Never)>]
     member x.Create(dispatch) =
         let target = create()
         x.Update(dispatch, ValueNone, target)
         target
     
-    [<EditorBrowsable(EditorBrowsableState.Never)>]
     member x.Update(programDefinition: ProgramDefinition, prevOpt: DynamicViewElement voption, target: obj) =
         // Unsubscribe events
         match prevOpt with
@@ -65,7 +58,8 @@ type DynamicViewElement
                 evt.Key.Unsubscribe(evt.Value.GetHandler(programDefinition.Dispatch), target)
                 
         // Update properties
-        let allProps = List.distinct [
+        let allProps =
+            List.distinct [
             match prevOpt with
             | ValueNone -> ()
             | ValueSome prev ->
