@@ -58,8 +58,7 @@ type DynamicViewElement
                 evt.Key.Unsubscribe(evt.Value.GetHandler(programDefinition.Dispatch), target)
                 
         // Update properties
-        let allProps =
-            List.distinct [
+        let allProps = List.distinct [
             match prevOpt with
             | ValueNone -> ()
             | ValueSome prev ->
