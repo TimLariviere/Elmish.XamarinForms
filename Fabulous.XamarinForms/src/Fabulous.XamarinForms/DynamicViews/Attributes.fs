@@ -81,7 +81,7 @@ module Attributes =
             { Subscribe = subscribe; Unsubscribe = unsubscribe }
   
     type DynamicProperty with
-        member x.Value(value: obj) = KeyValuePair(x, value)
+        member x.Value(value: obj) = (x, value)
         
     type DynamicEvent with
-        member x.Value(fn: (obj -> unit) -> obj) = KeyValuePair(x, DynamicEventValue(fn))
+        member x.Value(fn: (obj -> unit) -> obj) = (x, DynamicEventValue(fn))

@@ -1,7 +1,6 @@
 // Copyright Fabulous contributors. See LICENSE.md for license.
 namespace Fabulous.XamarinForms.StaticViews
 
-open System.Collections.Generic
 open System.ComponentModel
 open Fabulous
 open Fabulous.XamarinForms
@@ -26,28 +25,29 @@ module StaticHelpers =
         }
         
     let createBindingContextKvp (stateFn: (('msg -> unit) -> obj) option) =
-        KeyValuePair<DynamicProperty, obj>(
-            BindingContext,
-            StateValue(match stateFn with None -> None | Some fn -> Some (fun dispatch -> fn dispatch))
-        )
+        (BindingContext,
+         StateValue(match stateFn with None -> None | Some fn -> Some (fun dispatch -> fn dispatch)) :> obj)
 
 [<Struct>]
-type StaticPage<'T, 'msg when 'T :> Page>(create: unit -> 'T, events: KeyValuePair<DynamicEvent, DynamicEventValue> list, properties: KeyValuePair<DynamicProperty, obj> list) =
+type StaticPage<'T, 'msg when 'T :> Page>(create: unit -> 'T, events: (DynamicEvent * DynamicEventValue) list, properties: (DynamicProperty * obj) list) =
     interface IPage<'msg> with
         member x.AsViewElement() =
             let createFn = create
-            DynamicViewElement(typeof<'T>, (fun () -> createFn() |> box), events, properties) :> IViewElement
+            DynamicViewElement(typeof<'T>, (fun () -> createFn() |> box), readOnlyDict events, readOnlyDict properties) :> IViewElement
+            
+    static member inline init(create, ?state: ('msg -> unit) -> obj) =
+        StaticPage<'T, 'msg>(create, [], [ StaticHelpers.createBindingContextKvp state ])
         
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Create = create
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
  
 [<Struct>]
-type StaticView<'T, 'msg when 'T :> View>(create: unit -> 'T, events: KeyValuePair<DynamicEvent, DynamicEventValue> list, properties: KeyValuePair<DynamicProperty, obj> list) =
+type StaticView<'T, 'msg when 'T :> View>(create: unit -> 'T, events: (DynamicEvent * DynamicEventValue) list, properties: (DynamicProperty * obj) list) =
     interface IView<'msg> with
         member x.AsViewElement() =
             let createFn = create
-            DynamicViewElement(typeof<'T>, (fun () -> createFn() |> box), events, properties) :> IViewElement
+            DynamicViewElement(typeof<'T>, (fun () -> createFn() |> box), readOnlyDict events, readOnlyDict properties) :> IViewElement
         
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Create = create
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
@@ -69,22 +69,28 @@ type StaticView<'T, 'msg when 'T :> View>(create: unit -> 'T, events: KeyValuePa
         StaticView<'T, 'msg>(x.Create, x.Events, properties)
     
 [<Struct>]
-type StaticCell<'T, 'msg when 'T :> Cell>(create: unit -> 'T, events: KeyValuePair<DynamicEvent, DynamicEventValue> list, properties: KeyValuePair<DynamicProperty, obj> list) =
+type StaticCell<'T, 'msg when 'T :> Cell>(create: unit -> 'T, events: (DynamicEvent * DynamicEventValue) list, properties: (DynamicProperty * obj) list) =
     interface ICell<'msg> with
         member x.AsViewElement() =
             let createFn = create
-            DynamicViewElement(typeof<'T>, (fun () -> createFn() |> box), events, properties) :> IViewElement
+            DynamicViewElement(typeof<'T>, (fun () -> createFn() |> box), readOnlyDict events, readOnlyDict properties) :> IViewElement
+            
+    static member inline init(create, ?state: ('msg -> unit) -> obj) =
+        StaticCell<'T, 'msg>(create, [], [ StaticHelpers.createBindingContextKvp state ])
         
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Create = create
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
     
 [<Struct>]
-type StaticMenuItem<'T, 'msg when 'T :> MenuItem>(create: unit -> 'T, events: KeyValuePair<DynamicEvent, DynamicEventValue> list, properties: KeyValuePair<DynamicProperty, obj> list) =
+type StaticMenuItem<'T, 'msg when 'T :> MenuItem>(create: unit -> 'T, events: (DynamicEvent * DynamicEventValue) list, properties: (DynamicProperty * obj) list) =
     interface IMenuItem<'msg> with
         member x.AsViewElement() =
             let createFn = create
-            DynamicViewElement(typeof<'T>, (fun () -> createFn() |> box), events, properties) :> IViewElement
+            DynamicViewElement(typeof<'T>, (fun () -> createFn() |> box), readOnlyDict events, readOnlyDict properties) :> IViewElement
+            
+    static member inline init(create, ?state: ('msg -> unit) -> obj) =
+        StaticMenuItem<'T, 'msg>(create, [], [ StaticHelpers.createBindingContextKvp state ])
         
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Create = create
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
@@ -92,7 +98,19 @@ type StaticMenuItem<'T, 'msg when 'T :> MenuItem>(create: unit -> 'T, events: Ke
     
 [<AbstractClass; Sealed>]
 type View private () =
+    static member inline StaticPage(create: unit -> 'T, ?state: ('msg -> unit) -> 'state) =
+        let state = match state with None -> None | Some fn -> Some (fun dispatch -> box (fn dispatch))
+        StaticPage<'T, 'msg>.init(create, ?state=state)
+        
     static member inline StaticView(create: unit -> 'T, ?state: ('msg -> unit) -> 'state) =
         let state = match state with None -> None | Some fn -> Some (fun dispatch -> box (fn dispatch))
         StaticView<'T, 'msg>.init(create, ?state=state)
+        
+    static member inline StaticCell(create: unit -> 'T, ?state: ('msg -> unit) -> 'state) =
+        let state = match state with None -> None | Some fn -> Some (fun dispatch -> box (fn dispatch))
+        StaticCell<'T, 'msg>.init(create, ?state=state)
+        
+    static member inline StaticMenuItem(create: unit -> 'T, ?state: ('msg -> unit) -> 'state) =
+        let state = match state with None -> None | Some fn -> Some (fun dispatch -> box (fn dispatch))
+        StaticMenuItem<'T, 'msg>.init(create, ?state=state)
     

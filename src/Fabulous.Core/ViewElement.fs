@@ -18,10 +18,11 @@ and IViewElement =
 
 type DynamicEventValue(fn: (obj -> unit) -> obj) =
     let mutable handlerOpt = ValueNone
+    member x.Func = fn
     member x.GetHandler(dispatch) =
         match handlerOpt with
         | ValueNone ->
-            let handler = (fn dispatch)
+            let handler = (x.Func dispatch)
             handlerOpt <- ValueSome handler
             handler
         | ValueSome handler ->
@@ -31,8 +32,8 @@ type DynamicViewElement
     (
         targetType: Type,
         create: unit -> obj,
-        events: KeyValuePair<DynamicEvent, DynamicEventValue> list,
-        properties: KeyValuePair<DynamicProperty, obj> list
+        events: IReadOnlyDictionary<DynamicEvent, DynamicEventValue>,
+        properties: IReadOnlyDictionary<DynamicProperty, obj>
     ) =
     
     member x.TargetType = targetType
@@ -40,9 +41,14 @@ type DynamicViewElement
     member x.Properties = properties
     
     member x.TryGetPropertyValue<'T>(propDefinition: DynamicProperty) =
-        match properties |> List.tryFind (fun kvp -> kvp.Key = propDefinition) with
-        | None -> ValueNone
-        | Some kvp -> ValueSome (kvp.Value :?> 'T)
+        match x.Properties.TryGetValue(propDefinition) with
+        | false, _ -> ValueNone
+        | true, value -> ValueSome (value :?> 'T)
+        
+    member x.TryGetEventFunction(evtDefinition: DynamicEvent) =
+        match x.Events.TryGetValue(evtDefinition) with
+        | false, _ -> ValueNone
+        | true, value -> ValueSome value.Func
         
     member x.Create(dispatch) =
         let target = create()
@@ -58,7 +64,7 @@ type DynamicViewElement
                 evt.Key.Unsubscribe(evt.Value.GetHandler(programDefinition.Dispatch), target)
                 
         // Update properties
-        let allProps = List.distinct [
+        let allProps = Seq.distinct (seq {
             match prevOpt with
             | ValueNone -> ()
             | ValueSome prev ->
@@ -67,7 +73,7 @@ type DynamicViewElement
                     
             for prop in x.Properties do
                 yield prop.Key
-        ]
+        })
         for prop in allProps do
             let prevPropOpt = match prevOpt with ValueNone -> ValueNone | ValueSome prev -> prev.TryGetPropertyValue(prop)
             let currPropOpt = x.TryGetPropertyValue(prop)
