@@ -26,6 +26,7 @@ module ViewAttributes =
     let LabelTextColor = Attributes.Bindable.property Label.TextColorProperty
     let InputViewText = Attributes.Bindable.property InputView.TextProperty
     let InputViewTextChanged = Attributes.Event.handlerOf<InputView, _> (fun t -> t.TextChanged)
+    let EntryCompleted = Attributes.Event.handler<Entry> (fun t -> t.Completed)
     let ItemsViewOfTItemsSource = Attributes.Bindable.collection ItemsView.ItemsSourceProperty
     let ItemsViewOfTItemTemplate = Attributes.ViewElement.bindableTemplate ItemsView.ItemTemplateProperty
     let CellContextActions = Attributes.Scalar.collection<Cell, _> (fun t -> t.ContextActions)
@@ -142,6 +143,10 @@ type Entry<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties: (D
     member inline x.gridColumn(column: int) =
         let properties = ViewAttributes.GridColumn.Value(column)::x.Properties
         Entry<'msg>(x.Events, properties)
+        
+    member inline x.onCompleted(msg: 'msg) =
+        let events = ViewAttributes.EntryCompleted.Value(fun dispatch -> EventHandler(fun _ _ -> dispatch msg) :> obj)::x.Events
+        Entry<'msg>(events, x.Properties)
           
 [<Struct>]  
 type Label<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties: (DynamicProperty * obj) list) =
