@@ -7,61 +7,87 @@ open Fabulous
 open Fabulous.XamarinForms
 open Fabulous.XamarinForms.DynamicViews
 open Fabulous.XamarinForms.DynamicViews.View
-open Fabulous.XamarinForms.StaticViews
-open Fabulous.XamarinForms.StaticViews.View
 
-type MyDeleteButton() as target =
-    inherit Xamarin.Forms.Button()
-    do
-        target.Visual <- VisualMarker.Material
-        target.SetBinding(Xamarin.Forms.Button.TextProperty, Binding("Text"))
-        target.SetBinding(Xamarin.Forms.Button.CommandProperty, Binding("Clicked"))
-        
-module App = 
-    type Model = 
-      { Count: int }
+module App =
+    type Model =
+      { Count: int
+        Step: int
+        TimerOn: bool }
 
-    type Msg = 
+    type Msg =
         | Increment
         | Decrement
         | Reset
+        | SetStep of int
+        | TimerToggled of bool
+        | TimedTick
 
-    let init () = { Count = 0 }
+    type CmdMsg =
+        | TickTimer
+
+    let timerCmd () =
+        async { do! Async.Sleep 200
+                return TimedTick }
+        |> Cmd.ofAsyncMsg
+
+    let mapCmdMsgToCmd cmdMsg =
+        match cmdMsg with
+        | TickTimer -> timerCmd()
+
+    let initModel () = { Count = 0; Step = 1; TimerOn=false }
+
+    let init () = initModel () , []
 
     let update msg model =
         match msg with
-        | Increment -> { model with Count = model.Count + 1 }
-        | Decrement -> { model with Count = model.Count - 1 }
-        | Reset -> { model with Count = 0 }
-        
+        | Increment -> { model with Count = model.Count + model.Step }, []
+        | Decrement -> { model with Count = model.Count - model.Step }, []
+        | Reset -> init ()
+        | SetStep n -> { model with Step = n }, []
+        | TimerToggled on -> { model with TimerOn = on }, (if on then [ TickTimer ] else [])
+        | TimedTick -> if model.TimerOn then { model with Count = model.Count + model.Step }, [ TickTimer ] else model, []
+
     let view (model: Model) =
         ContentPage(
-            StackLayout(spacing = 10., children = [
-                Label("Fabulous CounterApp")
-                    .font(NamedSize.Title)
-                    .horizontalOptions(LayoutOptions.Center)
-                    
-                Label(sprintf "Count = %i" model.Count)
-                    .horizontalOptions(LayoutOptions.Center)
-                    .verticalOptions(LayoutOptions.CenterAndExpand)
+            StackLayout([
+                Label(sprintf "%d" model.Count)
+                    .automationId("CountLabel")
+                    .size(width = 200.)
+                    .alignment(horizontal = LayoutOptions.Center)
+                    .textAlignment(horizontal = TextAlignment.Center)
                     
                 Button("Increment", Increment)
-                Button("Decrement", Decrement)
+                    .automationId("IncrementButton")
                 
-                StaticView(MyDeleteButton, fun dispatch -> {| Text = "Reset"; Clicked = Command.msg dispatch Reset |})
-                    .horizontalOptions(LayoutOptions.Center)
+                Button("Decrement", Decrement)
+                    .automationId("DecrementButton")
+                
+                StackLayout(orientation = StackOrientation.Horizontal, children = [
+                    Label("Timer")
                     
-                StaticView(MyDeleteButton)
-                    .horizontalOptions(LayoutOptions.Center)
-            ])
+                    Switch(model.TimerOn, fun args -> TimerToggled args.Value)
+                        .automationId("TimerSwitch")
+                ]).alignment(horizontal = LayoutOptions.Center)
+                
+                Slider(double model.Step, fun args -> SetStep (int (args.NewValue + 0.5)))
+                    .range(0.0, 10.0)
+                    
+                Label(sprintf "Step size: %d" model.Step)
+                    .alignment(horizontal = LayoutOptions.Center)
+                    
+                Button("Reset", Reset)
+                    .isEnabled(model <> initModel())
+                    .alignment(horizontal = LayoutOptions.Center)
+            ]).padding(30.)
+              .alignment(vertical = LayoutOptions.Center)
         ).useSafeAreaOniOS()
              
-    let runnerDefinition = Program.AsApplication.simple init update view
+    let runnerDefinition = Program.AsApplication.useCmdMsg init update view mapCmdMsgToCmd
 
 type CounterApp () as app = 
     inherit Application ()
 
-    let runner =
+    let _ =
         App.runnerDefinition
         |> Program.withConsoleTrace
         |> Program.AsApplication.run app

@@ -14,7 +14,9 @@
     <PackageReference Include="NUnit3TestAdapter" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="4.7.2" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\CounterApp\CounterApp.fsproj" />
   </ItemGroup>
-  <Import Project="..\..\..\..\Packages.targets" />
 </Project>

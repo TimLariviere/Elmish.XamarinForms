@@ -76,7 +76,11 @@ module Attributes =
             { Subscribe = subscribe; Unsubscribe = unsubscribe }
         
         let handlerOf<'T, 'U when 'T :> BindableObject> (get: ('T -> IEvent<EventHandler<'U>, 'U>)) =
-            let subscribe (eventHandler: obj, target: obj) = (get (target :?> 'T)).AddHandler(eventHandler :?> EventHandler<'U>)
+            let subscribe (eventHandler: obj, target: obj) =
+                try
+                    (get (target :?> 'T)).AddHandler(eventHandler :?> EventHandler<'U>)
+                with
+                | exn -> System.Diagnostics.Debugger.Break()
             let unsubscribe (eventHandler: obj, target: obj) = (get (target :?> 'T)).RemoveHandler(eventHandler :?> EventHandler<'U>)
             { Subscribe = subscribe; Unsubscribe = unsubscribe }
   

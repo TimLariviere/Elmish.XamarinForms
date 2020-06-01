@@ -36,11 +36,10 @@ module Counter =
         StackLayout(spacing = 10., children = [
             Label("Fabulous Counter")
                 .font(NamedSize.Header)
-                .horizontalOptions(LayoutOptions.Center)
+                .alignment(horizontal = LayoutOptions.Center)
                 
             Label(sprintf "Count = %i" model.Count)
-                .horizontalOptions(LayoutOptions.Center)
-                .verticalOptions(LayoutOptions.CenterAndExpand)
+                .alignment(horizontal = LayoutOptions.Center, vertical = LayoutOptions.CenterAndExpand)
                 
             Button("Increment", Increment)
             Button("Decrement", Decrement)

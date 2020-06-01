@@ -33,3 +33,7 @@ Fabulous.XamarinForms/extensions/FFImageLoading/Xamarin.FFImageLoading.Forms.fs
 Fabulous.XamarinForms/extensions/Maps/Xamarin.Forms.Maps.fs
 
 Fabulous.sln.DotSettings
+
+.nuget/NuGet.Config
+
+.paket/Paket.Restore.targets

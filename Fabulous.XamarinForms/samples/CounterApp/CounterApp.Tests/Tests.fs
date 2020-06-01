@@ -66,7 +66,7 @@ module ``View tests`` =
     [<Test>]
     let ``View should generate a valid interface``() =
         let model = { Count = 5; Step = 4; TimerOn = true }
-        let actualView = App.view model ignore
+        let actualView = App.view model
 
         let countLabel = actualView |> findViewElement "CountLabel" |> LabelViewer
         let timerSwitch = actualView |> findViewElement "TimerSwitch" |> SwitchViewer
@@ -80,11 +80,8 @@ module ``View tests`` =
 
     [<Test>]
     let ``Clicking the button Increment should send the message Increment``() =
-        let mockedDispatch msg =
-            msg |> should equal Increment
-
         let model = { Count = 5; Step = 4; TimerOn = true }
-        let actualView = App.view model mockedDispatch
+        let actualView = App.view model
 
         let incrementButton = actualView |> findViewElement "IncrementButton" |> ButtonViewer
 
@@ -92,11 +89,8 @@ module ``View tests`` =
 
     [<Test>]
     let ``Clicking the button Decrement should send the message Decrement``() =
-        let mockedDispatch msg =
-            msg |> should equal Decrement
-
         let model = { Count = 5; Step = 4; TimerOn = true }
-        let actualView = App.view model mockedDispatch
+        let actualView = App.view model
 
         let decrementButton = actualView |> findViewElement "DecrementButton" |> ButtonViewer
 
