@@ -37,7 +37,7 @@ module internal EventHandlerCaching =
         
     let add (target: obj) (evt: DynamicEvent) (value: obj) =
         let events = _cache.GetOrCreateValue(target)
-        events.Add(evt, value)
+        events.[evt] <- value
 
 type DynamicViewElement
     (

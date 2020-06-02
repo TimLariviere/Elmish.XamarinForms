@@ -52,7 +52,7 @@ module ViewAttributes =
 type ContentPage<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
     interface IPage<'msg> with
         member x.AsViewElement() =
-            DynamicViewElement(typeof<Xamarin.Forms.ContentPage>, Xamarin.Forms.ContentPage >> box, readOnlyDict events, readOnlyDict properties) :> IViewElement
+            DynamicViewElement(typeof<Xamarin.Forms.ContentPage>, Xamarin.Forms.ContentPage >> box, readOnlyDict x.Events, readOnlyDict x.Properties) :> IViewElement
         
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
@@ -79,7 +79,7 @@ type ContentPage<'msg>(events: (DynamicEvent * DynamicEventFunc) list, propertie
 type Grid<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
     interface IView<'msg> with        
         member x.AsViewElement() =
-            DynamicViewElement(typeof<Xamarin.Forms.Grid>, Xamarin.Forms.Grid >> box, readOnlyDict events, readOnlyDict properties) :> IViewElement
+            DynamicViewElement(typeof<Xamarin.Forms.Grid>, Xamarin.Forms.Grid >> box, readOnlyDict x.Events, readOnlyDict x.Properties) :> IViewElement
         
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
@@ -122,7 +122,7 @@ type Grid<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (Dyn
 type StackLayout<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
     interface IView<'msg> with
         member x.AsViewElement() =
-            DynamicViewElement(typeof<Xamarin.Forms.StackLayout>, Xamarin.Forms.StackLayout >> box, readOnlyDict events, readOnlyDict properties) :> IViewElement
+            DynamicViewElement(typeof<Xamarin.Forms.StackLayout>, Xamarin.Forms.StackLayout >> box, readOnlyDict x.Events, readOnlyDict x.Properties) :> IViewElement
         
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
@@ -165,7 +165,7 @@ type StackLayout<'msg>(events: (DynamicEvent * DynamicEventFunc) list, propertie
 type Button<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
     interface IView<'msg> with
         member x.AsViewElement() =
-            DynamicViewElement(typeof<Xamarin.Forms.Button>, Xamarin.Forms.Button >> box, readOnlyDict events, readOnlyDict properties) :> IViewElement
+            DynamicViewElement(typeof<Xamarin.Forms.Button>, Xamarin.Forms.Button >> box, readOnlyDict x.Events, readOnlyDict x.Properties) :> IViewElement
         
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
@@ -203,7 +203,7 @@ type Button<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (D
 type Entry<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
     interface IView<'msg> with        
         member x.AsViewElement() =
-            DynamicViewElement(typeof<Xamarin.Forms.Entry>, Xamarin.Forms.Entry >> box, readOnlyDict events, readOnlyDict properties) :> IViewElement
+            DynamicViewElement(typeof<Xamarin.Forms.Entry>, Xamarin.Forms.Entry >> box, readOnlyDict x.Events, readOnlyDict x.Properties) :> IViewElement
         
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
@@ -245,7 +245,7 @@ type Entry<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (Dy
 type Label<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
     interface IView<'msg> with
         member x.AsViewElement() =
-            DynamicViewElement(typeof<Xamarin.Forms.Label>, Xamarin.Forms.Label >> box, readOnlyDict events, readOnlyDict properties) :> IViewElement
+            DynamicViewElement(typeof<Xamarin.Forms.Label>, Xamarin.Forms.Label >> box, readOnlyDict x.Events, readOnlyDict x.Properties) :> IViewElement
         
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
@@ -296,7 +296,7 @@ type Label<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (Dy
 type Slider<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
     interface IView<'msg> with
         member x.AsViewElement() =
-            DynamicViewElement(typeof<Xamarin.Forms.Slider>, Xamarin.Forms.Slider >> box, readOnlyDict events, readOnlyDict properties) :> IViewElement
+            DynamicViewElement(typeof<Xamarin.Forms.Slider>, Xamarin.Forms.Slider >> box, readOnlyDict x.Events, readOnlyDict x.Properties) :> IViewElement
         
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
@@ -331,7 +331,7 @@ type Slider<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (D
 type Switch<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
     interface IView<'msg> with
         member x.AsViewElement() =
-            DynamicViewElement(typeof<Xamarin.Forms.Switch>, Xamarin.Forms.Switch >> box, readOnlyDict events, readOnlyDict properties) :> IViewElement
+            DynamicViewElement(typeof<Xamarin.Forms.Switch>, Xamarin.Forms.Switch >> box, readOnlyDict x.Events, readOnlyDict x.Properties) :> IViewElement
         
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
@@ -365,7 +365,7 @@ type Switch<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (D
 type ListView<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
     interface IView<'msg> with
         member x.AsViewElement() =
-            DynamicViewElement(typeof<Xamarin.Forms.ListView>, Xamarin.Forms.ListView >> box, readOnlyDict events, readOnlyDict properties) :> IViewElement
+            DynamicViewElement(typeof<Xamarin.Forms.ListView>, Xamarin.Forms.ListView >> box, readOnlyDict x.Events, readOnlyDict x.Properties) :> IViewElement
         
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
@@ -402,7 +402,7 @@ type ListView<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: 
 type TextCell<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
     interface ICell<'msg> with
         member x.AsViewElement() =
-                DynamicViewElement(typeof<Xamarin.Forms.TextCell>, Xamarin.Forms.TextCell >> box, readOnlyDict events, readOnlyDict properties) :> IViewElement
+                DynamicViewElement(typeof<Xamarin.Forms.TextCell>, Xamarin.Forms.TextCell >> box, readOnlyDict x.Events, readOnlyDict x.Properties) :> IViewElement
         
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
@@ -423,7 +423,7 @@ type TextCell<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: 
 type MenuItem<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
     interface IMenuItem<'msg> with
         member x.AsViewElement() =
-            DynamicViewElement(typeof<Xamarin.Forms.MenuItem>, Xamarin.Forms.MenuItem >> box, readOnlyDict events, readOnlyDict properties) :> IViewElement
+            DynamicViewElement(typeof<Xamarin.Forms.MenuItem>, Xamarin.Forms.MenuItem >> box, readOnlyDict x.Events, readOnlyDict x.Properties) :> IViewElement
         
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
