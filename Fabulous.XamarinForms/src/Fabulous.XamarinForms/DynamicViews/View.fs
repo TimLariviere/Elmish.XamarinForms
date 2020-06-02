@@ -49,7 +49,7 @@ module ViewAttributes =
     let MenuItemClicked = Attributes.Event.handler<MenuItem> (fun t -> t.Clicked)
     
 [<Struct>]
-type ContentPage<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties: (DynamicProperty * obj) list) =
+type ContentPage<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
     interface IPage<'msg> with
         member x.AsViewElement() =
             DynamicViewElement(typeof<Xamarin.Forms.ContentPage>, Xamarin.Forms.ContentPage >> box, readOnlyDict events, readOnlyDict properties) :> IViewElement
@@ -76,7 +76,7 @@ type ContentPage<'msg>(events: (DynamicEvent * DynamicEventValue) list, properti
         ContentPage<'msg>(x.Events, properties)
         
 [<Struct>]
-type Grid<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties: (DynamicProperty * obj) list) =
+type Grid<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
     interface IView<'msg> with        
         member x.AsViewElement() =
             DynamicViewElement(typeof<Xamarin.Forms.Grid>, Xamarin.Forms.Grid >> box, readOnlyDict events, readOnlyDict properties) :> IViewElement
@@ -96,8 +96,8 @@ type Grid<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties: (Dy
             
     member inline x.size(?width: double, ?height: double) =
         let properties = x.Properties
-        let properties = match width with None -> properties | Some v -> (ViewAttributes.VisualElementWidthRequest.Value(v))::x.Properties
-        let properties = match height with None -> properties | Some v -> (ViewAttributes.VisualElementHeightRequest.Value(v))::x.Properties
+        let properties = match width with None -> properties | Some v -> (ViewAttributes.VisualElementWidthRequest.Value(v))::properties
+        let properties = match height with None -> properties | Some v -> (ViewAttributes.VisualElementHeightRequest.Value(v))::properties
         Grid<'msg>(x.Events, properties)
     
     member inline x.alignment(?horizontal: LayoutOptions, ?vertical: LayoutOptions) =
@@ -119,7 +119,7 @@ type Grid<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties: (Dy
         Grid<'msg>(x.Events, properties)
         
 [<Struct>]
-type StackLayout<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties: (DynamicProperty * obj) list) =
+type StackLayout<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
     interface IView<'msg> with
         member x.AsViewElement() =
             DynamicViewElement(typeof<Xamarin.Forms.StackLayout>, Xamarin.Forms.StackLayout >> box, readOnlyDict events, readOnlyDict properties) :> IViewElement
@@ -162,7 +162,7 @@ type StackLayout<'msg>(events: (DynamicEvent * DynamicEventValue) list, properti
         StackLayout<'msg>(x.Events, properties)
         
 [<Struct>]
-type Button<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties: (DynamicProperty * obj) list) =
+type Button<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
     interface IView<'msg> with
         member x.AsViewElement() =
             DynamicViewElement(typeof<Xamarin.Forms.Button>, Xamarin.Forms.Button >> box, readOnlyDict events, readOnlyDict properties) :> IViewElement
@@ -181,8 +181,8 @@ type Button<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties: (
             
     member inline x.size(?width: double, ?height: double) =
         let properties = x.Properties
-        let properties = match width with None -> properties | Some v -> (ViewAttributes.VisualElementWidthRequest.Value(v))::x.Properties
-        let properties = match height with None -> properties | Some v -> (ViewAttributes.VisualElementHeightRequest.Value(v))::x.Properties
+        let properties = match width with None -> properties | Some v -> (ViewAttributes.VisualElementWidthRequest.Value(v))::properties
+        let properties = match height with None -> properties | Some v -> (ViewAttributes.VisualElementHeightRequest.Value(v))::properties
         Button<'msg>(x.Events, properties)
     
     member inline x.alignment(?horizontal: LayoutOptions, ?vertical: LayoutOptions) =
@@ -200,7 +200,7 @@ type Button<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties: (
         Button<'msg>(x.Events, properties)
        
 [<Struct>]
-type Entry<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties: (DynamicProperty * obj) list) =
+type Entry<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
     interface IView<'msg> with        
         member x.AsViewElement() =
             DynamicViewElement(typeof<Xamarin.Forms.Entry>, Xamarin.Forms.Entry >> box, readOnlyDict events, readOnlyDict properties) :> IViewElement
@@ -219,8 +219,8 @@ type Entry<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties: (D
             
     member inline x.size(?width: double, ?height: double) =
         let properties = x.Properties
-        let properties = match width with None -> properties | Some v -> (ViewAttributes.VisualElementWidthRequest.Value(v))::x.Properties
-        let properties = match height with None -> properties | Some v -> (ViewAttributes.VisualElementHeightRequest.Value(v))::x.Properties
+        let properties = match width with None -> properties | Some v -> (ViewAttributes.VisualElementWidthRequest.Value(v))::properties
+        let properties = match height with None -> properties | Some v -> (ViewAttributes.VisualElementHeightRequest.Value(v))::properties
         Entry<'msg>(x.Events, properties)
     
     member inline x.alignment(?horizontal: LayoutOptions, ?vertical: LayoutOptions) =
@@ -242,7 +242,7 @@ type Entry<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties: (D
         Entry<'msg>(events, x.Properties)
           
 [<Struct>]  
-type Label<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties: (DynamicProperty * obj) list) =
+type Label<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
     interface IView<'msg> with
         member x.AsViewElement() =
             DynamicViewElement(typeof<Xamarin.Forms.Label>, Xamarin.Forms.Label >> box, readOnlyDict events, readOnlyDict properties) :> IViewElement
@@ -260,8 +260,8 @@ type Label<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties: (D
             
     member inline x.size(?width: double, ?height: double) =
         let properties = x.Properties
-        let properties = match width with None -> properties | Some v -> (ViewAttributes.VisualElementWidthRequest.Value(v))::x.Properties
-        let properties = match height with None -> properties | Some v -> (ViewAttributes.VisualElementHeightRequest.Value(v))::x.Properties
+        let properties = match width with None -> properties | Some v -> (ViewAttributes.VisualElementWidthRequest.Value(v))::properties
+        let properties = match height with None -> properties | Some v -> (ViewAttributes.VisualElementHeightRequest.Value(v))::properties
         Label<'msg>(x.Events, properties)
     
     member inline x.alignment(?horizontal: LayoutOptions, ?vertical: LayoutOptions) =
@@ -293,7 +293,7 @@ type Label<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties: (D
         Label<'msg>(x.Events, properties)
         
 [<Struct>]
-type Slider<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties: (DynamicProperty * obj) list) =
+type Slider<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
     interface IView<'msg> with
         member x.AsViewElement() =
             DynamicViewElement(typeof<Xamarin.Forms.Slider>, Xamarin.Forms.Slider >> box, readOnlyDict events, readOnlyDict properties) :> IViewElement
@@ -301,8 +301,9 @@ type Slider<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties: (
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
             
-    static member inline init(value: double, valueChanged: ValueChangedEventArgs -> 'msg) =
-        let properties = [ViewAttributes.SliderValue.Value(value)] 
+    static member inline init(value: double, valueChanged: ValueChangedEventArgs -> 'msg, ?range: double * double) =
+        let properties = [ViewAttributes.SliderValue.Value(value)]
+        let properties = match range with None -> properties | Some (min, max) -> ViewAttributes.SliderMinimum.Value(min)::ViewAttributes.SliderMaximum.Value(max)::properties
         let events = [ViewAttributes.SliderValueChanged.Value(fun dispatch -> EventHandler<ValueChangedEventArgs>(fun _ args -> dispatch (valueChanged args)) :> obj)]
         Slider<'msg>(events, properties)
             
@@ -312,8 +313,8 @@ type Slider<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties: (
             
     member inline x.size(?width: double, ?height: double) =
         let properties = x.Properties
-        let properties = match width with None -> properties | Some v -> (ViewAttributes.VisualElementWidthRequest.Value(v))::x.Properties
-        let properties = match height with None -> properties | Some v -> (ViewAttributes.VisualElementHeightRequest.Value(v))::x.Properties
+        let properties = match width with None -> properties | Some v -> (ViewAttributes.VisualElementWidthRequest.Value(v))::properties
+        let properties = match height with None -> properties | Some v -> (ViewAttributes.VisualElementHeightRequest.Value(v))::properties
         Slider<'msg>(x.Events, properties)
     
     member inline x.alignment(?horizontal: LayoutOptions, ?vertical: LayoutOptions) =
@@ -326,14 +327,8 @@ type Slider<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties: (
         let properties = ViewAttributes.VisualElementIsEnabled.Value(isEnabled)::x.Properties
         Slider<'msg>(x.Events, properties)
         
-    member inline x.range(min: double, max: double) =
-        let properties = x.Properties
-        let properties = ViewAttributes.SliderMinimum.Value(min)::properties
-        let properties = ViewAttributes.SliderMaximum.Value(max)::properties
-        Slider<'msg>(x.Events, properties)
-        
 [<Struct>]
-type Switch<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties: (DynamicProperty * obj) list) =
+type Switch<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
     interface IView<'msg> with
         member x.AsViewElement() =
             DynamicViewElement(typeof<Xamarin.Forms.Switch>, Xamarin.Forms.Switch >> box, readOnlyDict events, readOnlyDict properties) :> IViewElement
@@ -352,8 +347,8 @@ type Switch<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties: (
             
     member inline x.size(?width: double, ?height: double) =
         let properties = x.Properties
-        let properties = match width with None -> properties | Some v -> (ViewAttributes.VisualElementWidthRequest.Value(v))::x.Properties
-        let properties = match height with None -> properties | Some v -> (ViewAttributes.VisualElementHeightRequest.Value(v))::x.Properties
+        let properties = match width with None -> properties | Some v -> (ViewAttributes.VisualElementWidthRequest.Value(v))::properties
+        let properties = match height with None -> properties | Some v -> (ViewAttributes.VisualElementHeightRequest.Value(v))::properties
         Switch<'msg>(x.Events, properties)
     
     member inline x.alignment(?horizontal: LayoutOptions, ?vertical: LayoutOptions) =
@@ -367,7 +362,7 @@ type Switch<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties: (
         Switch<'msg>(x.Events, properties)
         
 [<Struct>]
-type ListView<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties: (DynamicProperty * obj) list) =
+type ListView<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
     interface IView<'msg> with
         member x.AsViewElement() =
             DynamicViewElement(typeof<Xamarin.Forms.ListView>, Xamarin.Forms.ListView >> box, readOnlyDict events, readOnlyDict properties) :> IViewElement
@@ -385,8 +380,8 @@ type ListView<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties:
             
     member inline x.size(?width: double, ?height: double) =
         let properties = x.Properties
-        let properties = match width with None -> properties | Some v -> (ViewAttributes.VisualElementWidthRequest.Value(v))::x.Properties
-        let properties = match height with None -> properties | Some v -> (ViewAttributes.VisualElementHeightRequest.Value(v))::x.Properties
+        let properties = match width with None -> properties | Some v -> (ViewAttributes.VisualElementWidthRequest.Value(v))::properties
+        let properties = match height with None -> properties | Some v -> (ViewAttributes.VisualElementHeightRequest.Value(v))::properties
         ListView<'msg>(x.Events, properties)
     
     member inline x.alignment(?horizontal: LayoutOptions, ?vertical: LayoutOptions) =
@@ -404,7 +399,7 @@ type ListView<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties:
         ListView<'msg>(x.Events, properties)
         
 [<Struct>]    
-type TextCell<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties: (DynamicProperty * obj) list) =
+type TextCell<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
     interface ICell<'msg> with
         member x.AsViewElement() =
                 DynamicViewElement(typeof<Xamarin.Forms.TextCell>, Xamarin.Forms.TextCell >> box, readOnlyDict events, readOnlyDict properties) :> IViewElement
@@ -425,7 +420,7 @@ type TextCell<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties:
         TextCell<'msg>([], properties)
         
 [<Struct>]
-type MenuItem<'msg>(events: (DynamicEvent * DynamicEventValue) list, properties: (DynamicProperty * obj) list) =
+type MenuItem<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
     interface IMenuItem<'msg> with
         member x.AsViewElement() =
             DynamicViewElement(typeof<Xamarin.Forms.MenuItem>, Xamarin.Forms.MenuItem >> box, readOnlyDict events, readOnlyDict properties) :> IViewElement
@@ -450,8 +445,33 @@ type View private () =
     static member inline Button(text,clicked) = Button.init(text,clicked)
     static member inline Entry(text,textChanged) = Entry.init(text,textChanged)
     static member inline Label(text) = Label.init text
-    static member inline Slider(value,valueChanged) = Slider.init(value,valueChanged)
+    static member inline Slider(value,valueChanged,?range) = Slider.init(value,valueChanged,?range=range)
     static member inline Switch(isToggled,toggled) = Switch.init(isToggled,toggled)
     static member inline ListView(items) = ListView.init(items)
     static member inline TextCell(text) = TextCell.init text
     static member inline MenuItem(text,clicked) = MenuItem.init(text,clicked)
+    
+module UnitTests =
+    type ButtonViewer(element: IViewElement) =
+        let dynamicElement = match element with :? DynamicViewElement as dyn -> dyn | _ -> failwithf "A DynamicViewElement was expected"
+        do if not ((typeof<Xamarin.Forms.Button>).IsAssignableFrom(dynamicElement.TargetType)) then failwithf "A DynamicViewElement assignable to type 'Xamarin.Forms.Button' is expected, but '%s' was provided." dynamicElement.TargetType.FullName
+        member x.Clicked() : 'msg =
+            let mutable msgVal = null
+            let eventHandler = dynamicElement.Events.[ViewAttributes.ButtonClicked](fun msg -> msgVal <- msg) :?> EventHandler
+            eventHandler.Invoke(x, EventArgs())
+            msgVal :?> 'msg
+        
+    type LabelViewer(element: IViewElement) =
+        let dynamicElement = match element with :? DynamicViewElement as dyn -> dyn | _ -> failwithf "A DynamicViewElement was expected"
+        do if not ((typeof<Xamarin.Forms.Label>).IsAssignableFrom(dynamicElement.TargetType)) then failwithf "A DynamicViewElement assignable to type 'Xamarin.Forms.Label' is expected, but '%s' was provided." dynamicElement.TargetType.FullName
+        member x.Text = dynamicElement.Properties.[ViewAttributes.LabelText] :?> string
+        
+    type SliderViewer(element: IViewElement) =
+        let dynamicElement = match element with :? DynamicViewElement as dyn -> dyn | _ -> failwithf "A DynamicViewElement was expected"
+        do if not ((typeof<Xamarin.Forms.Slider>).IsAssignableFrom(dynamicElement.TargetType)) then failwithf "A DynamicViewElement assignable to type 'Xamarin.Forms.Slider' is expected, but '%s' was provided." dynamicElement.TargetType.FullName
+        member x.Value = dynamicElement.Properties.[ViewAttributes.SliderValue] :?> double
+        
+    type SwitchViewer(element: IViewElement) =
+        let dynamicElement = match element with :? DynamicViewElement as dyn -> dyn | _ -> failwithf "A DynamicViewElement was expected"
+        do if not ((typeof<Xamarin.Forms.Switch>).IsAssignableFrom(dynamicElement.TargetType)) then failwithf "A DynamicViewElement assignable to type 'Xamarin.Forms.Switch' is expected, but '%s' was provided." dynamicElement.TargetType.FullName
+        member x.IsToggled = dynamicElement.Properties.[ViewAttributes.SwitchIsToggled] :?> bool

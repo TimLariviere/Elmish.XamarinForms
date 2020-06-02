@@ -5,7 +5,8 @@ open NUnit.Framework
 open FsUnit
 open CounterApp
 open CounterApp.App
-open Fabulous.XamarinForms
+open Fabulous.XamarinForms.UnitTests
+open Fabulous.XamarinForms.DynamicViews.UnitTests
 
 module ``Init tests`` =
     [<Test>]
@@ -68,10 +69,10 @@ module ``View tests`` =
         let model = { Count = 5; Step = 4; TimerOn = true }
         let actualView = App.view model
 
-        let countLabel = actualView |> findViewElement "CountLabel" |> LabelViewer
-        let timerSwitch = actualView |> findViewElement "TimerSwitch" |> SwitchViewer
-        let stepSlider = actualView |> findViewElement "StepSlider" |> SliderViewer
-        let stepSizeLabel = actualView |> findViewElement "StepSizeLabel" |> LabelViewer
+        let countLabel = actualView |> findAutomationId "CountLabel" |> LabelViewer
+        let timerSwitch = actualView |> findAutomationId "TimerSwitch" |> SwitchViewer
+        let stepSlider = actualView |> findAutomationId "StepSlider" |> SliderViewer
+        let stepSizeLabel = actualView |> findAutomationId "StepSizeLabel" |> LabelViewer
 
         countLabel.Text |> should equal "5"
         timerSwitch.IsToggled |> should equal true
@@ -83,15 +84,15 @@ module ``View tests`` =
         let model = { Count = 5; Step = 4; TimerOn = true }
         let actualView = App.view model
 
-        let incrementButton = actualView |> findViewElement "IncrementButton" |> ButtonViewer
+        let incrementButton = actualView |> findAutomationId "IncrementButton" |> ButtonViewer
 
-        incrementButton.Command ()
+        incrementButton.Clicked() |> should equal Increment
 
     [<Test>]
     let ``Clicking the button Decrement should send the message Decrement``() =
         let model = { Count = 5; Step = 4; TimerOn = true }
         let actualView = App.view model
 
-        let decrementButton = actualView |> findViewElement "DecrementButton" |> ButtonViewer
+        let decrementButton = actualView |> findAutomationId "DecrementButton" |> ButtonViewer
 
-        decrementButton.Command ()
+        decrementButton.Clicked() |> should equal Decrement

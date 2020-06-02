@@ -17,6 +17,7 @@
     <Compile Include="StaticViews\Bindings.fs" />
     <Compile Include="StaticViews\View.fs" />
     <Compile Include="Program.fs" />
+    <Compile Include="UnitTests.fs" />
   </ItemGroup>
 
   <ItemGroup>

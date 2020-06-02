@@ -88,4 +88,4 @@ module Attributes =
         member x.Value(value: obj) = (x, value)
         
     type DynamicEvent with
-        member x.Value(fn: (obj -> unit) -> obj) = (x, DynamicEventValue(fn))
+        member x.Value(fn: (obj -> unit) -> obj) = (x, fn)

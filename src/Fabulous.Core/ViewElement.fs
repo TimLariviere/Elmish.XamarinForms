@@ -3,6 +3,7 @@ namespace Fabulous
 
 open System
 open System.Collections.Generic
+open System.Runtime.CompilerServices
 
 type ProgramDefinition =
     { CanReuseView: IViewElement -> IViewElement -> bool
@@ -15,24 +16,34 @@ and IViewElement =
 
 [<ReferenceEquality>] type DynamicEvent = { Subscribe: obj * obj -> unit; Unsubscribe: obj * obj -> unit }
 [<ReferenceEquality>] type DynamicProperty = { Update: ProgramDefinition * obj voption * obj voption * obj -> unit }
+type DynamicEventFunc = (obj -> unit) -> obj
 
-type DynamicEventValue(fn: (obj -> unit) -> obj) =
-    let mutable handlerOpt = ValueNone
-    member x.Func = fn
-    member x.GetHandler(dispatch) =
-        match handlerOpt with
-        | ValueNone ->
-            let handler = (x.Func dispatch)
-            handlerOpt <- ValueSome handler
-            handler
-        | ValueSome handler ->
-            handler
+/// To avoid capturing Dispatch when building ViewElements,
+/// Dispatch is only passed when applying the changes to the actual control.
+/// But for event subscription, it is required to keep a reference of the EventHandler
+/// so we can unsubscribe it later.
+///
+/// To avoid memory leak, we only keep a weak reference to the actual control.
+module internal EventHandlerCaching =
+    let private _cache = ConditionalWeakTable<obj, Dictionary<DynamicEvent, obj>>()
+    
+    let tryGet (target: obj) (evt: DynamicEvent) =
+        match _cache.TryGetValue(target) with
+        | false, _ -> None
+        | true, events ->
+            match events.TryGetValue(evt) with
+            | false, _ -> None
+            | true, eventHandler -> Some eventHandler
+        
+    let add (target: obj) (evt: DynamicEvent) (value: obj) =
+        let events = _cache.GetOrCreateValue(target)
+        events.Add(evt, value)
 
 type DynamicViewElement
     (
         targetType: Type,
         create: unit -> obj,
-        events: IReadOnlyDictionary<DynamicEvent, DynamicEventValue>,
+        events: IReadOnlyDictionary<DynamicEvent, DynamicEventFunc>,
         properties: IReadOnlyDictionary<DynamicProperty, obj>
     ) =
     
@@ -48,7 +59,7 @@ type DynamicViewElement
     member x.TryGetEventFunction(evtDefinition: DynamicEvent) =
         match x.Events.TryGetValue(evtDefinition) with
         | false, _ -> ValueNone
-        | true, value -> ValueSome value.Func
+        | true, value -> ValueSome value
         
     member x.Create(dispatch) =
         let target = create()
@@ -61,7 +72,9 @@ type DynamicViewElement
         | ValueNone -> ()
         | ValueSome prev ->
             for evt in prev.Events do
-                evt.Key.Unsubscribe(evt.Value.GetHandler(programDefinition.Dispatch), target)
+                match EventHandlerCaching.tryGet target evt.Key with
+                | None -> ()
+                | Some evtHandler -> evt.Key.Unsubscribe(evtHandler, target)
                 
         // Update properties
         let allProps = Seq.distinct (seq {
@@ -81,7 +94,9 @@ type DynamicViewElement
             
         // Subscribe events
         for evt in x.Events do
-            evt.Key.Subscribe(evt.Value.GetHandler(programDefinition.Dispatch), target)
+            let evtHandler = evt.Value programDefinition.Dispatch
+            EventHandlerCaching.add target evt.Key evtHandler
+            evt.Key.Subscribe(evtHandler, target)
         
     interface IViewElement with
         member x.Create(dispatch) = x.Create(dispatch)

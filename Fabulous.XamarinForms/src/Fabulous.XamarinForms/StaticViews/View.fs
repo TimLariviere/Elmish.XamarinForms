@@ -29,7 +29,7 @@ module StaticHelpers =
          StateValue(match stateFn with None -> None | Some fn -> Some (fun dispatch -> fn dispatch)) :> obj)
 
 [<Struct>]
-type StaticPage<'T, 'msg when 'T :> Page>(create: unit -> 'T, events: (DynamicEvent * DynamicEventValue) list, properties: (DynamicProperty * obj) list) =
+type StaticPage<'T, 'msg when 'T :> Page>(create: unit -> 'T, events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
     interface IPage<'msg> with
         member x.AsViewElement() =
             let createFn = create
@@ -43,7 +43,7 @@ type StaticPage<'T, 'msg when 'T :> Page>(create: unit -> 'T, events: (DynamicEv
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
  
 [<Struct>]
-type StaticView<'T, 'msg when 'T :> View>(create: unit -> 'T, events: (DynamicEvent * DynamicEventValue) list, properties: (DynamicProperty * obj) list) =
+type StaticView<'T, 'msg when 'T :> View>(create: unit -> 'T, events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
     interface IView<'msg> with
         member x.AsViewElement() =
             let createFn = create
@@ -69,7 +69,7 @@ type StaticView<'T, 'msg when 'T :> View>(create: unit -> 'T, events: (DynamicEv
         StaticView<'T, 'msg>(x.Create, x.Events, properties)
     
 [<Struct>]
-type StaticCell<'T, 'msg when 'T :> Cell>(create: unit -> 'T, events: (DynamicEvent * DynamicEventValue) list, properties: (DynamicProperty * obj) list) =
+type StaticCell<'T, 'msg when 'T :> Cell>(create: unit -> 'T, events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
     interface ICell<'msg> with
         member x.AsViewElement() =
             let createFn = create
@@ -83,7 +83,7 @@ type StaticCell<'T, 'msg when 'T :> Cell>(create: unit -> 'T, events: (DynamicEv
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
     
 [<Struct>]
-type StaticMenuItem<'T, 'msg when 'T :> MenuItem>(create: unit -> 'T, events: (DynamicEvent * DynamicEventValue) list, properties: (DynamicProperty * obj) list) =
+type StaticMenuItem<'T, 'msg when 'T :> MenuItem>(create: unit -> 'T, events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
     interface IMenuItem<'msg> with
         member x.AsViewElement() =
             let createFn = create

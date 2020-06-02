@@ -69,10 +69,11 @@ module App =
                         .automationId("TimerSwitch")
                 ]).alignment(horizontal = LayoutOptions.Center)
                 
-                Slider(double model.Step, fun args -> SetStep (int (args.NewValue + 0.5)))
-                    .range(0.0, 10.0)
+                Slider(double model.Step, (fun args -> SetStep (int (args.NewValue + 0.5))), range = (0., 10.))
+                    .automationId("StepSlider")
                     
                 Label(sprintf "Step size: %d" model.Step)
+                    .automationId("StepSizeLabel")
                     .alignment(horizontal = LayoutOptions.Center)
                     
                 Button("Reset", Reset)

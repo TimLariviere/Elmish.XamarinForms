@@ -48,7 +48,7 @@ type Runner<'arg, 'model, 'msg>(host: IHost, definition: RunnerDefinition<'arg, 
     let programDefinition = { CanReuseView = definition.canReuseView; Dispatch = (fun msg -> dispatch.DispatchViaThunk (unbox msg)) }
     let mutable reset = (fun () -> ())
 
-    // Start Elmish dispatch loop  
+    // Start Elmish dispatch loop
     let rec processMsg msg = 
         try
             let (updatedModel,newCommands) = definition.update msg lastModel

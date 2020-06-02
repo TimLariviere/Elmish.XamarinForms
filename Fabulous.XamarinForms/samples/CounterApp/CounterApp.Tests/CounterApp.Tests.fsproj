@@ -8,13 +8,10 @@
     <Compile Include="Tests.fs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FSharp.Core" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" />
-    <PackageReference Include="FsUnit" />
-    <PackageReference Include="NUnit3TestAdapter" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Update="FSharp.Core" Version="4.7.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+    <PackageReference Include="FsUnit" Version="3.8.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CounterApp\CounterApp.fsproj" />
