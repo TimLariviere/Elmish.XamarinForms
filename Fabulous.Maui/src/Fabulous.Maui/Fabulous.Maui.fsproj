@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <LangVersion>preview</LangVersion>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="MauiViewElement.fs" />
+        <Compile Include="Controls.fs" />
+        <Compile Include="ViewTypes.fs" />
+        <Compile Include="View.fs" />
+        <Compile Include="Platform.fs" />
+        <Compile Include="Sample.fs" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Update="FSharp.Core" Version="4.7.2" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\src\Fabulous.Core\Fabulous.Core.fsproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <Reference Include="Maui.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <HintPath>..\..\..\..\maui\Maui.Core\bin\Debug\netstandard2.1\Maui.Core.dll</HintPath>
+      </Reference>
+      <Reference Include="System.Maui.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <HintPath>..\..\..\..\maui\System.Maui.Core\bin\Debug\netstandard2.1\System.Maui.Core.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+</Project>

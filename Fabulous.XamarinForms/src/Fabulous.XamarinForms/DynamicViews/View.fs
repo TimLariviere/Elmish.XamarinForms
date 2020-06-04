@@ -57,7 +57,7 @@ type ContentPage<'msg>(events: (DynamicEvent * DynamicEventFunc) list, propertie
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
     
-    static member inline init(content: IView<'msg>) =
+    static member inline init(content: #IView<'msg>) =
         let properties = [ ViewAttributes.ContentPageContent.Value(content.AsViewElement()) ]
         ContentPage<'msg>([], properties)
             
@@ -439,7 +439,7 @@ type MenuItem<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: 
         
 [<AbstractClass; Sealed>]
 type View private () =
-    static member inline ContentPage(content) = ContentPage.init(content)
+    static member inline ContentPage(content: #IView<'msg>) = ContentPage.init(content)
     static member inline Grid(children, ?coldefs,?rowdefs) = Grid.init (children, ?coldefs=coldefs,?rowdefs=rowdefs)
     static member inline StackLayout(children,?orientation,?spacing) = StackLayout.init(children,?orientation=orientation,?spacing=spacing)
     static member inline Button(text,clicked) = Button.init(text,clicked)
