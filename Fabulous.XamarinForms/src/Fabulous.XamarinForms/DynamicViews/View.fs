@@ -274,6 +274,10 @@ type Label<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (Dy
         let properties = ViewAttributes.VisualElementIsEnabled.Value(isEnabled)::x.Properties
         Label<'msg>(x.Events, properties)
         
+    member inline x.font(fontSize: double) =
+        let properties = ViewAttributes.LabelFontSize.Value(fontSize)::x.Properties
+        Label<'msg>(x.Events, properties)
+        
     member inline x.font(fontSize: NamedSize) =
         let properties = ViewAttributes.LabelFontSize.Value(Device.GetNamedSize(fontSize, typeof<Label>))::x.Properties
         Label<'msg>(x.Events, properties)
