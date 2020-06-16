@@ -361,3 +361,4 @@ FodyWeavers.xsd
 .idea/
 
 **/*.designer.cs
+**/.DS_Store
