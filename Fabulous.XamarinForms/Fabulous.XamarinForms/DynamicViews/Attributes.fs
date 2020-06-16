@@ -38,6 +38,22 @@ module Attributes =
             { Update = ignore }
     
     module ViewElement =
+        let scalarProperty (defaultValue: 'TValue) (getter: 'TTarget -> 'TValue) (setter: 'TValue * 'TTarget -> unit) =
+            {
+                Update = (fun (programDefinition, prevOpt, currOpt, target) ->
+                    match prevOpt, currOpt with
+                    | ValueNone, ValueNone -> ()
+                    | ValueSome prev, ValueSome curr when prev = curr -> ()
+                    | ValueSome _, ValueNone -> setter(defaultValue, target :?> 'TTarget)
+                    | ValueSome prev, ValueSome curr when programDefinition.CanReuseView (prev :?> IViewElement) (curr :?> IViewElement) ->
+                        let realTarget = getter(target :?> 'TTarget)
+                        (curr :?> IViewElement).Update(programDefinition, ValueSome (prev :?> IViewElement), realTarget)
+                    | _, ValueSome curr ->
+                        let value = (curr :?> IViewElement).Create(programDefinition)
+                        setter(value :?> 'TValue, target :?> 'TTarget)
+                )
+            }
+            
         let bindableProperty (bindableProperty: BindableProperty) =
             {
                 Update = (fun (programDefinition, prevOpt, currOpt, target) ->

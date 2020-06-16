@@ -15,7 +15,7 @@
         <PackageReference Update="FSharp.Core" Version="4.7.2" />
     </ItemGroup>
     <ItemGroup>
-      <ProjectReference Include="..\..\..\src\Fabulous.Core\Fabulous.Core.fsproj" />
+      <ProjectReference Include="..\..\Fabulous\Fabulous.Core\Fabulous.Core.fsproj" />
     </ItemGroup>
     <ItemGroup>
       <Reference Include="Maui.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">

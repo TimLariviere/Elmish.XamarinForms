@@ -1,0 +1,9 @@
+{
+  "solution": {
+    "path": "Fabulous.sln",
+    "projects": [
+      "Fabulous\\Fabulous.Core\\Fabulous.Core.fsproj",
+      "Fabulous.Maui\\Fabulous.Maui\\Fabulous.Maui.fsproj"
+    ]
+  }
+}

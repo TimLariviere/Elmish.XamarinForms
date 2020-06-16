@@ -12,6 +12,6 @@
     <PackageReference Update="FSharp.Core" Version="4.7.2" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Fabulous.XamarinForms\Fabulous.XamarinForms.fsproj" />
+    <ProjectReference Include="..\..\..\Fabulous.XamarinForms\Fabulous.XamarinForms.fsproj" />
   </ItemGroup>
 </Project>

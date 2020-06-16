@@ -7,27 +7,19 @@ open Xamarin.Forms
 
 type ContentViewHost(contentView: ContentView) =
     interface IHost with
-        member __.GetRootView() =
+        member __.GetRoot() =
             match contentView.Content with
             | null -> failwith "No root view"
             | rootView -> rootView :> obj 
 
-        member __.SetRootView(rootView) =
-            match rootView with
-            | :? View as view -> contentView.Content <- view
-            | _ -> failwithf "Incorrect model type: expected a View but got a %O" (rootView.GetType())
+        member __.InitRoot(rootElement, programDefinition) =
+            contentView.Content <- rootElement.Create(programDefinition) :?> View
 
 type ApplicationHost(app: Application) =
     interface IHost with
-        member __.GetRootView() =
-            match app.MainPage with
-            | null -> failwith "No root view"
-            | rootView -> rootView :> obj 
-
-        member __.SetRootView(rootView) =
-            match rootView with
-            | :? Page as page -> app.MainPage <- page
-            | _ -> failwithf "Incorrect model type: expected a page but got a %O" (rootView.GetType())
+        member __.GetRoot() = app :> obj
+        member __.InitRoot(rootElement, programDefinition) =
+            rootElement.Update(programDefinition, ValueNone, app)
 
 /// Component module - functions to manipulate component instances
 [<RequireQualifiedAccess>]
@@ -51,7 +43,7 @@ module Program =
         
     module AsApplication =
         /// Typical component, new commands are produced by `init` and `update` along with the new state.
-        let useCmd (init : 'arg -> 'model * Cmd<'msg>) (update : 'msg -> 'model -> 'model * Cmd<'msg>) (view : 'model -> #IPage<'msg>) =
+        let useCmd (init : 'arg -> 'model * Cmd<'msg>) (update : 'msg -> 'model -> 'model * Cmd<'msg>) (view : 'model -> #IApplication<'msg>) =
             { init = init
               update = update
               view = (fun model -> (view model).AsViewElement())
@@ -63,11 +55,11 @@ module Program =
               onError = onError }
 
         /// Simple component that produces only new state with `init` and `update`.
-        let simple (init : 'arg -> 'model) (update : 'msg -> 'model -> 'model) (view : 'model -> #IPage<'msg>) = 
+        let simple (init : 'arg -> 'model) (update : 'msg -> 'model -> 'model) (view : 'model -> #IApplication<'msg>) = 
             useCmd (fun arg -> init arg, Cmd.none) (fun msg model -> update msg model, Cmd.none) view
 
         /// Typical component, new commands are produced discriminated unions returned by `init` and `update` along with the new state.
-        let useCmdMsg (init: 'arg -> 'model * 'cmdMsg list) (update: 'msg -> 'model -> 'model * 'cmdMsg list) (view: 'model -> #IPage<'msg>) (mapToCmd: 'cmdMsg -> Cmd<'msg>) =
+        let useCmdMsg (init: 'arg -> 'model * 'cmdMsg list) (update: 'msg -> 'model -> 'model * 'cmdMsg list) (view: 'model -> #IApplication<'msg>) (mapToCmd: 'cmdMsg -> Cmd<'msg>) =
             let convert = fun (model, cmdMsgs) -> model, (cmdMsgs |> List.map mapToCmd |> Cmd.batch)
             useCmd (fun arg -> init arg |> convert) (fun msg model -> update msg model |> convert) view
             

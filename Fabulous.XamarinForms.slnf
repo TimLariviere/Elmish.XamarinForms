@@ -1,0 +1,12 @@
+{
+  "solution": {
+    "path": "Fabulous.sln",
+    "projects": [
+      "Fabulous\\Fabulous.Core\\Fabulous.Core.fsproj",
+      "Fabulous.XamarinForms\\Fabulous.XamarinForms\\Fabulous.XamarinForms.fsproj",
+      "Fabulous.XamarinForms\\samples\\CounterApp\\CounterApp\\CounterApp.fsproj",
+      "Fabulous.XamarinForms\\samples\\CounterApp\\CounterApp.Tests\\CounterApp.Tests.fsproj",
+      "Fabulous.XamarinForms\\samples\\CounterApp\\iOS\\CounterApp.iOS.fsproj"
+    ]
+  }
+}

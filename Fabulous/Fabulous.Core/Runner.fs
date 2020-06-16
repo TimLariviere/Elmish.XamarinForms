@@ -6,9 +6,9 @@ open System.Diagnostics
 /// Representation of the host framework with access to the root view to update (e.g. Xamarin.Forms.Application)
 type IHost =
     /// Gets a reference to the root view item (e.g. Xamarin.Forms.Application.MainPage)
-    abstract member GetRootView : unit -> obj
+    abstract member GetRoot : unit -> obj
     /// Sets a new instance of the root view item (e.g. Xamarin.Forms.Application.MainPage)
-    abstract member SetRootView : obj -> unit
+    abstract member InitRoot : IViewElement * ProgramDefinition -> unit
     
 /// We store the current dispatch function for the running Elmish program as a 
 /// static-global thunk because we want old view elements stored in the `dependsOn` global table
@@ -76,11 +76,9 @@ type Runner<'arg, 'model, 'msg>(host: IHost, definition: RunnerDefinition<'arg, 
                     prevPageElement
 
             if definition.canReuseView prevPageElement newPageElement then
-                let rootView = host.GetRootView()
-                newPageElement.Update(programDefinition, ValueSome prevPageElement, rootView)
+                newPageElement.Update(programDefinition, ValueSome prevPageElement, host.GetRoot())
             else
-                let pageObj = newPageElement.Create(programDefinition)
-                host.SetRootView(pageObj)
+                host.InitRoot(newPageElement, programDefinition)
 
             lastViewDataOpt <- Some newPageElement
                       
@@ -94,8 +92,7 @@ type Runner<'arg, 'model, 'msg>(host: IHost, definition: RunnerDefinition<'arg, 
         // If the view is dynamic, create the initial page
         lastViewDataOpt <-
             let newRootElement = definition.view initialModel
-            let rootView = newRootElement.Create(programDefinition)
-            host.SetRootView(rootView)
+            host.InitRoot(newRootElement, programDefinition)
             Some newRootElement
 
         Debug.WriteLine "dispatching initial commands"

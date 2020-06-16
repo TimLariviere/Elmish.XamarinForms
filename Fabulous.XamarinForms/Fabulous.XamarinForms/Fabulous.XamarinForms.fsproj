@@ -8,6 +8,7 @@
   <ItemGroup>
     <Compile Include="Types.fs" />
     <Compile Include="Helpers.fs" />
+    <Compile Include="CustomControls.fs" />
     <Compile Include="DynamicViews\Types.fs" />
     <Compile Include="DynamicViews\ViewHelpers.fs" />
     <Compile Include="DynamicViews\ChildrenHelpers.fs" />
@@ -21,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Fabulous.Core\Fabulous.Core.fsproj" />
+    <ProjectReference Include="..\..\Fabulous\Fabulous.Core\Fabulous.Core.fsproj" />
   </ItemGroup>
 
   <ItemGroup>

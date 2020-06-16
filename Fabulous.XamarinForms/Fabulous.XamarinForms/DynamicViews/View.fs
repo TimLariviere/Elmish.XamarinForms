@@ -11,6 +11,8 @@ open Xamarin.Forms
 
 module ViewAttributes =
     let ElementAutomationId = Attributes.Bindable.property Element.AutomationIdProperty
+    let ElementSetMenu = Attributes.ViewElement.scalarProperty null (fun (t: Element) -> Element.GetMenu(t)) (fun (v, t) -> Element.SetMenu(t, v))
+    let ApplicationMainPage = Attributes.ViewElement.scalarProperty null (fun (a: Application) -> a.MainPage) (fun (page, app) -> app.MainPage <- page)
     let VisualElementIsEnabled = Attributes.Bindable.property VisualElement.IsEnabledProperty
     let VisualElementWidthRequest = Attributes.Bindable.property VisualElement.WidthRequestProperty
     let VisualElementHeightRequest = Attributes.Bindable.property VisualElement.HeightRequestProperty
@@ -45,14 +47,34 @@ module ViewAttributes =
     let ItemsViewOfTItemTemplate = Attributes.ViewElement.bindableTemplate ItemsView.ItemTemplateProperty
     let CellContextActions = Attributes.Scalar.collection<Cell, _> (fun t -> t.ContextActions)
     let TextCellText = Attributes.Bindable.property TextCell.TextProperty
+    let MenuText = Attributes.Scalar.property "" (fun (v, t: Menu) -> t.Text <- v)
+    let MenuSubmenus = Attributes.ViewElement.collection<Menu, _> (fun t -> t :> IList<_>)
+    let MenuItems = Attributes.ViewElement.collection<Menu, _> (fun t -> t.Items :> IList<_>)
     let MenuItemText = Attributes.Bindable.property MenuItem.TextProperty
     let MenuItemClicked = Attributes.Event.handler<MenuItem> (fun t -> t.Clicked)
+    
+[<Struct>]
+type Application<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
+    interface IApplication<'msg> with
+        member x.AsViewElement() =
+            DynamicViewElement(typeof<Xamarin.Forms.Application>, (fun () -> failwithf "Can't create Application"), readOnlyDict x.Events, readOnlyDict x.Properties) :> IViewElement
+        
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
+    
+    static member inline init(mainPage: #IPage<'msg>) =
+        let properties = [ ViewAttributes.ApplicationMainPage.Value(mainPage.AsViewElement()) ]
+        Application<'msg>([], properties)
+        
+    member inline x.menu(menu: #IMenu<'msg>) =
+        let properties = ViewAttributes.ElementSetMenu.Value(menu.AsViewElement())::x.Properties
+        Application<'msg>(x.Events, properties)
     
 [<Struct>]
 type ContentPage<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
     interface IPage<'msg> with
         member x.AsViewElement() =
-            DynamicViewElement(typeof<Xamarin.Forms.ContentPage>, Xamarin.Forms.ContentPage >> box, readOnlyDict x.Events, readOnlyDict x.Properties) :> IViewElement
+            DynamicViewElement(typeof<Xamarin.Forms.ContentPage>, Fabulous.XamarinForms.CustomContentPage >> box, readOnlyDict x.Events, readOnlyDict x.Properties) :> IViewElement
         
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
@@ -62,7 +84,7 @@ type ContentPage<'msg>(events: (DynamicEvent * DynamicEventFunc) list, propertie
         ContentPage<'msg>([], properties)
             
     member inline x.automationId(id: string) =
-        let properties = (ViewAttributes.ElementAutomationId.Value(id))::x.Properties
+        let properties = ViewAttributes.ElementAutomationId.Value(id)::x.Properties
         ContentPage<'msg>(x.Events, properties)
             
     member inline x.size(?width: double, ?height: double) =
@@ -416,12 +438,42 @@ type TextCell<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: 
         TextCell<'msg>([], properties)
             
     member inline x.automationId(id: string) =
-        let properties = (ViewAttributes.ElementAutomationId.Value(id))::x.Properties
+        let properties = ViewAttributes.ElementAutomationId.Value(id)::x.Properties
         TextCell<'msg>(x.Events, properties)
         
     member inline x.contextActions(actions: seq<IMenuItem<'msg>>) =
         let properties = ViewAttributes.CellContextActions.Value(actions |> Seq.map (fun a -> a.AsViewElement()) |> Seq.toArray)::x.Properties
         TextCell<'msg>([], properties)
+        
+[<Struct>]
+type MainMenu<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
+    interface IMenu<'msg> with
+        member x.AsViewElement() =
+            DynamicViewElement(typeof<Xamarin.Forms.Menu>, Xamarin.Forms.Menu >> box, readOnlyDict x.Events, readOnlyDict x.Properties) :> IViewElement
+        
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
+    
+    static member inline init(submenus: seq<#IMenu<'msg>>) =
+        let properties = [ ViewAttributes.MenuSubmenus.Value(submenus |> Seq.map (fun a -> a.AsViewElement()) |> Seq.toArray) ]
+        MainMenu<'msg>([], properties)
+        
+[<Struct>]
+type Menu<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
+    interface IMenu<'msg> with
+        member x.AsViewElement() =
+            DynamicViewElement(typeof<Xamarin.Forms.Menu>, Xamarin.Forms.Menu >> box, readOnlyDict x.Events, readOnlyDict x.Properties) :> IViewElement
+        
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
+    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
+        
+    static member inline init(items: seq<#IMenuItem<'msg>>) =
+        let properties = [ ViewAttributes.MenuItems.Value(items |> Seq.map (fun a -> a.AsViewElement()) |> Seq.toArray) ]
+        Menu<'msg>([], properties)
+    
+    static member inline init(text: string, items: seq<#IMenuItem<'msg>>) =
+        let properties = [ ViewAttributes.MenuText.Value(text); ViewAttributes.MenuItems.Value(items |> Seq.map (fun a -> a.AsViewElement()) |> Seq.toArray) ]
+        Menu<'msg>([], properties)
         
 [<Struct>]
 type MenuItem<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
@@ -438,11 +490,12 @@ type MenuItem<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: 
         MenuItem<'msg>(events, properties)
             
     member inline x.automationId(id: string) =
-        let properties = (ViewAttributes.ElementAutomationId.Value(id))::x.Properties
+        let properties = ViewAttributes.ElementAutomationId.Value(id)::x.Properties
         MenuItem<'msg>(x.Events, properties)
         
 [<AbstractClass; Sealed>]
 type View private () =
+    static member inline Application(mainPage: #IPage<'msg>) = Application.init(mainPage)
     static member inline ContentPage(content: #IView<'msg>) = ContentPage.init(content)
     static member inline Grid(children, ?coldefs,?rowdefs) = Grid.init (children, ?coldefs=coldefs,?rowdefs=rowdefs)
     static member inline StackLayout(children,?orientation,?spacing) = StackLayout.init(children,?orientation=orientation,?spacing=spacing)
@@ -453,6 +506,9 @@ type View private () =
     static member inline Switch(isToggled,toggled) = Switch.init(isToggled,toggled)
     static member inline ListView(items) = ListView.init(items)
     static member inline TextCell(text) = TextCell.init text
+    static member inline MainMenu(submenus) = MainMenu.init(submenus)
+    static member inline Menu(items) = Menu.init(items)
+    static member inline Menu(text,items) = Menu.init(text,items)
     static member inline MenuItem(text,clicked) = MenuItem.init(text,clicked)
     
 module UnitTests =

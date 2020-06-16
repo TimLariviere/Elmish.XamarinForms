@@ -1,21 +1,5 @@
 version 5.243.0
 
-# dependencies used for retrieving FAKE and its modules
-group fakebuild
-  source https://www.nuget.org/api/v2
-  framework: netstandard2.0
-  storage: none
-
-  nuget Fake.Api.GitHub
-  nuget Fake.Core.ReleaseNotes
-  nuget Fake.Core.Target
-  nuget Fake.Core.Xml
-  nuget Fake.DotNet.Cli
-  nuget Fake.DotNet.MSBuild
-  nuget Fake.Dotnet.NuGet
-  nuget Fake.IO.FileSystem
-  nuget Newtonsoft.Json
-
 # dependencies used when compiling and running the library and neutral parts of samples
 group neutral
   framework: netstandard2.0
