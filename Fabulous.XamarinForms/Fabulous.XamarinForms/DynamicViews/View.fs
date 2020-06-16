@@ -52,6 +52,7 @@ module ViewAttributes =
     let MenuItems = Attributes.ViewElement.collection<Menu, _> (fun t -> t.Items :> IList<_>)
     let MenuItemText = Attributes.Bindable.property MenuItem.TextProperty
     let MenuItemClicked = Attributes.Event.handler<MenuItem> (fun t -> t.Clicked)
+    let MenuItemAccelerator = Attributes.Bindable.property MenuItem.AcceleratorProperty
     
 [<Struct>]
 type Application<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
@@ -492,6 +493,10 @@ type MenuItem<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: 
     member inline x.automationId(id: string) =
         let properties = ViewAttributes.ElementAutomationId.Value(id)::x.Properties
         MenuItem<'msg>(x.Events, properties)
+        
+    member inline x.accelerator(accelerator: string) =
+        let properties = ViewAttributes.MenuItemAccelerator.Value(Accelerator.FromString accelerator)::x.Properties
+        MenuItem<'msg>(x.Events, properties)        
         
 [<AbstractClass; Sealed>]
 type View private () =

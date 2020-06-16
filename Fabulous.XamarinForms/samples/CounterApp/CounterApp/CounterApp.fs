@@ -8,6 +8,9 @@ open Fabulous.XamarinForms
 open Fabulous.XamarinForms.DynamicViews
 open Fabulous.XamarinForms.DynamicViews.View
 
+type IApplicationService =
+    abstract member CloseApplication: unit -> unit
+
 module App =
     type Model =
       { Count: int
@@ -21,6 +24,7 @@ module App =
         | SetStep of int
         | TimerToggled of bool
         | TimedTick
+        | CloseApp
 
     type CmdMsg =
         | TickTimer
@@ -46,6 +50,9 @@ module App =
         | SetStep n -> { model with Step = n }, []
         | TimerToggled on -> { model with TimerOn = on }, (if on then [ TickTimer ] else [])
         | TimedTick -> if model.TimerOn then { model with Count = model.Count + model.Step }, [ TickTimer ] else model, []
+        | CloseApp ->
+            DependencyService.Get<IApplicationService>().CloseApplication()
+            model, []
     
     let view (model: Model) =
         Application(
@@ -86,8 +93,8 @@ module App =
         ).menu(
             MainMenu([
                 Menu([
-                    MenuItem("About CounterApp", Increment)
-                    MenuItem("Close CounterApp", Increment)
+                    MenuItem("Quit CounterApp", CloseApp)
+                        .accelerator("cmd+q")
                 ])
                 Menu("Actions", [
                     MenuItem("Increment", Increment)

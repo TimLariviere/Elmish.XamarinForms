@@ -2,6 +2,7 @@
 
 open System
 open AppKit
+open CounterApp
 open Foundation
 open Xamarin.Forms
 open Xamarin.Forms.Platform.MacOS
@@ -19,7 +20,9 @@ type AppDelegate() =
         Forms.Init()
         
         this.SetupNativeMenu()
-        this.LoadApplication(CounterApp.CounterApp())
+        this.LoadApplication(CounterApp())
+        
+        DependencyService.Register<IApplicationService, ApplicationService>()
 
         base.DidFinishLaunching(notification)
 
