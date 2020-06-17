@@ -12,3 +12,6 @@ type IView<'msg> = inherit IViewElementBuilder<'msg>
 type ICell<'msg> = inherit IViewElementBuilder<'msg>
 type IMenu<'msg> = inherit IViewElementBuilder<'msg>
 type IMenuItem<'msg> = inherit IViewElementBuilder<'msg>
+
+type IStyle =
+    abstract member AsViewElement: unit -> IViewElement

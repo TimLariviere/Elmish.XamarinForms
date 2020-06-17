@@ -56,40 +56,45 @@ module App =
     
     let view (model: Model) =
         Application(
-           ContentPage(
-               StackLayout([
-                   Label(sprintf "%d" model.Count)
-                       .automationId("CountLabel")
-                       .size(width = 200.)
-                       .alignment(horizontal = LayoutOptions.Center)
-                       .textAlignment(horizontal = TextAlignment.Center)
-                       
-                   Button("Increment", Increment)
-                       .automationId("IncrementButton")
-                   
-                   Button("Decrement", Decrement)
-                       .automationId("DecrementButton")
-                   
-                   StackLayout(orientation = StackOrientation.Horizontal, children = [
-                       Label("Timer")
-                       
-                       Switch(model.TimerOn, fun args -> TimerToggled args.Value)
-                           .automationId("TimerSwitch")
-                   ]).alignment(horizontal = LayoutOptions.Center)
-                   
-                   Slider(double model.Step, (fun args -> SetStep (int (args.NewValue + 0.5))), range = (0., 10.))
-                       .automationId("StepSlider")
-                       
-                   Label(sprintf "Step size: %d" model.Step)
-                       .automationId("StepSizeLabel")
-                       .alignment(horizontal = LayoutOptions.Center)
-                       
-                   Button("Reset", Reset)
-                       .isEnabled(model <> initModel())
-                       .alignment(horizontal = LayoutOptions.Center)
-               ]).padding(30.)
-                 .alignment(vertical = LayoutOptions.Center)
-           )
+            ContentPage(
+                StackLayout([
+                    Label(sprintf "%d" model.Count)
+                        .automationId("CountLabel")
+                        .size(width = 200.)
+                        .alignment(horizontal = LayoutOptions.Center)
+                        .textAlignment(horizontal = TextAlignment.Center)
+                        
+                    Button("Increment", Increment)
+                        .automationId("IncrementButton")
+                    
+                    Button("Decrement", Decrement)
+                        .automationId("DecrementButton")
+                    
+                    StackLayout(orientation = StackOrientation.Horizontal, children = [
+                        Label("Timer")
+                            .style(
+                                StyleFor.Label()
+                                    .textColor(Color.Blue)
+                                    .padding(15.)
+                            )
+                        
+                        Switch(model.TimerOn, fun args -> TimerToggled args.Value)
+                            .automationId("TimerSwitch")
+                    ]).alignment(horizontal = LayoutOptions.Center)
+                    
+                    Slider(double model.Step, (fun args -> SetStep (int (args.NewValue + 0.5))), range = (0., 10.))
+                        .automationId("StepSlider")
+                        
+                    Label(sprintf "Step size: %d" model.Step)
+                        .automationId("StepSizeLabel")
+                        .alignment(horizontal = LayoutOptions.Center)
+                        
+                    Button("Reset", Reset)
+                        .isEnabled(model <> initModel())
+                        .alignment(horizontal = LayoutOptions.Center)
+                ]).padding(30.)
+                  .alignment(vertical = LayoutOptions.Center)
+            )
         ).menu(
             MainMenu([
                 Menu([

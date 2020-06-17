@@ -32,13 +32,12 @@ module ViewHelpers =
     /// Checks whether the control can be reused given the previous and the new AutomationId.
     /// Xamarin.Forms can't change an already set AutomationId
     and internal canReuseAutomationId (prevChild: DynamicViewElement) (newChild: DynamicViewElement) =
-        true
-//        let prevAutomationId = prevChild.TryGetAttribute<string>("AutomationId")
-//        let newAutomationId = newChild.TryGetAttribute<string>("AutomationId")
-//
-//        match prevAutomationId with
-//        | ValueSome _ when prevAutomationId <> newAutomationId -> false
-//        | _ -> true
+        let prevAutomationId = prevChild.TryGetPropertyValue<string>(ViewAttributes.ElementAutomationId)
+        let newAutomationId = newChild.TryGetPropertyValue<string>(ViewAttributes.ElementAutomationId)
+
+        match prevAutomationId with
+        | ValueSome _ when prevAutomationId <> newAutomationId -> false
+        | _ -> true
         
     /// Checks whether the CustomEffect can be reused given the previous and the new Effect name
     /// The effect is instantiated by Effect.Resolve and can't be reused when asking for a new effect

@@ -10,10 +10,11 @@
     <Compile Include="Helpers.fs" />
     <Compile Include="CustomControls.fs" />
     <Compile Include="DynamicViews\Types.fs" />
-    <Compile Include="DynamicViews\ViewHelpers.fs" />
     <Compile Include="DynamicViews\ChildrenHelpers.fs" />
+    <Compile Include="DynamicViews\DictionaryHelpers.fs" />
     <Compile Include="DynamicViews\Attributes.fs" />
     <Compile Include="DynamicViews\View.fs" />
+    <Compile Include="DynamicViews\ViewHelpers.fs" />
     <Compile Include="DynamicViews\PlatformSpecific\iOS.fs" />
     <Compile Include="StaticViews\Bindings.fs" />
     <Compile Include="StaticViews\View.fs" />

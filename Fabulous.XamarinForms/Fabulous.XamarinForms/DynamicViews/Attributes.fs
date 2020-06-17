@@ -19,8 +19,23 @@ module Attributes =
                 )
             }
             
-        let collection<'TTarget, 'TItem when 'TTarget :> BindableObject> (get: ('TTarget -> IList<'TItem>)) =
-            { Update = ignore }
+        let collection<'TTarget, 'TItem when 'TItem: equality> (get: ('TTarget -> IList<'TItem>)) =
+            {
+                Update = (fun (_, prevOpt, currOpt, target) ->
+                    let prevOpt = prevOpt |> ValueOption.map (fun p -> p :?> 'TItem[])
+                    let currOpt = currOpt |> ValueOption.map (fun p -> p :?> 'TItem[])
+                    let coll = get(target :?> 'TTarget)
+                    ChildrenUpdaters.updateChildrenInternal
+                        prevOpt currOpt
+                        (fun _ -> ValueNone)
+                        (fun _ _ -> false)
+                        (fun () -> coll.Clear())
+                        (fun idx value -> coll.Insert(idx, value))
+                        (fun idx _ curr -> coll.[idx] <- curr)
+                        (fun oldIndex newIndex -> coll.[newIndex] <- coll.[oldIndex])
+                        (fun idx -> coll.RemoveAt(idx))
+                )
+            }
         
     module Bindable =
         let property (bindableProperty: BindableProperty) =
@@ -71,7 +86,7 @@ module Attributes =
         let bindableTemplate (bindableProperty: BindableProperty) : DynamicProperty =
             { Update = ignore }
             
-        let collection<'TTarget, 'TItem when 'TTarget :> BindableObject> (get: ('TTarget -> IList<'TItem>)) =
+        let collection<'TTarget, 'TItem> (get: ('TTarget -> IList<'TItem>)) =
             {
                 Update = (fun (programDefinition, prevOpt, currOpt, target) ->
                     let prevOpt = prevOpt |> ValueOption.map (fun p -> p :?> IViewElement[])
