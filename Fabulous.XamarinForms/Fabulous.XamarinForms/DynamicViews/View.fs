@@ -13,7 +13,7 @@ module ViewAttributes =
     let ElementAutomationId = Attributes.Bindable.property Element.AutomationIdProperty
     let ElementSetMenu = Attributes.ViewElement.scalarProperty null (fun (t: Element) -> Element.GetMenu(t)) (fun (v, t) -> Element.SetMenu(t, v))
     let ApplicationMainPage = Attributes.ViewElement.scalarProperty null (fun (a: Application) -> a.MainPage) (fun (page, app) -> app.MainPage <- page)
-    let NavigableElementStyle = Attributes.Bindable.property NavigableElement.StyleProperty
+    let NavigableElementStyle = Attributes.ViewElement.bindableProperty NavigableElement.StyleProperty
     let VisualElementIsEnabled = Attributes.Bindable.property VisualElement.IsEnabledProperty
     let VisualElementWidthRequest = Attributes.Bindable.property VisualElement.WidthRequestProperty
     let VisualElementHeightRequest = Attributes.Bindable.property VisualElement.HeightRequestProperty
@@ -57,53 +57,41 @@ module ViewAttributes =
     let StyleSetters = Attributes.Scalar.collection<Style, _> (fun t -> t.Setters)
     
 [<Struct>]
-type LabelStyle(key: string, setters: (BindableProperty * obj) list) =
+type LabelStyle(setters: (BindableProperty * obj) list) =
     interface IStyle with
         member x.AsViewElement() =
             let setters = x.Setters |> List.map (fun (k, v) -> Xamarin.Forms.Setter(Property = k, Value = v)) |> List.toArray
             let properties = [ ViewAttributes.StyleSetters.Value(setters) ]
             DynamicViewElement(typeof<Xamarin.Forms.Style>, (fun() -> Xamarin.Forms.Style(typeof<Xamarin.Forms.Label>) |> box), readOnlyDict [], readOnlyDict properties) :> IViewElement
             
-    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Key = key
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Setters = setters
-            
-    static member inline init(?key: string) =
-        match key with
-        | None -> LabelStyle(typeof<Xamarin.Forms.Label>.FullName, [])
-        | Some key -> LabelStyle(key, [])
         
     member inline x.textColor(color: Xamarin.Forms.Color) =
         let setters = (Label.TextColorProperty, box color)::x.Setters
-        LabelStyle(x.Key, setters)
+        LabelStyle(setters)
         
     member inline x.padding(value: float) =
         let setters = (Label.PaddingProperty, box(Thickness(value)))::x.Setters
-        LabelStyle(x.Key, setters)
+        LabelStyle(setters)
     
 [<Struct>]
-type ButtonStyle(key: string, setters: (BindableProperty * obj) list) =
+type ButtonStyle(setters: (BindableProperty * obj) list) =
     interface IStyle with
         member x.AsViewElement() =
             let setters = x.Setters |> List.map (fun (k, v) -> Xamarin.Forms.Setter(Property = k, Value = v)) |> List.toArray
             let properties = [ ViewAttributes.StyleSetters.Value(setters) ]
             DynamicViewElement(typeof<Xamarin.Forms.Style>, (fun() -> Xamarin.Forms.Style(typeof<Xamarin.Forms.Button>) |> box), readOnlyDict [], readOnlyDict properties) :> IViewElement
             
-    [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Key = key
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Setters = setters
-            
-    static member inline init(?key: string) =
-        match key with
-        | None -> ButtonStyle(typeof<Xamarin.Forms.Button>.FullName, [])
-        | Some key -> ButtonStyle(key, [])
         
     member inline x.textColor(color: Xamarin.Forms.Color) =
         let setters = (Button.TextColorProperty, box color)::x.Setters
-        ButtonStyle(x.Key, setters)
+        ButtonStyle(setters)
     
 [<AbstractClass; Sealed; RequireQualifiedAccess>]
 type StyleFor private () =
-    static member inline Label(?key) = LabelStyle.init(?key=key)
-    static member inline Button(?key) = ButtonStyle.init(?key=key)
+    static member inline Label = LabelStyle([])
+    static member inline Button = ButtonStyle([])
     
 [<Struct>]
 type Application<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (DynamicProperty * obj) list) =
@@ -251,6 +239,10 @@ type Button<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (D
             
     member inline x.automationId(id: string) =
         let properties = (ViewAttributes.ElementAutomationId.Value(id))::x.Properties
+        Button<'msg>(x.Events, properties)
+        
+    member inline x.style(style: ButtonStyle) =
+        let properties = ViewAttributes.NavigableElementStyle.Value((style :> IStyle).AsViewElement())::x.Properties
         Button<'msg>(x.Events, properties)
             
     member inline x.size(?width: double, ?height: double) =

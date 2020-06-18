@@ -66,6 +66,10 @@ module App =
                         
                     Button("Increment", Increment)
                         .automationId("IncrementButton")
+                        .style(
+                            StyleFor.Button
+                                .textColor(Color.Red)
+                        )
                     
                     Button("Decrement", Decrement)
                         .automationId("DecrementButton")
@@ -73,8 +77,8 @@ module App =
                     StackLayout(orientation = StackOrientation.Horizontal, children = [
                         Label("Timer")
                             .style(
-                                StyleFor.Label()
-                                    .textColor(Color.Blue)
+                                StyleFor.Label
+                                    .textColor(Color.Yellow)
                                     .padding(15.)
                             )
                         
