@@ -1,15 +1,18 @@
 // Copyright Fabulous contributors. See LICENSE.md for license.
 namespace Fabulous.XamarinForms.DynamicViews
 
+open System.Collections.ObjectModel
 open Fabulous
 open System
 open System.Collections.Generic
+open Fabulous.XamarinForms
 open Xamarin.Forms
 
 module Attributes =
     module Scalar =
-        let property<'TTarget, 'TValue> (defaultValue: 'TValue) (setter: 'TValue * 'TTarget -> unit) =
+        let property<'TTarget, 'TValue> (debugName: string) (defaultValue: 'TValue) (setter: 'TValue * 'TTarget -> unit) =
             {
+                DebugName = debugName
                 Update = (fun (_, prevOpt, currOpt, target) ->
                     match prevOpt, currOpt with
                     | ValueNone, ValueNone -> ()
@@ -19,27 +22,26 @@ module Attributes =
                 )
             }
             
-        let collection<'TTarget, 'TItem when 'TItem: equality> (get: ('TTarget -> IList<'TItem>)) =
+        let collection<'TTarget, 'TItem when 'TItem: equality> (debugName: string) (get: ('TTarget -> IList<'TItem>)) =
             {
+                DebugName = debugName
                 Update = (fun (_, prevOpt, currOpt, target) ->
                     let prevOpt = prevOpt |> ValueOption.map (fun p -> p :?> 'TItem[])
                     let currOpt = currOpt |> ValueOption.map (fun p -> p :?> 'TItem[])
                     let coll = get(target :?> 'TTarget)
-                    ChildrenUpdaters.updateChildrenInternal
-                        prevOpt currOpt
+                    ItemsUpdaters.updateItems
+                        prevOpt currOpt coll
                         (fun _ -> ValueNone)
                         (fun _ _ -> false)
-                        (fun () -> coll.Clear())
-                        (fun idx value -> coll.Insert(idx, value))
-                        (fun idx _ curr -> coll.[idx] <- curr)
-                        (fun oldIndex newIndex -> coll.[newIndex] <- coll.[oldIndex])
-                        (fun idx -> coll.RemoveAt(idx))
+                        id (fun _ _ _ -> ())
+                        
                 )
             }
         
     module Bindable =
-        let property (bindableProperty: BindableProperty) =
+        let property (debugName: string) (bindableProperty: BindableProperty) =
             {
+                DebugName = debugName
                 Update = (fun (_, prevOpt, currOpt, target) ->
                     match prevOpt, currOpt with
                     | ValueNone, ValueNone -> ()
@@ -49,12 +51,14 @@ module Attributes =
                 )
             }
             
-        let collection (bindableProperty: BindableProperty) =
-            { Update = ignore }
+        let collection (debugName: string) (bindableProperty: BindableProperty) =
+            { DebugName = debugName
+              Update = ignore }
     
     module ViewElement =
-        let scalarProperty (defaultValue: 'TValue) (getter: 'TTarget -> 'TValue) (setter: 'TValue * 'TTarget -> unit) =
+        let scalarProperty (debugName: string) (defaultValue: 'TValue) (getter: 'TTarget -> 'TValue) (setter: 'TValue * 'TTarget -> unit) =
             {
+                DebugName = debugName
                 Update = (fun (programDefinition, prevOpt, currOpt, target) ->
                     match prevOpt, currOpt with
                     | ValueNone, ValueNone -> ()
@@ -69,8 +73,9 @@ module Attributes =
                 )
             }
             
-        let bindableProperty (bindableProperty: BindableProperty) =
+        let bindableProperty (debugName: string) (bindableProperty: BindableProperty) =
             {
+                DebugName = debugName
                 Update = (fun (programDefinition, prevOpt, currOpt, target) ->
                     match prevOpt, currOpt with
                     | ValueNone, ValueNone -> ()
@@ -83,11 +88,13 @@ module Attributes =
                 )
             }
             
-        let bindableTemplate (bindableProperty: BindableProperty) : DynamicProperty =
-            { Update = ignore }
+        let bindableTemplate (debugName: string) (bindableProperty: BindableProperty) : DynamicProperty =
+            { DebugName = debugName
+              Update = ignore }
             
-        let collection<'TTarget, 'TItem> (get: ('TTarget -> IList<'TItem>)) =
+        let collection<'TTarget, 'TItem> (debugName: string) (get: ('TTarget -> IList<'TItem>)) =
             {
+                DebugName = debugName
                 Update = (fun (programDefinition, prevOpt, currOpt, target) ->
                     let prevOpt = prevOpt |> ValueOption.map (fun p -> p :?> IViewElement[])
                     let currOpt = currOpt |> ValueOption.map (fun p -> p :?> IViewElement[])
@@ -99,21 +106,37 @@ module Attributes =
                         (fun prev curr target -> curr.Update(programDefinition, ValueSome prev, target))
                 )
             }
+            
+        let bindableCollection (debugName: string) (bindableProperty: BindableProperty) =
+            {
+                DebugName = debugName
+                Update = (fun (programDefinition, prevOpt, currOpt, target) ->
+                    let prevOpt = prevOpt |> ValueOption.map (fun p -> p :?> IViewElement[])
+                    let currOpt = currOpt |> ValueOption.map (fun p -> p :?> IViewElement[])
+                    let coll =
+                        ItemsUpdaters.getCollection
+                            ((target :?> BindableObject).GetValue(bindableProperty) :?> ObservableCollection<ViewElementHolder>)
+                            (fun newColl -> (target :?> BindableObject).SetValue(bindableProperty, newColl))
+                    ItemsUpdaters.updateViewElementHolderItems
+                        programDefinition.CanReuseView
+                        prevOpt currOpt coll
+                )
+            }
         
     module Event =
-        let handler<'T when 'T :> BindableObject> (get: ('T -> IEvent<EventHandler, EventArgs>)) =
+        let handler<'T when 'T :> BindableObject> (debugName: string) (get: ('T -> IEvent<EventHandler, EventArgs>)) =
             let subscribe (eventHandler: obj, target: obj) = (get (target :?> 'T)).AddHandler(eventHandler :?> EventHandler)
             let unsubscribe (eventHandler: obj, target: obj) = (get (target :?> 'T)).RemoveHandler(eventHandler :?> EventHandler)
-            { Subscribe = subscribe; Unsubscribe = unsubscribe }
+            { DebugName = debugName; Subscribe = subscribe; Unsubscribe = unsubscribe }
         
-        let handlerOf<'T, 'U when 'T :> BindableObject> (get: ('T -> IEvent<EventHandler<'U>, 'U>)) =
+        let handlerOf<'T, 'U when 'T :> BindableObject> (debugName: string) (get: ('T -> IEvent<EventHandler<'U>, 'U>)) =
             let subscribe (eventHandler: obj, target: obj) =
                 try
                     (get (target :?> 'T)).AddHandler(eventHandler :?> EventHandler<'U>)
                 with
                 | exn -> System.Diagnostics.Debugger.Break()
             let unsubscribe (eventHandler: obj, target: obj) = (get (target :?> 'T)).RemoveHandler(eventHandler :?> EventHandler<'U>)
-            { Subscribe = subscribe; Unsubscribe = unsubscribe }
+            { DebugName = debugName; Subscribe = subscribe; Unsubscribe = unsubscribe }
   
     type DynamicProperty with
         member x.Value(value: obj) = (x, value)

@@ -7,7 +7,7 @@ open Fabulous.XamarinForms.DynamicViews.Attributes
 [<AutoOpen>]
 module iOSSpecific =
     module ViewAttributes =
-        let iOSIgnoreSafeArea = Attributes.Scalar.property<Xamarin.Forms.Page, _> false (fun (v, t) -> Page.SetUseSafeArea(t, not v))
+        let iOSIgnoreSafeArea = Attributes.Scalar.property<Xamarin.Forms.Page, _> "iOSIgnoreSafeArea" false (fun (v, t) -> Page.SetUseSafeArea(t, not v))
     
     type ContentPage<'msg> with
         member inline x.ignoreSafeArea(?value: bool) =

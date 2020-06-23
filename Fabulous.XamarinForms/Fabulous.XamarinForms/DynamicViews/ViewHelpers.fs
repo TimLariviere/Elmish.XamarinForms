@@ -4,6 +4,7 @@ open Fabulous
 open Xamarin.Forms
 
 module ViewHelpers =
+        
     /// Checks whether an underlying control can be reused given the previous and new view elements
     let rec canReuseDynamicView (prevChild: DynamicViewElement) (newChild: DynamicViewElement) =
         if prevChild.TargetType = newChild.TargetType && canReuseAutomationId prevChild newChild then

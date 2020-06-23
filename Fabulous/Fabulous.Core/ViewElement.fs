@@ -3,6 +3,7 @@ namespace Fabulous
 
 open System
 open System.Collections.Generic
+open System.Diagnostics
 open System.Runtime.CompilerServices
 
 type ProgramDefinition =
@@ -14,8 +15,8 @@ and IViewElement =
     abstract Update: ProgramDefinition * IViewElement voption * obj -> unit
     abstract TryKey: string voption with get
 
-[<ReferenceEquality>] type DynamicEvent = { Subscribe: obj * obj -> unit; Unsubscribe: obj * obj -> unit }
-[<ReferenceEquality>] type DynamicProperty = { Update: ProgramDefinition * obj voption * obj voption * obj -> unit }
+[<ReferenceEquality; DebuggerDisplay("{DebugName,nq}")>] type DynamicEvent = { DebugName: string; Subscribe: obj * obj -> unit; Unsubscribe: obj * obj -> unit }
+[<ReferenceEquality; DebuggerDisplay("{DebugName,nq}")>] type DynamicProperty = { DebugName: string; Update: ProgramDefinition * obj voption * obj voption * obj -> unit }
 type DynamicEventFunc = (obj -> unit) -> obj
 
 /// To avoid capturing Dispatch when building ViewElements,

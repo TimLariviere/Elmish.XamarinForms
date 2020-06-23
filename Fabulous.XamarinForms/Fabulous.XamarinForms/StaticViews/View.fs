@@ -17,6 +17,7 @@ module StaticHelpers =
             
     let BindingContext =
         {
+            DebugName = "BindingContext"
             Update = (fun (programDefinition, prevOpt, currOpt, target) ->
                 match currOpt with
                 | ValueNone -> (target :?> BindableObject).BindingContext <- null

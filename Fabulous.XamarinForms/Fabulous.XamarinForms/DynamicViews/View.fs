@@ -4,57 +4,61 @@ namespace Fabulous.XamarinForms.DynamicViews
 open System
 open System.Collections.Generic
 open System.ComponentModel
+open System.Diagnostics
 open Fabulous
 open Fabulous.XamarinForms
 open Fabulous.XamarinForms.DynamicViews.Attributes
 open Xamarin.Forms
 
 module ViewAttributes =
-    let ElementAutomationId = Attributes.Bindable.property Element.AutomationIdProperty
-    let ElementSetMenu = Attributes.ViewElement.scalarProperty null (fun (t: Element) -> Element.GetMenu(t)) (fun (v, t) -> Element.SetMenu(t, v))
-    let ApplicationMainPage = Attributes.ViewElement.scalarProperty null (fun (a: Application) -> a.MainPage) (fun (page, app) -> app.MainPage <- page)
-    let NavigableElementStyle = Attributes.ViewElement.bindableProperty NavigableElement.StyleProperty
-    let VisualElementIsEnabled = Attributes.Bindable.property VisualElement.IsEnabledProperty
-    let VisualElementWidthRequest = Attributes.Bindable.property VisualElement.WidthRequestProperty
-    let VisualElementHeightRequest = Attributes.Bindable.property VisualElement.HeightRequestProperty
-    let ContentPageContent = Attributes.ViewElement.bindableProperty ContentPage.ContentProperty
-    let ViewHorizontalOptions = Attributes.Bindable.property View.HorizontalOptionsProperty
-    let ViewVerticalOptions = Attributes.Bindable.property View.VerticalOptionsProperty
-    let LayoutPadding = Attributes.Bindable.property Layout.PaddingProperty
-    let LayoutOfTChildren = Attributes.ViewElement.collection<Layout<_>, _> (fun t -> t.Children)
-    let GridColumnDefinitions = Attributes.Scalar.collection<Grid, _> (fun t -> t.ColumnDefinitions :> IList<_>)
-    let GridRowDefinitions = Attributes.Scalar.collection<Grid, _> (fun t -> t.RowDefinitions :> IList<_>)
-    let GridColumn = Attributes.Bindable.property Grid.ColumnProperty
-    let GridRow = Attributes.Bindable.property Grid.RowProperty
-    let StackLayoutOrientation = Attributes.Bindable.property StackLayout.OrientationProperty
-    let StackLayoutSpacing = Attributes.Bindable.property StackLayout.SpacingProperty
-    let ButtonText = Attributes.Bindable.property Button.TextProperty
-    let ButtonClicked = Attributes.Event.handler<Button> (fun t -> t.Clicked)
-    let LabelFontSize = Attributes.Bindable.property Label.FontSizeProperty
-    let LabelText = Attributes.Bindable.property Label.TextProperty
-    let LabelHorizontalTextAlignment = Attributes.Bindable.property Label.HorizontalTextAlignmentProperty
-    let LabelVerticalTextAlignment = Attributes.Bindable.property Label.VerticalTextAlignmentProperty
-    let LabelTextColor = Attributes.Bindable.property Label.TextColorProperty
-    let InputViewText = Attributes.Bindable.property InputView.TextProperty
-    let InputViewTextChanged = Attributes.Event.handlerOf<InputView, _> (fun t -> t.TextChanged)
-    let EntryCompleted = Attributes.Event.handler<Entry> (fun t -> t.Completed)
-    let SliderMaximum = Attributes.Bindable.property Slider.MaximumProperty
-    let SliderMinimum = Attributes.Bindable.property Slider.MinimumProperty
-    let SliderValue = Attributes.Bindable.property Slider.ValueProperty
-    let SliderValueChanged = Attributes.Event.handlerOf<Slider, _> (fun t -> t.ValueChanged)
-    let SwitchIsToggled = Attributes.Bindable.property Switch.IsToggledProperty
-    let SwitchToggled = Attributes.Event.handlerOf<Switch, _> (fun t -> t.Toggled)
-    let ItemsViewOfTItemsSource = Attributes.Bindable.collection ItemsView.ItemsSourceProperty
-    let ItemsViewOfTItemTemplate = Attributes.ViewElement.bindableTemplate ItemsView.ItemTemplateProperty
-    let CellContextActions = Attributes.Scalar.collection<Cell, _> (fun t -> t.ContextActions)
-    let TextCellText = Attributes.Bindable.property TextCell.TextProperty
-    let MenuText = Attributes.Scalar.property "" (fun (v, t: Menu) -> t.Text <- v)
-    let MenuSubmenus = Attributes.ViewElement.collection<Menu, _> (fun t -> t :> IList<_>)
-    let MenuItems = Attributes.ViewElement.collection<Menu, _> (fun t -> t.Items :> IList<_>)
-    let MenuItemText = Attributes.Bindable.property MenuItem.TextProperty
-    let MenuItemClicked = Attributes.Event.handler<MenuItem> (fun t -> t.Clicked)
-    let MenuItemAccelerator = Attributes.Bindable.property MenuItem.AcceleratorProperty
-    let StyleSetters = Attributes.Scalar.collection<Style, _> (fun t -> t.Setters)
+    let ElementAutomationId = Attributes.Bindable.property "ElementAutomationId" Element.AutomationIdProperty
+    let ElementSetMenu = Attributes.ViewElement.scalarProperty "ElementSetMenu" null (fun (t: Element) -> Element.GetMenu(t)) (fun (v, t) -> Element.SetMenu(t, v))
+    let ApplicationMainPage = Attributes.ViewElement.scalarProperty "ApplicationMainPage" null (fun (a: Application) -> a.MainPage) (fun (page, app) -> app.MainPage <- page)
+    let NavigableElementStyle = Attributes.ViewElement.bindableProperty "NavigableElementStyle" NavigableElement.StyleProperty
+    let VisualElementIsEnabled = Attributes.Bindable.property "VisualElementIsEnabled" VisualElement.IsEnabledProperty
+    let VisualElementWidthRequest = Attributes.Bindable.property "VisualElementWidthRequest" VisualElement.WidthRequestProperty
+    let VisualElementHeightRequest = Attributes.Bindable.property "VisualElementHeightRequest" VisualElement.HeightRequestProperty
+    let VisualElementBackgroundColor = Attributes.Bindable.property "VisualElementBackgroundColor" VisualElement.BackgroundColorProperty
+    let ContentPageContent = Attributes.ViewElement.bindableProperty "ContentPageContent" ContentPage.ContentProperty
+    let ViewHorizontalOptions = Attributes.Bindable.property "ViewHorizontalOptions" View.HorizontalOptionsProperty
+    let ViewVerticalOptions = Attributes.Bindable.property "ViewVerticalOptions" View.VerticalOptionsProperty
+    let LayoutPadding = Attributes.Bindable.property "LayoutPadding" Layout.PaddingProperty
+    let LayoutOfTChildren = Attributes.ViewElement.collection<Layout<_>, _> "LayoutOfTChildren" (fun t -> t.Children)
+    let GridColumnDefinitions = Attributes.Scalar.collection<Grid, _> "GridColumnDefinitions" (fun t -> t.ColumnDefinitions :> IList<_>)
+    let GridRowDefinitions = Attributes.Scalar.collection<Grid, _> "GridRowDefinitions" (fun t -> t.RowDefinitions :> IList<_>)
+    let GridColumn = Attributes.Bindable.property "GridColumn" Grid.ColumnProperty
+    let GridRow = Attributes.Bindable.property "GridRow" Grid.RowProperty
+    let StackLayoutOrientation = Attributes.Bindable.property "StackLayoutOrientation" StackLayout.OrientationProperty
+    let StackLayoutSpacing = Attributes.Bindable.property "StackLayoutSpacing" StackLayout.SpacingProperty
+    let ButtonText = Attributes.Bindable.property "ButtonText" Button.TextProperty
+    let ButtonClicked = Attributes.Event.handler<Button> "ButtonClicked" (fun t -> t.Clicked)
+    let ButtonTextColor = Attributes.Bindable.property "ButtonTextColor" Button.TextColorProperty
+    let LabelFontSize = Attributes.Bindable.property "LabelFontSize" Label.FontSizeProperty
+    let LabelText = Attributes.Bindable.property "LabelText" Label.TextProperty
+    let LabelHorizontalTextAlignment = Attributes.Bindable.property "LabelHorizontalTextAlignment" Label.HorizontalTextAlignmentProperty
+    let LabelVerticalTextAlignment = Attributes.Bindable.property "LabelVerticalTextAlignment" Label.VerticalTextAlignmentProperty
+    let LabelTextColor = Attributes.Bindable.property "LabelTextColor" Label.TextColorProperty
+    let InputViewText = Attributes.Bindable.property "InputViewText" InputView.TextProperty
+    let InputViewTextChanged = Attributes.Event.handlerOf<InputView, _> "InputViewTextChanged" (fun t -> t.TextChanged)
+    let EntryCompleted = Attributes.Event.handler<Entry> "EntryCompleted" (fun t -> t.Completed)
+    let SliderMaximum = Attributes.Bindable.property "SliderMaximum" Slider.MaximumProperty
+    let SliderMinimum = Attributes.Bindable.property "SliderMinimum" Slider.MinimumProperty
+    let SliderValue = Attributes.Bindable.property "SliderValue" Slider.ValueProperty
+    let SliderValueChanged = Attributes.Event.handlerOf<Slider, _> "SliderValueChanged" (fun t -> t.ValueChanged)
+    let SwitchIsToggled = Attributes.Bindable.property "SwitchIsToggled" Switch.IsToggledProperty
+    let SwitchToggled = Attributes.Event.handlerOf<Switch, _> "SwitchToggled" (fun t -> t.Toggled)
+    let ItemsViewOfTItemsSource = Attributes.ViewElement.bindableCollection "ItemsViewOfTItemsSource" ItemsView.ItemsSourceProperty
+    let ItemsViewOfTItemTemplate = Attributes.ViewElement.bindableTemplate "ItemsViewOfTItemTemplate" ItemsView.ItemTemplateProperty
+    let CellContextActions = Attributes.Scalar.collection<Cell, _> "CellContextActions" (fun t -> t.ContextActions)
+    let TextCellText = Attributes.Bindable.property "TextCellText" TextCell.TextProperty
+    let TextCellDetail = Attributes.Bindable.property "TextCellDetail" TextCell.DetailProperty
+    let MenuText = Attributes.Scalar.property "MenuText" "" (fun (v, t: Menu) -> t.Text <- v)
+    let MenuSubmenus = Attributes.ViewElement.collection<Menu, _> "MenuSubmenus" (fun t -> t :> IList<_>)
+    let MenuItems = Attributes.ViewElement.collection<Menu, _> "MenuItems" (fun t -> t.Items :> IList<_>)
+    let MenuItemText = Attributes.Bindable.property "MenuItemText" MenuItem.TextProperty
+    let MenuItemClicked = Attributes.Event.handler<MenuItem> "MenuItemClicked" (fun t -> t.Clicked)
+    let MenuItemAccelerator = Attributes.Bindable.property "MenuItemAccelerator" MenuItem.AcceleratorProperty
+    let StyleSetters = Attributes.Scalar.collection<Style, _> "StyleSetters" (fun t -> t.Setters)
     
 [<Struct>]
 type LabelStyle(setters: (BindableProperty * obj) list) =
@@ -127,6 +131,10 @@ type ContentPage<'msg>(events: (DynamicEvent * DynamicEventFunc) list, propertie
         let properties = ViewAttributes.ElementAutomationId.Value(id)::x.Properties
         ContentPage<'msg>(x.Events, properties)
             
+    member inline x.backgroundColor(color: Xamarin.Forms.Color) =
+        let properties = ViewAttributes.VisualElementBackgroundColor.Value(color)::x.Properties
+        ContentPage<'msg>(x.Events, properties)
+            
     member inline x.size(?width: double, ?height: double) =
         let properties = x.Properties
         let properties = match width with None -> properties | Some v -> (ViewAttributes.VisualElementWidthRequest.Value(v))::x.Properties
@@ -156,6 +164,10 @@ type Grid<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (Dyn
         let properties = (ViewAttributes.ElementAutomationId.Value(id))::x.Properties
         Grid<'msg>(x.Events, properties)
             
+    member inline x.backgroundColor(color: Xamarin.Forms.Color) =
+        let properties = ViewAttributes.VisualElementBackgroundColor.Value(color)::x.Properties
+        Grid<'msg>(x.Events, properties)
+            
     member inline x.size(?width: double, ?height: double) =
         let properties = x.Properties
         let properties = match width with None -> properties | Some v -> (ViewAttributes.VisualElementWidthRequest.Value(v))::properties
@@ -165,7 +177,7 @@ type Grid<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (Dyn
     member inline x.alignment(?horizontal: LayoutOptions, ?vertical: LayoutOptions) =
         let properties = x.Properties
         let properties = match horizontal with None -> properties | Some v -> ViewAttributes.ViewHorizontalOptions.Value(v)::properties
-        let properties = match vertical with None -> properties | Some v -> ViewAttributes.ViewHorizontalOptions.Value(v)::properties
+        let properties = match vertical with None -> properties | Some v -> ViewAttributes.ViewVerticalOptions.Value(v)::properties
         Grid<'msg>(x.Events, properties)
     
     member inline x.isEnabled(isEnabled: bool) =
@@ -199,6 +211,10 @@ type StackLayout<'msg>(events: (DynamicEvent * DynamicEventFunc) list, propertie
         let properties = (ViewAttributes.ElementAutomationId.Value(id))::x.Properties
         StackLayout<'msg>(x.Events, properties)
             
+    member inline x.backgroundColor(color: Xamarin.Forms.Color) =
+        let properties = ViewAttributes.VisualElementBackgroundColor.Value(color)::x.Properties
+        StackLayout<'msg>(x.Events, properties)
+            
     member inline x.size(?width: double, ?height: double) =
         let properties = x.Properties
         let properties = match width with None -> properties | Some v -> (ViewAttributes.VisualElementWidthRequest.Value(v))::properties
@@ -208,7 +224,7 @@ type StackLayout<'msg>(events: (DynamicEvent * DynamicEventFunc) list, propertie
     member inline x.alignment(?horizontal: LayoutOptions, ?vertical: LayoutOptions) =
         let properties = x.Properties
         let properties = match horizontal with None -> properties | Some v -> ViewAttributes.ViewHorizontalOptions.Value(v)::properties
-        let properties = match vertical with None -> properties | Some v -> ViewAttributes.ViewHorizontalOptions.Value(v)::properties
+        let properties = match vertical with None -> properties | Some v -> ViewAttributes.ViewVerticalOptions.Value(v)::properties
         StackLayout<'msg>(x.Events, properties)
     
     member inline x.isEnabled(isEnabled: bool) =
@@ -217,6 +233,10 @@ type StackLayout<'msg>(events: (DynamicEvent * DynamicEventFunc) list, propertie
         
     member inline x.padding(uniform: double) =
         let properties = ViewAttributes.LayoutPadding.Value(Thickness uniform)::x.Properties
+        StackLayout<'msg>(x.Events, properties)
+        
+    member inline x.padding() =
+        let properties = ViewAttributes.LayoutPadding.Value(Thickness 5.)::x.Properties
         StackLayout<'msg>(x.Events, properties)
             
     member inline x.gridColumn(column: int) =
@@ -240,6 +260,10 @@ type Button<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (D
     member inline x.automationId(id: string) =
         let properties = (ViewAttributes.ElementAutomationId.Value(id))::x.Properties
         Button<'msg>(x.Events, properties)
+            
+    member inline x.backgroundColor(color: Xamarin.Forms.Color) =
+        let properties = ViewAttributes.VisualElementBackgroundColor.Value(color)::x.Properties
+        Button<'msg>(x.Events, properties)
         
     member inline x.style(style: ButtonStyle) =
         let properties = ViewAttributes.NavigableElementStyle.Value((style :> IStyle).AsViewElement())::x.Properties
@@ -254,11 +278,15 @@ type Button<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (D
     member inline x.alignment(?horizontal: LayoutOptions, ?vertical: LayoutOptions) =
         let properties = x.Properties
         let properties = match horizontal with None -> properties | Some v -> ViewAttributes.ViewHorizontalOptions.Value(v)::properties
-        let properties = match vertical with None -> properties | Some v -> ViewAttributes.ViewHorizontalOptions.Value(v)::properties
+        let properties = match vertical with None -> properties | Some v -> ViewAttributes.ViewVerticalOptions.Value(v)::properties
         Button<'msg>(x.Events, properties)
     
     member inline x.isEnabled(isEnabled: bool) =
         let properties = ViewAttributes.VisualElementIsEnabled.Value(isEnabled)::x.Properties
+        Button<'msg>(x.Events, properties)
+        
+    member inline x.textColor(color: Xamarin.Forms.Color) =
+        let properties = ViewAttributes.ButtonTextColor.Value(color)::x.Properties
         Button<'msg>(x.Events, properties)
             
     member inline x.gridColumn(column: int) =
@@ -283,6 +311,10 @@ type Entry<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (Dy
         let properties = (ViewAttributes.ElementAutomationId.Value(id))::x.Properties
         Entry<'msg>(x.Events, properties)
             
+    member inline x.backgroundColor(color: Xamarin.Forms.Color) =
+        let properties = ViewAttributes.VisualElementBackgroundColor.Value(color)::x.Properties
+        Entry<'msg>(x.Events, properties)
+            
     member inline x.size(?width: double, ?height: double) =
         let properties = x.Properties
         let properties = match width with None -> properties | Some v -> (ViewAttributes.VisualElementWidthRequest.Value(v))::properties
@@ -292,7 +324,7 @@ type Entry<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (Dy
     member inline x.alignment(?horizontal: LayoutOptions, ?vertical: LayoutOptions) =
         let properties = x.Properties
         let properties = match horizontal with None -> properties | Some v -> ViewAttributes.ViewHorizontalOptions.Value(v)::properties
-        let properties = match vertical with None -> properties | Some v -> ViewAttributes.ViewHorizontalOptions.Value(v)::properties
+        let properties = match vertical with None -> properties | Some v -> ViewAttributes.ViewVerticalOptions.Value(v)::properties
         Entry<'msg>(x.Events, properties)
     
     member inline x.isEnabled(isEnabled: bool) =
@@ -323,6 +355,10 @@ type Label<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (Dy
     member inline x.automationId(id: string) =
         let properties = (ViewAttributes.ElementAutomationId.Value(id))::x.Properties
         Label<'msg>(x.Events, properties)
+            
+    member inline x.backgroundColor(color: Xamarin.Forms.Color) =
+        let properties = ViewAttributes.VisualElementBackgroundColor.Value(color)::x.Properties
+        Label<'msg>(x.Events, properties)
         
     member inline x.style(style: LabelStyle) =
         let properties = ViewAttributes.NavigableElementStyle.Value((style :> IStyle).AsViewElement())::x.Properties
@@ -337,7 +373,7 @@ type Label<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (Dy
     member inline x.alignment(?horizontal: LayoutOptions, ?vertical: LayoutOptions) =
         let properties = x.Properties
         let properties = match horizontal with None -> properties | Some v -> ViewAttributes.ViewHorizontalOptions.Value(v)::properties
-        let properties = match vertical with None -> properties | Some v -> ViewAttributes.ViewHorizontalOptions.Value(v)::properties
+        let properties = match vertical with None -> properties | Some v -> ViewAttributes.ViewVerticalOptions.Value(v)::properties
         Label<'msg>(x.Events, properties)
     
     member inline x.isEnabled(isEnabled: bool) =
@@ -385,6 +421,10 @@ type Slider<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (D
         let properties = (ViewAttributes.ElementAutomationId.Value(id))::x.Properties
         Slider<'msg>(x.Events, properties)
             
+    member inline x.backgroundColor(color: Xamarin.Forms.Color) =
+        let properties = ViewAttributes.VisualElementBackgroundColor.Value(color)::x.Properties
+        Slider<'msg>(x.Events, properties)
+            
     member inline x.size(?width: double, ?height: double) =
         let properties = x.Properties
         let properties = match width with None -> properties | Some v -> (ViewAttributes.VisualElementWidthRequest.Value(v))::properties
@@ -394,7 +434,7 @@ type Slider<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (D
     member inline x.alignment(?horizontal: LayoutOptions, ?vertical: LayoutOptions) =
         let properties = x.Properties
         let properties = match horizontal with None -> properties | Some v -> ViewAttributes.ViewHorizontalOptions.Value(v)::properties
-        let properties = match vertical with None -> properties | Some v -> ViewAttributes.ViewHorizontalOptions.Value(v)::properties
+        let properties = match vertical with None -> properties | Some v -> ViewAttributes.ViewVerticalOptions.Value(v)::properties
         Slider<'msg>(x.Events, properties)
     
     member inline x.isEnabled(isEnabled: bool) =
@@ -419,6 +459,10 @@ type Switch<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (D
         let properties = (ViewAttributes.ElementAutomationId.Value(id))::x.Properties
         Switch<'msg>(x.Events, properties)
             
+    member inline x.backgroundColor(color: Xamarin.Forms.Color) =
+        let properties = ViewAttributes.VisualElementBackgroundColor.Value(color)::x.Properties
+        Switch<'msg>(x.Events, properties)
+            
     member inline x.size(?width: double, ?height: double) =
         let properties = x.Properties
         let properties = match width with None -> properties | Some v -> (ViewAttributes.VisualElementWidthRequest.Value(v))::properties
@@ -428,7 +472,7 @@ type Switch<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: (D
     member inline x.alignment(?horizontal: LayoutOptions, ?vertical: LayoutOptions) =
         let properties = x.Properties
         let properties = match horizontal with None -> properties | Some v -> ViewAttributes.ViewHorizontalOptions.Value(v)::properties
-        let properties = match vertical with None -> properties | Some v -> ViewAttributes.ViewHorizontalOptions.Value(v)::properties
+        let properties = match vertical with None -> properties | Some v -> ViewAttributes.ViewVerticalOptions.Value(v)::properties
         Switch<'msg>(x.Events, properties)
     
     member inline x.isEnabled(isEnabled: bool) =
@@ -452,6 +496,10 @@ type ListView<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: 
         let properties = (ViewAttributes.ElementAutomationId.Value(id))::x.Properties
         ListView<'msg>(x.Events, properties)
             
+    member inline x.backgroundColor(color: Xamarin.Forms.Color) =
+        let properties = ViewAttributes.VisualElementBackgroundColor.Value(color)::x.Properties
+        ListView<'msg>(x.Events, properties)
+            
     member inline x.size(?width: double, ?height: double) =
         let properties = x.Properties
         let properties = match width with None -> properties | Some v -> (ViewAttributes.VisualElementWidthRequest.Value(v))::properties
@@ -461,7 +509,7 @@ type ListView<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: 
     member inline x.alignment(?horizontal: LayoutOptions, ?vertical: LayoutOptions) =
         let properties = x.Properties
         let properties = match horizontal with None -> properties | Some v -> ViewAttributes.ViewHorizontalOptions.Value(v)::properties
-        let properties = match vertical with None -> properties | Some v -> ViewAttributes.ViewHorizontalOptions.Value(v)::properties
+        let properties = match vertical with None -> properties | Some v -> ViewAttributes.ViewVerticalOptions.Value(v)::properties
         ListView<'msg>(x.Events, properties)
     
     member inline x.isEnabled(isEnabled: bool) =
@@ -481,8 +529,9 @@ type TextCell<'msg>(events: (DynamicEvent * DynamicEventFunc) list, properties: 
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Events = events
     [<EditorBrowsable(EditorBrowsableState.Never)>] member x.Properties = properties
     
-    static member inline init(text: string) =
+    static member inline init(text: string, ?detail: string) =
         let properties = [ ViewAttributes.TextCellText.Value(text) ]
+        let properties = match detail with None -> properties | Some v -> ViewAttributes.TextCellDetail.Value(v)::properties
         TextCell<'msg>([], properties)
             
     member inline x.automationId(id: string) =
@@ -557,7 +606,7 @@ type View private () =
     static member inline Slider(value,valueChanged,?range) = Slider.init(value,valueChanged,?range=range)
     static member inline Switch(isToggled,toggled) = Switch.init(isToggled,toggled)
     static member inline ListView(items) = ListView.init(items)
-    static member inline TextCell(text) = TextCell.init text
+    static member inline TextCell(text,?detail) = TextCell.init(text,?detail=detail)
     static member inline MainMenu(submenus) = MainMenu.init(submenus)
     static member inline Menu(items) = Menu.init(items)
     static member inline Menu(text,items) = Menu.init(text,items)
