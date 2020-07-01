@@ -4,7 +4,6 @@ namespace Fabulous.XamarinForms.DynamicViews
 open System
 open System.Collections.Generic
 open System.ComponentModel
-open System.Diagnostics
 open Fabulous
 open Fabulous.XamarinForms
 open Fabulous.XamarinForms.DynamicViews.Attributes

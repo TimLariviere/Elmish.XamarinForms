@@ -112,7 +112,7 @@ module App =
             ])
         )
         
-    let runnerDefinition = Program.AsApplication.useCmdMsg init update view mapCmdMsgToCmd
+    let runnerDefinition = Program.useCmdMsg init update view mapCmdMsgToCmd
 
 type CounterApp () as app = 
     inherit Application ()
@@ -120,4 +120,4 @@ type CounterApp () as app =
     let _ =
         App.runnerDefinition
         |> Program.withConsoleTrace
-        |> Program.AsApplication.run app
+        |> Program.run app

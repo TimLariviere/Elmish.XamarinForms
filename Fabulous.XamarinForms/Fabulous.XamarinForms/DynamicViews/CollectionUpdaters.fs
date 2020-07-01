@@ -172,7 +172,7 @@ module DictionaryUpdaters =
                 | Some (_, prevValue) -> target.[key] <- update prevValue value target.[key]
                 
             for kvp in target do
-                if not (coll |> Array.exists (fun (k, v) -> k = kvp.Key)) then
+                if not (coll |> Array.exists (fun (k, _) -> k = kvp.Key)) then
                     target.Remove(kvp.Key) |> ignore
 
 /// This module contains the update logic for the controls with a virtualized ItemsSource

@@ -362,3 +362,5 @@ FodyWeavers.xsd
 
 **/*.designer.cs
 **/.DS_Store
+
+Fabulous.XamarinForms/samples/.paket/

@@ -2,13 +2,6 @@
 namespace Fabulous
 
 open System.Diagnostics
-
-/// Representation of the host framework with access to the root view to update (e.g. Xamarin.Forms.Application)
-type IHost =
-    /// Gets a reference to the root view item (e.g. Xamarin.Forms.Application.MainPage)
-    abstract member GetRoot : unit -> obj
-    /// Sets a new instance of the root view item (e.g. Xamarin.Forms.Application.MainPage)
-    abstract member InitRoot : IViewElement * ProgramDefinition -> unit
     
 /// We store the current dispatch function for the running Elmish program as a 
 /// static-global thunk because we want old view elements stored in the `dependsOn` global table
@@ -34,7 +27,7 @@ type RunnerDefinition<'arg, 'model, 'msg> =
       onError : (string * exn) -> unit }
 
 /// Starts the Elmish dispatch loop for the page with the given Elmish program
-type Runner<'arg, 'model, 'msg>(host: IHost, definition: RunnerDefinition<'arg, 'model, 'msg>, arg: 'arg) = 
+type Runner<'arg, 'model, 'msg>(rootView: obj, definition: RunnerDefinition<'arg, 'model, 'msg>, arg: 'arg) = 
 
     do Debug.WriteLine "run: computing initial model"
 
@@ -76,9 +69,9 @@ type Runner<'arg, 'model, 'msg>(host: IHost, definition: RunnerDefinition<'arg, 
                     prevPageElement
 
             if definition.canReuseView prevPageElement newPageElement then
-                newPageElement.Update(programDefinition, ValueSome prevPageElement, host.GetRoot())
+                newPageElement.Update(programDefinition, ValueSome prevPageElement, rootView)
             else
-                host.InitRoot(newPageElement, programDefinition)
+                newPageElement.Update(programDefinition, ValueNone, rootView)
 
             lastViewDataOpt <- Some newPageElement
                       
@@ -92,7 +85,7 @@ type Runner<'arg, 'model, 'msg>(host: IHost, definition: RunnerDefinition<'arg, 
         // If the view is dynamic, create the initial page
         lastViewDataOpt <-
             let newRootElement = definition.view initialModel
-            host.InitRoot(newRootElement, programDefinition)
+            newRootElement.Update(programDefinition, ValueNone, rootView)
             Some newRootElement
 
         Debug.WriteLine "dispatching initial commands"
@@ -112,7 +105,7 @@ type Runner<'arg, 'model, 'msg>(host: IHost, definition: RunnerDefinition<'arg, 
         let action = definition.syncAction (fun () -> 
             // TODO: transmogrify the model
             try
-                alternativeRunner <- Some (Runner<obj,obj, obj>(host, newDefinition, runner.Argument))
+                alternativeRunner <- Some (Runner<obj,obj, obj>(rootView, newDefinition, runner.Argument))
             with ex ->
                 definition.onError ("Error changing the program:", ex)
         )

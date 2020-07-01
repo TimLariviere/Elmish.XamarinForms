@@ -5,22 +5,6 @@ open Fabulous
 open System
 open Xamarin.Forms
 
-type ContentViewHost(contentView: ContentView) =
-    interface IHost with
-        member __.GetRoot() =
-            match contentView.Content with
-            | null -> failwith "No root view"
-            | rootView -> rootView :> obj 
-
-        member __.InitRoot(rootElement, programDefinition) =
-            contentView.Content <- rootElement.Create(programDefinition) :?> View
-
-type ApplicationHost(app: Application) =
-    interface IHost with
-        member __.GetRoot() = app :> obj
-        member __.InitRoot(rootElement, programDefinition) =
-            rootElement.Update(programDefinition, ValueNone, app)
-
 /// Component module - functions to manipulate component instances
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
@@ -40,71 +24,32 @@ module Program =
         match prevChild, newChild with
         | (:? DynamicViewElement as prevChild), (:? DynamicViewElement as newChild) -> DynamicViews.ViewHelpers.canReuseDynamicView prevChild newChild
         | _ -> false
+    
+    /// Typical component, new commands are produced by `init` and `update` along with the new state.
+    let useCmd (init : 'arg -> 'model * Cmd<'msg>) (update : 'msg -> 'model -> 'model * Cmd<'msg>) (view : 'model -> #IViewElementBuilder<'msg>) =
+        { init = init
+          update = update
+          view = (fun model -> (view model).AsViewElement())
+          canReuseView = canReuseView
+          syncDispatch = syncDispatch
+          syncAction = syncAction
+          subscribe = fun _ -> Cmd.none
+          debug = false
+          onError = onError }
+
+    /// Simple component that produces only new state with `init` and `update`.
+    let simple (init : 'arg -> 'model) (update : 'msg -> 'model -> 'model) (view : 'model -> #IViewElementBuilder<'msg>) = 
+        useCmd (fun arg -> init arg, Cmd.none) (fun msg model -> update msg model, Cmd.none) view
+
+    /// Typical component, new commands are produced discriminated unions returned by `init` and `update` along with the new state.
+    let useCmdMsg (init: 'arg -> 'model * 'cmdMsg list) (update: 'msg -> 'model -> 'model * 'cmdMsg list) (view: 'model -> #IViewElementBuilder<'msg>) (mapToCmd: 'cmdMsg -> Cmd<'msg>) =
+        let convert = fun (model, cmdMsgs) -> model, (cmdMsgs |> List.map mapToCmd |> Cmd.batch)
+        useCmd (fun arg -> init arg |> convert) (fun msg model -> update msg model |> convert) view
         
-    module AsApplication =
-        /// Typical component, new commands are produced by `init` and `update` along with the new state.
-        let useCmd (init : 'arg -> 'model * Cmd<'msg>) (update : 'msg -> 'model -> 'model * Cmd<'msg>) (view : 'model -> #IApplication<'msg>) =
-            { init = init
-              update = update
-              view = (fun model -> (view model).AsViewElement())
-              canReuseView = canReuseView
-              syncDispatch = syncDispatch
-              syncAction = syncAction
-              subscribe = fun _ -> Cmd.none
-              debug = false
-              onError = onError }
+    /// Run the app with Fabulous.XamarinForms
+    let runWith (element: Element) (arg: 'arg) (definition: RunnerDefinition<'arg, 'model, 'msg>) = 
+        Runner(element, definition, arg)
 
-        /// Simple component that produces only new state with `init` and `update`.
-        let simple (init : 'arg -> 'model) (update : 'msg -> 'model -> 'model) (view : 'model -> #IApplication<'msg>) = 
-            useCmd (fun arg -> init arg, Cmd.none) (fun msg model -> update msg model, Cmd.none) view
-
-        /// Typical component, new commands are produced discriminated unions returned by `init` and `update` along with the new state.
-        let useCmdMsg (init: 'arg -> 'model * 'cmdMsg list) (update: 'msg -> 'model -> 'model * 'cmdMsg list) (view: 'model -> #IApplication<'msg>) (mapToCmd: 'cmdMsg -> Cmd<'msg>) =
-            let convert = fun (model, cmdMsgs) -> model, (cmdMsgs |> List.map mapToCmd |> Cmd.batch)
-            useCmd (fun arg -> init arg |> convert) (fun msg model -> update msg model |> convert) view
-            
-        /// Run the app with Fabulous.XamarinForms
-        let runWith (app: Application) (arg: 'arg) (definition: RunnerDefinition<'arg, 'model, 'msg>) = 
-            Runner(ApplicationHost(app), definition, arg)
-
-        /// Run the app with Fabulous.XamarinForms
-        let run (app: Application) (definition: RunnerDefinition<unit, 'model, 'msg>) = 
-            runWith app () definition
-                
-    module AsComponent =
-        /// Typical component, new commands are produced by `init` and `update` along with the new state.
-        let useCmd (init : 'arg -> 'model * Cmd<'msg>) (update : 'msg -> 'model -> 'model * Cmd<'msg>) (view : 'model -> #IView<'msg>) =
-            { init = init
-              update = update
-              view = (fun model -> unbox<IViewElement> ((view model).AsViewElement()))
-              canReuseView = canReuseView
-              syncDispatch = syncDispatch
-              syncAction = syncAction
-              subscribe = fun _ -> Cmd.none
-              debug = false
-              onError = onError }
-
-        /// Simple component that produces only new state with `init` and `update`.
-        let simple (init : 'arg -> 'model) (update : 'msg -> 'model -> 'model) (view : 'model -> #IView<'msg>) = 
-            useCmd (fun arg -> init arg, Cmd.none) (fun msg model -> update msg model, Cmd.none) view
-
-        /// Typical component, new commands are produced discriminated unions returned by `init` and `update` along with the new state.
-        let useCmdMsg (init: 'arg -> 'model * 'cmdMsg list) (update: 'msg -> 'model -> 'model * 'cmdMsg list) (view: 'model -> #IView<'msg>) (mapToCmd: 'cmdMsg -> Cmd<'msg>) =
-            let convert = fun (model, cmdMsgs) -> model, (cmdMsgs |> List.map mapToCmd |> Cmd.batch)
-            useCmd (fun arg -> init arg |> convert) (fun msg model -> update msg model |> convert) view
-        
-        /// Run the component with Fabulous.XamarinForms
-        let runWith (contentView: ContentView) (arg: 'arg) (definition: RunnerDefinition<'arg, 'model, 'msg>) = 
-            Runner(ContentViewHost(contentView), definition, arg)
-
-        /// Run the component with Fabulous.XamarinForms
-        let run (contentView: ContentView) (definition: RunnerDefinition<unit, 'model, 'msg>) = 
-            runWith contentView () definition
-            
-        let withModelChanged (fn: 'model -> unit) (definition: RunnerDefinition<'arg, 'model, 'msg>) =
-            { definition with
-                update = (fun msg model ->
-                    let newModel, newCmd = definition.update msg model
-                    fn newModel
-                    newModel, newCmd
-                ) }
+    /// Run the app with Fabulous.XamarinForms
+    let run (element: Element) (definition: RunnerDefinition<unit, 'model, 'msg>) = 
+        runWith element () definition
