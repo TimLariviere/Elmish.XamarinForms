@@ -1,14 +1,19 @@
 namespace Fabulous.XamarinForms
 
 open Fabulous
+open System
 
 module Component =
     let ComponentRunnerProperty = Xamarin.Forms.BindableProperty.CreateAttached("ComponentRunner", typeof<obj>, typeof<Xamarin.Forms.Element>, null)
     
+    type IComponentViewElement =
+        inherit IViewElement
+        abstract TargetType : Type
+    
     type ComponentViewElement<'arg, 'msg, 'model>(runnerDefinition: RunnerDefinition<'arg, 'msg, 'model>, arg: 'arg) =
-        interface IViewElement with
+        interface IComponentViewElement with
             member x.Create(_) =
-                let runner = Runner<'arg, 'msg, 'model>() :> IRunner<'arg, 'msg, 'model>
+                let runner = Runner<'arg, 'msg, 'model>()
                 let target = runner.Start(runnerDefinition, arg, None)
                 (target :?> Xamarin.Forms.BindableObject).SetValue(ComponentRunnerProperty, runner)
                 target
@@ -19,12 +24,14 @@ module Component =
                 | runner -> (runner :?> IRunner<'arg, 'msg, 'model>).ChangeDefinition(runnerDefinition)
                 
             member x.TryKey = ValueNone
+            
+            member x.TargetType = runnerDefinition.GetType()
 
     [<Struct>]
     type ComponentView<'parentMsg, 'arg, 'msg, 'model>(runnerDefinition: RunnerDefinition<'arg, 'msg, 'model>, arg: 'arg) =
         interface IView<'parentMsg> with
             member x.AsViewElement() =
-                ComponentViewElement<'arg, 'msg, 'model>(runnerDefinition, arg) :> IViewElement
+                ComponentViewElement(runnerDefinition, arg) :> IViewElement
                 
         static member inline init(definition: RunnerDefinition<'arg, 'msg, 'model>, arg: 'arg) =
             ComponentView<'parentMsg, 'arg, 'msg, 'model>(definition, arg)

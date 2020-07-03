@@ -3,7 +3,6 @@ namespace Fabulous.XamarinForms
 
 open Component
 open Fabulous
-open Fabulous
 open System
 open Xamarin.Forms
 
@@ -25,6 +24,7 @@ module Program =
     let rec canReuseView (prevChild: IViewElement) (newChild: IViewElement) =
         match prevChild, newChild with
         | (:? DynamicViewElement as prevChild), (:? DynamicViewElement as newChild) -> DynamicViews.ViewHelpers.canReuseDynamicView prevChild newChild
+        | (:? IComponentViewElement as prevChild), (:? IComponentViewElement as newChild) -> prevChild.TargetType = newChild.TargetType
         | _ -> false
     
     /// Typical component, new commands are produced by `init` and `update` along with the new state.
