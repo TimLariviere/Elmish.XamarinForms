@@ -16,6 +16,7 @@
     <Compile Include="DynamicViews\ViewHelpers.fs" />
     <Compile Include="DynamicViews\PlatformSpecific\iOS.fs" />
     <Compile Include="StaticViews\View.fs" />
+    <Compile Include="Component.fs" />
     <Compile Include="Program.fs" />
     <Compile Include="UnitTests.fs" />
   </ItemGroup>

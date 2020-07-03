@@ -96,6 +96,9 @@ module App =
                     Button("Reset", Reset)
                         .isEnabled(model <> initModel())
                         .alignment(horizontal = LayoutOptions.Center)
+                        
+                    AboutCard.asComponent()
+                        
                 ]).padding(30.)
                   .alignment(vertical = LayoutOptions.Center)
             )

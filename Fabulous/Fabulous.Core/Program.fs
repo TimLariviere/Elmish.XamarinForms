@@ -9,14 +9,14 @@ open System
 module Program =
     /// Subscribe to external source of events.
     /// The subscription is called once - with the initial (or resumed) model, but can dispatch new messages at any time.
-    let withSubscription (subscribe : 'model -> Cmd<'msg>) (definition: RunnerDefinition<'arg, 'model, 'msg>) =
+    let withSubscription (subscribe : 'model -> Cmd<'msg>) (definition: RunnerDefinition<'arg, 'msg, 'model>) =
         let sub model =
             Cmd.batch [ definition.subscribe model
                         subscribe model ]
         { definition with subscribe = sub }
 
     /// Trace all the updates to the console
-    let withConsoleTrace (definition: RunnerDefinition<'arg, 'model, 'msg>) =
+    let withConsoleTrace (definition: RunnerDefinition<'arg, 'msg, 'model>) =
         let traceInit arg =
             try 
                 let initModel,cmd = definition.init arg
@@ -52,12 +52,12 @@ module Program =
             view = traceView }
 
     /// Trace all the messages as they update the model
-    let withTrace trace (definition: RunnerDefinition<'arg, 'model, 'msg>) =
+    let withTrace trace (definition: RunnerDefinition<'arg, 'msg, 'model>) =
         { definition
             with update = fun msg model -> trace msg model; definition.update msg model}
 
     /// Handle dispatch loop exceptions
-    let withErrorHandler onError (definition: RunnerDefinition<'arg, 'model, 'msg>) =
+    let withErrorHandler onError (definition: RunnerDefinition<'arg, 'msg, 'model>) =
         { definition
             with onError = onError }
 

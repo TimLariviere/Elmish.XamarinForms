@@ -1,6 +1,8 @@
 // Copyright Fabulous contributors. See LICENSE.md for license.
 namespace Fabulous.XamarinForms
 
+open Component
+open Fabulous
 open Fabulous
 open System
 open Xamarin.Forms
@@ -47,9 +49,11 @@ module Program =
         useCmd (fun arg -> init arg |> convert) (fun msg model -> update msg model |> convert) view
         
     /// Run the app with Fabulous.XamarinForms
-    let runWith (element: Element) (arg: 'arg) (definition: RunnerDefinition<'arg, 'model, 'msg>) = 
-        Runner(element, definition, arg)
+    let runWith (element: Element) (arg: 'arg) (definition: RunnerDefinition<'arg, 'msg, 'model>) =
+        let runner = Runner()
+        let _ = runner.Start(definition, arg, Some (box element))
+        runner
 
     /// Run the app with Fabulous.XamarinForms
-    let run (element: Element) (definition: RunnerDefinition<unit, 'model, 'msg>) = 
+    let run (element: Element) (definition: RunnerDefinition<unit, 'msg, 'model>) = 
         runWith element () definition

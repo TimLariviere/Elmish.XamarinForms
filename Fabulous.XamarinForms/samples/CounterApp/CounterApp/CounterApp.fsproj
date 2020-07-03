@@ -6,6 +6,7 @@
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AboutCard.fs" />
     <Compile Include="CounterApp.fs" />
   </ItemGroup>
   <ItemGroup>
