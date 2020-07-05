@@ -1,27 +1,47 @@
 namespace CounterApp
 
+open Fabulous
 open Fabulous.XamarinForms
 open Fabulous.XamarinForms.Component.View
 open Fabulous.XamarinForms.DynamicViews.View
 
 module AboutCard =
-    type Model = { Text: string }
+    type Model = { State: int; Text: string }
     
-    type Msg = Toggle
+    type Msg =
+        | StateChanged of int
+        | Toggle
+        
+    type ExternalMsg =
+        | TextChanged of string
     
-    let init() = { Text = "Hello World!" }
+    type CmdMsg = Nothing
+    
+    let mapCmdMsg cmdMsg =
+        match cmdMsg with
+        | Nothing -> Cmd.none
+    
+    let init() =
+        { State = 0; Text = "Hello World!" }, [], []
     
     let update msg model =
         match msg with
-        | Toggle -> { model with Text = model.Text +  " It worked!" }
+        | StateChanged state ->
+            { model with State = state }, [], []
+        | Toggle ->
+            let newModel = { model with Text = model.Text +  " It worked!" }
+            newModel, [], [ TextChanged newModel.Text ]
         
     let view model =
         StackLayout([
             Button("Toggle", Toggle)
+            Label(sprintf "State is %i" model.State)
             Label(model.Text)
         ])
 
-    let program = Program.simple init update view
+    let program = Program.forComponentWithCmdMsg init update view mapCmdMsg
     
-    let asComponent() =
-        ComponentView(program, ())
+    let asComponent<'msg>(state, onExternalMsg: ExternalMsg -> 'msg) =
+        ComponentView(program)
+            //.withState(StateChanged, state)
+            .withExternalMessages(onExternalMsg)

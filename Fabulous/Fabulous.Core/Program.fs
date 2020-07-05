@@ -9,19 +9,19 @@ open System
 module Program =
     /// Subscribe to external source of events.
     /// The subscription is called once - with the initial (or resumed) model, but can dispatch new messages at any time.
-    let withSubscription (subscribe : 'model -> Cmd<'msg>) (definition: RunnerDefinition<'arg, 'msg, 'model>) =
+    let withSubscription (subscribe : 'model -> Cmd<'msg>) (definition: RunnerDefinition<'arg, 'msg, 'model, 'externalMsg>) =
         let sub model =
             Cmd.batch [ definition.subscribe model
                         subscribe model ]
         { definition with subscribe = sub }
 
     /// Trace all the updates to the console
-    let withConsoleTrace (definition: RunnerDefinition<'arg, 'msg, 'model>) =
+    let withConsoleTrace (definition: RunnerDefinition<'arg, 'msg, 'model, 'externalMsg>) =
         let traceInit arg =
             try 
-                let initModel,cmd = definition.init arg
+                let initModel,cmd,externalMsgs = definition.init arg
                 Console.WriteLine (sprintf "Initial model: %0A" initModel)
-                initModel,cmd
+                initModel,cmd,externalMsgs
             with e -> 
                 Console.WriteLine (sprintf "Error in init function: %0A" e)
                 reraise ()
@@ -29,9 +29,9 @@ module Program =
         let traceUpdate msg model =
             Console.WriteLine (sprintf "Message: %0A" msg)
             try 
-                let newModel,cmd = definition.update msg model
+                let newModel,cmd,externalMsgs = definition.update msg model
                 Console.WriteLine (sprintf "Updated model: %0A" newModel)
-                newModel,cmd
+                newModel,cmd,externalMsgs
             with e -> 
                 Console.WriteLine (sprintf "Error in model function: %0A" e)
                 reraise ()
@@ -52,12 +52,12 @@ module Program =
             view = traceView }
 
     /// Trace all the messages as they update the model
-    let withTrace trace (definition: RunnerDefinition<'arg, 'msg, 'model>) =
+    let withTrace trace (definition: RunnerDefinition<'arg, 'msg, 'model, 'externalMsg>) =
         { definition
             with update = fun msg model -> trace msg model; definition.update msg model}
 
     /// Handle dispatch loop exceptions
-    let withErrorHandler onError (definition: RunnerDefinition<'arg, 'msg, 'model>) =
+    let withErrorHandler onError (definition: RunnerDefinition<'arg, 'msg, 'model, 'externalMsg>) =
         { definition
             with onError = onError }
 

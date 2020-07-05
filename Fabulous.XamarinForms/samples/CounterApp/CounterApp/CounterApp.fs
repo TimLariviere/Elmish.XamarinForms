@@ -15,7 +15,8 @@ module App =
     type Model =
       { Count: int
         Step: int
-        TimerOn: bool }
+        TimerOn: bool
+        CardState: string }
 
     type Msg =
         | Increment
@@ -25,6 +26,7 @@ module App =
         | TimerToggled of bool
         | TimedTick
         | CloseApp
+        | CardChanged of AboutCard.ExternalMsg
 
     type CmdMsg =
         | TickTimer
@@ -38,7 +40,7 @@ module App =
         match cmdMsg with
         | TickTimer -> timerCmd()
 
-    let initModel () = { Count = 0; Step = 1; TimerOn=false }
+    let initModel () = { Count = 0; Step = 1; TimerOn = false; CardState = "" }
 
     let init () = initModel () , []
 
@@ -53,12 +55,16 @@ module App =
         | CloseApp ->
             DependencyService.Get<IApplicationService>().CloseApplication()
             model, []
+        | CardChanged msg ->
+            match msg with
+            | AboutCard.ExternalMsg.TextChanged text ->
+                { model with CardState = text }, []
     
     let view (model: Model) =
         Application(
             ContentPage(
                 StackLayout([
-                    Label(sprintf "%d" model.Count)
+                    Label(sprintf "%s : %d" model.CardState model.Count)
                         .automationId("CountLabel")
                         .size(width = 200.)
                         .alignment(horizontal = LayoutOptions.Center)
@@ -97,7 +103,7 @@ module App =
                         .isEnabled(model <> initModel())
                         .alignment(horizontal = LayoutOptions.Center)
                         
-                    AboutCard.asComponent()
+                    AboutCard.asComponent(model.Count, CardChanged)
                         
                 ]).padding(30.)
                   .alignment(vertical = LayoutOptions.Center)
@@ -115,7 +121,7 @@ module App =
             ])
         )
         
-    let runnerDefinition = Program.useCmdMsg init update view mapCmdMsgToCmd
+    let runnerDefinition: RunnerDefinition<unit, Msg, Model, obj> = Program.useCmdMsg init update view mapCmdMsgToCmd
 
 type CounterApp () as app = 
     inherit Application ()

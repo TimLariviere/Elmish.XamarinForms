@@ -13,9 +13,9 @@ type RunnerDispatch<'msg>()  =
     member x.SetDispatchThunk v = dispatchImpl <- v
 
 /// Program type captures various aspects of program behavior
-type RunnerDefinition<'arg, 'msg, 'model> = 
-    { init : 'arg -> 'model * Cmd<'msg>
-      update : 'msg -> 'model -> 'model * Cmd<'msg>
+type RunnerDefinition<'arg, 'msg, 'model, 'externalMsg> = 
+    { init : 'arg -> 'model * Cmd<'msg> * ('externalMsg list)
+      update : 'msg -> 'model -> 'model * Cmd<'msg> * ('externalMsg list)
       subscribe : 'model -> Cmd<'msg>
       view : 'model -> IViewElement
       canReuseView: IViewElement -> IViewElement -> bool
@@ -24,13 +24,14 @@ type RunnerDefinition<'arg, 'msg, 'model> =
       debug : bool
       onError : (string * exn) -> unit }
     
-type IRunner<'arg, 'msg, 'model> =
-    abstract Start : RunnerDefinition<'arg, 'msg, 'model> * 'arg * obj option -> obj
-    abstract ChangeDefinition : RunnerDefinition<'arg, 'msg, 'model> -> unit
+type IRunner<'arg, 'msg, 'model, 'externalMsg> =
+    abstract Start : RunnerDefinition<'arg, 'msg, 'model, 'externalMsg> * 'arg * obj option -> obj
+    abstract ChangeDefinition : RunnerDefinition<'arg, 'msg, 'model, 'externalMsg> -> unit
+    abstract Dispatch: 'msg -> unit
 
 /// Starts the Elmish dispatch loop for the page with the given Elmish program
-type Runner<'arg, 'msg, 'model>() =
-    let mutable runnerDefinition = Unchecked.defaultof<RunnerDefinition<'arg, 'msg, 'model>>
+type Runner<'arg, 'msg, 'model, 'externalMsg>() =
+    let mutable runnerDefinition = Unchecked.defaultof<RunnerDefinition<'arg, 'msg, 'model, 'externalMsg>>
     let mutable programDefinition = Unchecked.defaultof<ProgramDefinition>
     let mutable lastModel = Unchecked.defaultof<'model>
     let mutable lastViewData = Unchecked.defaultof<IViewElement>
@@ -40,7 +41,7 @@ type Runner<'arg, 'msg, 'model>() =
     // Start Elmish dispatch loop
     let rec processMsg msg = 
         try
-            let updatedModel, cmd = runnerDefinition.update msg lastModel
+            let updatedModel, cmd, _ = runnerDefinition.update msg lastModel
             lastModel <- updatedModel
             try 
                 updateView updatedModel 
@@ -69,9 +70,9 @@ type Runner<'arg, 'msg, 'model>() =
             runnerDefinition.onError ("Unable to evaluate view:", ex)
             
     member x.Start(definition, arg, rootOpt) =
-        (x :> IRunner<'arg, 'msg, 'model>).ChangeDefinition(definition)
+        (x :> IRunner<'arg, 'msg, 'model, 'externalMsg>).ChangeDefinition(definition)
         
-        let initialModel, cmd = definition.init arg
+        let initialModel, cmd, _ = definition.init arg
         let initialView = definition.view initialModel
         lastModel <- initialModel
         lastViewData <- initialView
@@ -92,13 +93,16 @@ type Runner<'arg, 'msg, 'model>() =
                 
         target
         
-    member x.ChangeDefinition(definition: RunnerDefinition<'arg, 'msg, 'model>) =
+    member x.ChangeDefinition(definition: RunnerDefinition<'arg, 'msg, 'model, 'externalMsg>) =
         dispatch.SetDispatchThunk(processMsg |> definition.syncDispatch)
         programDefinition <- 
             { CanReuseView = definition.canReuseView
               Dispatch = (fun msg -> dispatch.DispatchViaThunk(unbox msg)) }
         runnerDefinition <- definition
+        
+    member x.Dispatch(msg) = dispatch.DispatchViaThunk(msg)
     
-    interface IRunner<'arg, 'msg, 'model> with
+    interface IRunner<'arg, 'msg, 'model, 'externalMsg> with
         member x.Start(definition, arg, rootOpt) = x.Start(definition, arg, rootOpt)
         member x.ChangeDefinition(definition) = x.ChangeDefinition(definition)
+        member x.Dispatch(msg) = x.Dispatch(msg)
