@@ -33,3 +33,6 @@ Fabulous.XamarinForms/extensions/FFImageLoading/Xamarin.FFImageLoading.Forms.fs
 Fabulous.XamarinForms/extensions/Maps/Xamarin.Forms.Maps.fs
 
 .paket/Paket.Restore.targets
+
+docs/_lib/
+docs/_public/

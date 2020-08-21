@@ -16,6 +16,18 @@ group fakebuild
   nuget Fake.IO.FileSystem
   nuget Newtonsoft.Json
 
+# dependencies used for building docs
+group docs
+  source https://www.nuget.org/api/v2
+  framework: netstandard2.0
+  storage: none
+
+  github ionide/Fornax:master src/Fornax.Template/_lib/Fornax.Core.dll 
+  github ionide/Fornax:master src/Fornax.Template/_lib/Markdig.dll
+  nuget FSharp.Compiler.Service ~> 35.0
+  nuget FSharp.Formatting ~> 4.1
+  nuget Newtonsoft.Json
+
 # dependencies used when compiling and running the library and neutral parts of samples
 group neutral
   framework: netstandard2.0

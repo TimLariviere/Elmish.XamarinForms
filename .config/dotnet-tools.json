@@ -13,6 +13,12 @@
       "commands": [
         "fake"
       ]
+    },
+    "fornax": {
+      "version": "0.13.1",
+      "commands": [
+        "fornax"
+      ]
     }
   }
 }
