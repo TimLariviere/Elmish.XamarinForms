@@ -174,5 +174,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <Import Project="..\..\..\..\Packages.targets" />
+  <Import Project="..\..\..\..\eng\Packages.targets" />
 </Project>

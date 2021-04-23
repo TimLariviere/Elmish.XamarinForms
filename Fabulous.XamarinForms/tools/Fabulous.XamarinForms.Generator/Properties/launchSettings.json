@@ -2,7 +2,7 @@
   "profiles": {
     "Generator (Xamarin.Forms)": {
       "commandName": "Project",
-      "commandLineArgs": "-m Fabulous.XamarinForms/src/Fabulous.XamarinForms/Xamarin.Forms.Core.json -a Fabulous.XamarinForms/src/Fabulous.XamarinForms/Xamarin.Forms.Core.Attributes.fs -b Fabulous.XamarinForms/src/Fabulous.XamarinForms/Xamarin.Forms.Core.fs -d",
+      "commandLineArgs": "-m Fabulous.XamarinForms/Fabulous.XamarinForms/Xamarin.Forms.Core.json -a Fabulous.XamarinForms/Fabulous.XamarinForms/Xamarin.Forms.Core.Attributes.fs -b Fabulous.XamarinForms/Fabulous.XamarinForms/Xamarin.Forms.Core.fs -d",
       "workingDirectory": "/Users/timothelariviere/Git/GitHub/fabulous"
     },
     "Generator (FFImageLoading)": {

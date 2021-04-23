@@ -15,18 +15,8 @@ group fakebuild
   nuget Fake.DotNet.MSBuild
   nuget Fake.Dotnet.NuGet
   nuget Fake.IO.FileSystem
+  nuget Fake.Net.Http
   nuget Newtonsoft.Json
-
-# dependencies used when compiling and running the library and neutral parts of samples
-group neutral
-  framework: netstandard2.0
-  source https://www.nuget.org/api/v2
-  github fsprojects/FSharp.Compiler.PortaCode:190a8c5b6d67de8cd4f75a9ee4197ed1f36c9b87 src/ProjectCracker.fs
-  github fsprojects/FSharp.Compiler.PortaCode:190a8c5b6d67de8cd4f75a9ee4197ed1f36c9b87 src/CodeModel.fs
-  github fsprojects/FSharp.Compiler.PortaCode:190a8c5b6d67de8cd4f75a9ee4197ed1f36c9b87 src/Interpreter.fs
-  github fsprojects/FSharp.Compiler.PortaCode:190a8c5b6d67de8cd4f75a9ee4197ed1f36c9b87 src/FromCompilerService.fs
-  github fsprojects/FSharp.Compiler.PortaCode:190a8c5b6d67de8cd4f75a9ee4197ed1f36c9b87 src/ProcessCommandLine.fs
-  github fsprojects/FSharp.Compiler.PortaCode:190a8c5b6d67de8cd4f75a9ee4197ed1f36c9b87 tests/PortaCodeTests.fs
 
 # dependencies used by Fabulous.XamarinForms.Generator to extract types via Reflection
 # should be pinned to a specific version, matching the one in Packages.targets

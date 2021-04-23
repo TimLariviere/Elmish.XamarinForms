@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
-  <Import Project="..\..\..\..\netfx.props" />
+  <Import Project="..\..\..\..\eng\netfx.props" />
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -27,5 +27,5 @@
   <ItemGroup>
       <ProjectReference Include="..\TicTacToe\TicTacToe.fsproj" />
   </ItemGroup>
-  <Import Project="..\..\..\..\Packages.targets" />
+  <Import Project="..\..\..\..\eng\Packages.targets" />
 </Project>

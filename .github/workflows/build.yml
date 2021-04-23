@@ -1,0 +1,126 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - github-actions
+  pull_request:
+    branches:
+      - github-actions
+
+env:
+  dotnet_sdk: 5.0.201
+  nuget_source: https://api.nuget.org/v3/index.json
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get the sources
+        uses: actions/checkout@v2
+
+      - name: Install .NET SDK ${{ env.dotnet_sdk }}
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.dotnet_sdk }}
+    
+      - name: Install Dotnet Tools
+        run: dotnet tool restore --add-source ${{ env.nuget_source }}
+        
+      - name: Run build
+        run: ./build.sh
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v2
+        with:
+          name: packages
+          path: build_output/
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v2
+        with:
+          name: testresults
+          path: test_output/
+
+  samples:
+    name: Samples
+    needs: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+      fail-fast: false
+    steps:
+      - name: Get the sources
+        uses: actions/checkout@v2
+
+      - name: Install .NET SDK ${{ env.dotnet_sdk }}
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.dotnet_sdk }}
+    
+      - name: Install Dotnet Tools
+        run: dotnet tool restore --add-source ${{ env.nuget_source }}
+
+      - if: matrix.os == 'windows-latest'
+        name: Install build dependencies (Windows)
+        run: choco install gtksharp
+
+      - if: matrix.os == 'ubuntu-latest'
+        name: Install build dependencies (Linux)
+        run: |
+          sudo apt-get update
+          sudo apt-get install fsharp gtk-sharp2
+
+      - if: matrix.os == 'windows-latest'
+        name: Test samples (Windows)
+        run: .\build.cmd test-samples
+      
+      - if: matrix.os != 'windows-latest'
+        name: Test samples (macOS & Linux)
+        run: ./build.sh test-samples
+
+  templates:
+    name: Templates
+    needs: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+      fail-fast: false
+    steps:
+      - name: Get the sources
+        uses: actions/checkout@v2
+
+      - name: Install .NET SDK ${{ env.dotnet_sdk }}
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.dotnet_sdk }}
+    
+      - name: Install Dotnet Tools
+        run: dotnet tool restore --add-source ${{ env.nuget_source }}
+
+      - if: matrix.os == 'windows-latest'
+        name: Install build dependencies (Windows)
+        run: choco install gtksharp
+
+      - if: matrix.os == 'ubuntu-latest'
+        name: Install build dependencies (Linux)
+        run: |
+          sudo apt-get update
+          sudo apt-get install fsharp gtk-sharp2
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: packages
+          path: build_output/
+
+      - if: matrix.os == 'windows-latest'
+        name: Test templates
+        run: .\build.cmd test-templates
+      
+      - if: matrix.os != 'windows-latest'
+        name: Test templates
+        run: ./build.sh test-templates

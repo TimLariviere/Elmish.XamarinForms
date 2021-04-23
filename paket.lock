@@ -718,14 +718,3 @@ NUGET
     Xamarin.Forms.PancakeView (2.3.0.759)
       System.ComponentModel (>= 4.3)
       Xamarin.Forms (>= 4.8.0.1451)
-
-GROUP neutral
-RESTRICTION: == netstandard2.0
-GITHUB
-  remote: fsprojects/FSharp.Compiler.PortaCode
-    src/CodeModel.fs (190a8c5b6d67de8cd4f75a9ee4197ed1f36c9b87)
-    src/FromCompilerService.fs (190a8c5b6d67de8cd4f75a9ee4197ed1f36c9b87)
-    src/Interpreter.fs (190a8c5b6d67de8cd4f75a9ee4197ed1f36c9b87)
-    src/ProcessCommandLine.fs (190a8c5b6d67de8cd4f75a9ee4197ed1f36c9b87)
-    src/ProjectCracker.fs (190a8c5b6d67de8cd4f75a9ee4197ed1f36c9b87)
-    tests/PortaCodeTests.fs (190a8c5b6d67de8cd4f75a9ee4197ed1f36c9b87)

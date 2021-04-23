@@ -2,7 +2,6 @@
   "assemblies": [
     "packages/generator/Xamarin.Forms/lib/netstandard2.0/Xamarin.Forms.Core.dll",
     "Fabulous.XamarinForms/src/Fabulous.XamarinForms.Core/bin/Release/netstandard2.0/Fabulous.XamarinForms.Core.dll",
-    
     "packages/generator/Plugin.MediaManager/lib/netstandard2.0/MediaManager.dll",
     "packages/generator/Plugin.MediaManager.Forms/lib/netstandard2.0/MediaManager.Forms.dll"
   ],

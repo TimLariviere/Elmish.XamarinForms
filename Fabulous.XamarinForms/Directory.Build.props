@@ -1,7 +1,3 @@
 <Project>
-  <Import Project="../Directory.Build.props" />
-  <!-- NuGet Specs -->
-  <PropertyGroup>
-    <PackageTags>Xamarin.Forms;Fabulous;$(PackageTags)</PackageTags>
-  </PropertyGroup>
+  <Import Project="../eng/Directory.Build.props" />
 </Project>

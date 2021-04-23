@@ -2,7 +2,6 @@
   "assemblies": [
     "packages/generator/Xamarin.Forms/lib/netstandard2.0/Xamarin.Forms.Core.dll",
     "Fabulous.XamarinForms/src/Fabulous.XamarinForms.Core/bin/Release/netstandard2.0/Fabulous.XamarinForms.Core.dll",
-    
     "packages/generator/Xamarin.FFImageLoading/lib/netstandard1.0/FFImageLoading.dll",
     "packages/generator/Xamarin.FFImageLoading/lib/netstandard1.0/FFImageLoading.Platform.dll",
     "packages/generator/Xamarin.FFImageLoading.Forms/lib/netstandard1.0/FFImageLoading.Forms.dll"

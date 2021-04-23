@@ -11,8 +11,10 @@ paket-files
 
 \.ionide/
 build_output/
+test_output/
 .idea/
 testapp*/
+*.exe
 
 Fabulous\.XamarinForms/tests/FSharpDaemon\.Driver\.Tests/data/
 Fabulous\.XamarinForms/samples/CounterApp/CounterApp/CounterApp\.args\.txt
