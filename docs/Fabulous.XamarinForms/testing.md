@@ -28,7 +28,7 @@ let init () =
 ```
 
 Here we can make sure that the default state stays exact throughout the life of the project.  
-So using our favorite unit test framework (here we use [FsUnit](https://fsprojects.github.io/FsUnit/) for this example), we can write a test that will check if the value returned by `init` is the one we expect.
+So using our favorite unit test framework (here we use [FsUnit](https://timothelariviere.com/FsUnit/) for this example), we can write a test that will check if the value returned by `init` is the one we expect.
 
 ```fsharp
 [<Test>]
@@ -87,7 +87,7 @@ let ``Given the message Reset, Update should reset the state``() =
 Testing `Cmd<'msg>` can be hard, because there's no way of knowing what the functions inside `Cmd` really are before executing them.
 
 The recommended way is to apply the `CmdMsg` pattern.  
-See [Replacing commands with command messages for better testability](https://fsprojects.github.io/Fabulous/Fabulous.XamarinForms/update.html#replacing-commands-with-command-messages-for-better-testability)
+See [Replacing commands with command messages for better testability](https://timothelariviere.com/Fabulous/Fabulous.XamarinForms/update.html#replacing-commands-with-command-messages-for-better-testability)
 
 ### Testing view
 

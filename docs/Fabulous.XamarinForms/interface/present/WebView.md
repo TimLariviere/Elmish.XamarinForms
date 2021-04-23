@@ -17,7 +17,7 @@ View.ContentPage(
     content = 
         View.WebView
             (                        
-                source = UrlWebViewSource.op_Implicit "https://fsprojects.github.io/Fabulous/Fabulous.XamarinForms/"
+                source = UrlWebViewSource.op_Implicit "https://timothelariviere.com/Fabulous/Fabulous.XamarinForms/"
             )
 )
 ```
@@ -37,7 +37,7 @@ View.ContentPage(
             (
                 backgroundColor = style.ViewColor,
                 margin = style.Thickness,                                
-                source = UrlWebViewSource.op_Implicit "https://fsprojects.github.io/Fabulous/Fabulous.XamarinForms/"
+                source = UrlWebViewSource.op_Implicit "https://timothelariviere.com/Fabulous/Fabulous.XamarinForms/"
             )
 )
 ```
@@ -59,7 +59,7 @@ See also:
 `WebView` is a view for displaying web and HTML content in your app:
 
 ```fsharp 
-let fabulousSite = "https://fsprojects.github.io/Fabulous/Fabulous.XamarinForms/"
+let fabulousSite = "https://timothelariviere.com/Fabulous/Fabulous.XamarinForms/"
 View.WebView( 
     source = UrlWebViewSource.op_Implicit fabulousSite, 
     backgroundColor = Color.Red,

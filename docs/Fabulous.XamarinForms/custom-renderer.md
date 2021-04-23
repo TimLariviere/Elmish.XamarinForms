@@ -47,7 +47,7 @@ type BorderedEntry() =
             this.SetValue(borderColorProperty, value)
 ```
 
-Along with this control, we create the wrapper (like defined in the [View Extensions documentation](https://fsprojects.github.io/Fabulous/Fabulous.XamarinForms/views-extending.html)) so we can use it in our Fabulous application:
+Along with this control, we create the wrapper (like defined in the [View Extensions documentation](https://timothelariviere.com/Fabulous/Fabulous.XamarinForms/views-extending.html)) so we can use it in our Fabulous application:
 ```fs
 [<AutoOpen>]
 module FabulousBorderedEntry =
