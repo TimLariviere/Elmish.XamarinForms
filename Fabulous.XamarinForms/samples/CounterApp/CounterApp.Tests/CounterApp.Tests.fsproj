@@ -16,5 +16,5 @@
   <ItemGroup>
     <ProjectReference Include="..\CounterApp\CounterApp.fsproj" />
   </ItemGroup>
-  <Import Project="..\..\..\..\Packages.targets" />
+  <Import Project="..\..\..\..\eng\Packages.targets" />
 </Project>

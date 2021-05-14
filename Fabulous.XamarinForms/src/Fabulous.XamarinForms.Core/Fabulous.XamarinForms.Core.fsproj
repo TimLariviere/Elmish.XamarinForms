@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\..\SourceLink.props" />
+  <Import Project="..\..\..\eng\SourceLink.props" />
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <IsPackable>false</IsPackable>
@@ -9,12 +9,12 @@
     <Compile Include="CustomControls.fs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Fabulous\Fabulous.fsproj" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="FSharp.Core" />
     <PackageReference Include="System.Buffers" />
     <PackageReference Include="Xamarin.Forms" />
   </ItemGroup>
-  <Import Project="..\..\..\Packages.targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Fabulous\src\Fabulous\Fabulous.fsproj" />
+  </ItemGroup>
+  <Import Project="..\..\..\eng\Packages.targets" />
 </Project>

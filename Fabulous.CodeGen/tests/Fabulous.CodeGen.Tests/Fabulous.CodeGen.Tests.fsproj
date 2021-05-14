@@ -1,9 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <OutputType>Library</OutputType>
     <IsPackable>false</IsPackable>
-    <DefineConstants>$(DefineConstants);NETSTANDARD2_0;TEST</DefineConstants>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
   <ItemGroup>
@@ -20,5 +19,5 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Fabulous.CodeGen\Fabulous.CodeGen.fsproj" />
   </ItemGroup>
-  <Import Project="..\..\..\Packages.targets" />
+  <Import Project="..\..\..\eng\Packages.targets" />
 </Project>

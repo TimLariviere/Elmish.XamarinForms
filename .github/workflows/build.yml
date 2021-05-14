@@ -1,0 +1,176 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+  release:
+    types:
+      - published
+
+env:
+  DOTNET_SDK: 5.0.202
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+  NUGET_FEED: https://api.nuget.org/v3/index.json
+  NUGET_KEY: ${{ secrets.NUGET_KEY }}
+
+  GITHUB_FEED: https://nuget.pkg.github.com/fsprojects/
+  GITHUB_USER: TimLariviere
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install .NET SDK ${{ env.DOTNET_SDK }}
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_SDK }}
+      - name: Install Dotnet Tools
+        run: dotnet tool restore --add-source ${{ env.NUGET_FEED }}
+      - name: Run build
+        run: ./build.sh
+      - name: Upload packages
+        uses: actions/upload-artifact@v2
+        with:
+          name: packages
+          path: build_output/
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1.16
+        with:
+          files: test_output/**/*.xml
+
+  samples:
+    needs: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install .NET SDK ${{ env.DOTNET_SDK }}
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_SDK }}
+      - name: Install Dotnet Tools
+        run: dotnet tool restore --add-source ${{ env.NUGET_FEED }}
+
+      - if: matrix.os == 'windows-latest'
+        name: Install build dependencies (Windows)
+        run: choco install gtksharp
+
+      - if: matrix.os == 'ubuntu-latest'
+        name: Install build dependencies (Linux)
+        run: |
+          sudo apt-get update
+          sudo apt-get install fsharp gtk-sharp2
+
+      - if: matrix.os == 'macos-latest'
+        name: Setup Xamarin
+        uses: maxim-lobanov/setup-xamarin@v1
+        with:
+          xamarin-ios-version: '14.14'
+          xcode-version: '12.4'
+
+      - if: matrix.os == 'windows-latest'
+        name: Test samples (Windows)
+        run: .\build.cmd test-samples
+      
+      - if: matrix.os != 'windows-latest'
+        name: Test samples (macOS & Linux)
+        run: ./build.sh test-samples
+
+      - if: matrix.os == 'ubuntu-latest'
+        name: Publish Unit Test Results (Linux)
+        uses: EnricoMi/publish-unit-test-result-action@v1.16
+        with:
+          files: test_output/**/*.xml
+
+      - if: matrix.os != 'ubuntu-latest'
+        name: Publish Unit Test Results (Linux)
+        uses: EnricoMi/publish-unit-test-result-action/composite@v1.16
+        with:
+          files: test_output/**/*.xml
+
+  templates:
+    needs: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install .NET SDK ${{ env.DOTNET_SDK }}
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_SDK }}
+      - name: Install Dotnet Tools
+        run: dotnet tool restore --add-source ${{ env.NUGET_FEED }}
+      - if: matrix.os == 'windows-latest'
+        name: Install build dependencies (Windows)
+        run: choco install gtksharp
+      - if: matrix.os == 'ubuntu-latest'
+        name: Install build dependencies (Linux)
+        run: |
+          sudo apt-get update
+          sudo apt-get install fsharp gtk-sharp2
+      - if: matrix.os == 'macos-latest'
+        name: Setup Xamarin
+        uses: maxim-lobanov/setup-xamarin@v1
+        with:
+          xamarin-ios-version: '14.14'
+          xcode-version: '12.4'
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: packages
+          path: build_output/
+      - if: matrix.os == 'windows-latest'
+        name: Test templates
+        run: .\build.cmd test-templates
+      - if: matrix.os != 'windows-latest'
+        name: Test templates
+        run: ./build.sh test-templates
+
+  prerelease:
+    needs:
+      - samples
+      - templates
+    if: github.ref == 'refs/heads/main' && github.event_name != 'release'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: packages
+      - name: Push to GitHub Feed
+        run: dotnet nuget push **/*.nupkg -k $GITHUB_TOKEN -s $GITHUB_FEED --skip-duplicate
+
+  deploy:
+    needs:
+      - samples
+      - templates
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install .NET SDK ${{ env.DOTNET_SDK }}
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_SDK }}
+      - name: Create Release NuGet package
+        run: |
+          arrTag=(${GITHUB_REF//\// })
+          VERSION="${arrTag[2]}"
+          echo Version: $VERSION
+          VERSION="${VERSION//v}"
+          echo Clean Version: $VERSION
+          dotnet pack -v normal -c Release --include-symbols --include-source -p:PackageVersion=$VERSION -o nupkg src/$PROJECT_NAME/$PROJECT_NAME.*proj
+      - name: Push to GitHub Feed
+        run: dotnet nuget push **/*.nupkg -k $GITHUB_TOKEN -s $GITHUB_FEED --skip-duplicate
+      - name: Push to NuGet Feed
+        run: dotnet nuget push **/*.nupkg -k $NUGET_KEY -s $NUGET_FEED --skip-duplicate

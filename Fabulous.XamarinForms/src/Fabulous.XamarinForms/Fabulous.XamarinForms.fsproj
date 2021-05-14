@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\..\SourceLink.props" />
+  <Import Project="..\..\..\eng\SourceLink.props" />
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
@@ -27,7 +27,7 @@
     <PackageReference Include="Xamarin.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Fabulous\Fabulous.fsproj" />
+    <ProjectReference Include="..\..\..\Fabulous\src\Fabulous\Fabulous.fsproj" />
   </ItemGroup>
-  <Import Project="..\..\..\Packages.targets" />
+  <Import Project="..\..\..\eng\Packages.targets" />
 </Project>

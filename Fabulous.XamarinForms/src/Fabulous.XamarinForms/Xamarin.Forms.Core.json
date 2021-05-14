@@ -740,8 +740,7 @@
     },
     {
       "type": "Xamarin.Forms.FlyoutItem",
-      "properties": [
-      ],
+      "properties": [],
       "primaryConstructorMembers": [
         "Items"
       ]
@@ -1791,9 +1790,7 @@
       "name": "ItemsViewOfT",
       "genericConstraint": "'T when 'T :> Xamarin.Forms.BindableObject",
       "canBeInstantiated": false,
-      "properties": [
-
-      ]
+      "properties": []
     },
     {
       "type": "Xamarin.Forms.ListView",

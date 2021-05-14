@@ -63,7 +63,7 @@
     <Compile Include="MainActivity.fs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\src\Fabulous\Fabulous.fsproj">
+    <ProjectReference Include="..\..\..\..\Fabulous\src\Fabulous\Fabulous.fsproj">
       <Project>{07bd345b-2964-46be-87eb-1c009f5fd316}</Project>
       <Name>Fabulous</Name>
     </ProjectReference>

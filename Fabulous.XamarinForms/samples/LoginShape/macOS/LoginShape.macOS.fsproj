@@ -107,7 +107,7 @@
     <None Include="Info.plist" />
     <None Include="Entitlements.plist" />
     <Compile Include="AppDelegate.fs" />
-    <ProjectReference Include="..\..\..\..\src\Fabulous\Fabulous.fsproj">
+    <ProjectReference Include="..\..\..\..\Fabulous\src\Fabulous\Fabulous.fsproj">
       <Project>{07bd345b-2964-46be-87eb-1c009f5fd316}</Project>
       <Name>Fabulous</Name>
     </ProjectReference>
@@ -116,7 +116,7 @@
       <Name>Fabulous.XamarinForms</Name>
     </ProjectReference>
     <ProjectReference Include="..\LoginShape\LoginShape.fsproj">
-      <Project>{566B273F-79E4-4CE3-B312-5633602BE687}</Project>
+      <Project>{D190EBE6-F41A-417A-8A6C-C14B07060B0C}</Project>
       <Name>LoginShape</Name>
     </ProjectReference>
   </ItemGroup>

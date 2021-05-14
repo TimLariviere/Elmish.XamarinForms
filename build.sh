@@ -5,7 +5,7 @@ export DOTNET_ROLL_FORWARD=Major
 
 dotnet tool restore
 if [ $# -eq 0 ]; then
-    dotnet fake build
+    dotnet fake run eng/build.fsx
 else
-    dotnet fake run build.fsx -t $@
+    dotnet fake run eng/$@.fsx
 fi

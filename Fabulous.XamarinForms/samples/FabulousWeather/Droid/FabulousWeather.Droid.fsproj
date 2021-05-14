@@ -70,7 +70,7 @@
       <Project>{cf47f218-12c5-4026-b1f1-bd534d0a3fa6}</Project>
       <Name>Fabulous.LiveUpdate</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\src\Fabulous\Fabulous.fsproj">
+    <ProjectReference Include="..\..\..\..\Fabulous\src\Fabulous\Fabulous.fsproj">
       <Project>{07bd345b-2964-46be-87eb-1c009f5fd316}</Project>
       <Name>Fabulous</Name>
     </ProjectReference>

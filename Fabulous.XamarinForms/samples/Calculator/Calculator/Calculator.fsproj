@@ -13,5 +13,5 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Fabulous.XamarinForms\Fabulous.XamarinForms.fsproj" />
   </ItemGroup>
-  <Import Project="..\..\..\..\Packages.targets" />
+  <Import Project="..\..\..\..\eng\Packages.targets" />
 </Project>

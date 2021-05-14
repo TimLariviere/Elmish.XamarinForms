@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\..\SourceLink.props" />
+  <Import Project="..\..\..\eng\SourceLink.props" />
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
   <PropertyGroup>
     <Description>Code generator for wrapping existing controls to be able to use them in Fabulous-based frameworks</Description>
@@ -30,5 +30,5 @@
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="Microsoft.FSharpLu.Json" />
   </ItemGroup>
-  <Import Project="..\..\..\Packages.targets" />
+  <Import Project="..\..\..\eng\Packages.targets" />
 </Project>
